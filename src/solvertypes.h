@@ -63,6 +63,9 @@ inline std::string restart_type_to_string(const Restart type)
         case Restart::glue_geom:
             return "switch-glue-geom";
 
+        case Restart::fixed:
+            return "fixed";
+
         case Restart::never:
             return "never restart";
     }
@@ -83,6 +86,9 @@ inline std::string restart_type_to_short_string(const Restart type)
 
         case Restart::luby:
             return "luby";
+
+        case Restart::fixed:
+            return "fixed";
 
         case Restart::glue_geom:
             return "gl/geo";

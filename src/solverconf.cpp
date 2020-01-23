@@ -73,6 +73,8 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , blocking_restart_trail_hist_length(5000)
         , blocking_restart_multip(1.4)
         , broken_glue_restart(true)
+        , fixed_restart_num_confl(1000)
+
         , local_glue_multiplier(0.80)
         , shortTermHistorySize (50)
         , lower_bound_for_blocking_restart(10000)

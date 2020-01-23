@@ -65,6 +65,7 @@ enum class Restart {
     , geom
     , glue_geom
     , luby
+    , fixed
     , never
 };
 
@@ -197,11 +198,12 @@ class DLL_PUBLIC SolverConf
         unsigned blocking_restart_trail_hist_length;
         double   blocking_restart_multip;
         int      broken_glue_restart;
-
-        double   local_glue_multiplier;
+        int      fixed_restart_num_confl;
+        double   local_glue_multiplier; //how much more glue-based restarts relative to geom
         unsigned  shortTermHistorySize; ///< Rolling avg. glue window size
         unsigned lower_bound_for_blocking_restart;
-        double   ratio_glue_geom; //higher the number, the more glue will be done. 2 is 2x glue 1x geom
+        double   ratio_glue_geom; //higher the number, the more glue-based restart will be done. 2 is 2x glue 1x geom
+
         int more_more_with_cache;
         int more_more_with_stamp;
         int doAlwaysFMinim;

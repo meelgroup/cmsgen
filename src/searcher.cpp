@@ -1366,6 +1366,7 @@ void Searcher::check_need_restart()
     }
     if ((params.rest_type == Restart::geom ||
         params.rest_type == Restart::luby ||
+        params.rest_type == Restart::fixed ||
         (conf.broken_glue_restart && conf.restartType == Restart::glue_geom))
         && (int64_t)params.conflictsDoneThisRestart > max_confl_this_phase
     ) {
@@ -2327,6 +2328,10 @@ lbool Searcher::solve(
         if (conf.restartType == Restart::glue) {
             params.rest_type = Restart::glue;
         }
+        if (conf.restartType == Restart::fixed) {
+            params.rest_type = Restart::fixed;
+            max_confl_this_phase = conf.fixed_restart_num_confl;
+        }
     } else {
         max_confl_this_phase = conf.restart_first;
         params.rest_type = Restart::luby;
@@ -2423,6 +2428,11 @@ void Searcher::adjust_phases_restarts()
             assert(params.rest_type == Restart::geom);
             max_confl_phase *= conf.restart_inc;
             max_confl_this_phase = max_confl_phase;
+            break;
+
+        case Restart::fixed:
+            assert(params.rest_type == Restart::fixed);
+            max_confl_this_phase = conf.fixed_restart_num_confl;
             break;
 
         case Restart::luby:

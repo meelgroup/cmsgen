@@ -372,6 +372,8 @@ void Main::add_supported_options()
         , "Should glue restart be broken as before 8e74cb5010bb4")
     ("ratiogluegeom", po::value(&conf.ratio_glue_geom)->default_value(conf.ratio_glue_geom)
         , "Ratio of glue vs geometric restarts -- more is more glue")
+    ("fixedconfl", po::value(&conf.fixed_restart_num_confl)->default_value(conf.fixed_restart_num_confl)
+        , "In case fixed restart strategy is used, how many conflicts should elapse between restarts")
     ;
 
     std::ostringstream s_incclean;
@@ -1042,6 +1044,8 @@ void Main::parse_restart_type()
             conf.restartType = Restart::luby;
         else if (type == "glue")
             conf.restartType = Restart::glue;
+        else if (type == "fixed")
+            conf.restartType = Restart::fixed;
         else throw WrongParam("restart", "unknown restart type");
     }
 }
