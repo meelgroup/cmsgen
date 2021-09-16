@@ -29,8 +29,27 @@ jobs:
          # Used to pull python distributions from actions/python-versions. Since there's a default, this is typically not supplied by the user.
          token: # optional, default is ${{ github.token }}
 
-    #- name: boost and python3
-    #  run: sudo apt-get update && sudo apt-get install -yq libboost-dev libboost-program-options-dev help2man python3-pip python3-setuptools
+    - name: Build Boost
+      # You may pin to the exact commit or the version.
+      # uses: egor-tensin/build-boost@bfb61b9fccc827f0c502fc400f6f63cc74f2d79a
+      uses: egor-tensin/build-boost@v1
+      with:
+        # Version to build
+        version: 
+        # Space-separated list of libraries
+        libraries: 
+        # Toolset to use
+        toolset: # optional, default is auto
+        # Target platform
+        platform: # optional, default is x64
+        # Configuration to build
+        configuration: # optional, default is Release
+        # Build static libraries
+        static: # optional, default is 0
+        # Link to the static runtime
+        static-runtime: # optional, default is 0
+        # Destination directory
+        directory: # optional
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
