@@ -43,6 +43,7 @@ jobs:
     
     - name: test
       run: |
+          dir /b /s /a:-D ${{ steps.boost.outputs.root }}
           dir ${{ steps.boost.outputs.librarydir }}
           dir ${{ steps.boost.outputs.root }}
     
