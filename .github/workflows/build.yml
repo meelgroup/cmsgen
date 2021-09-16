@@ -34,9 +34,9 @@ jobs:
         # Configuration to build
         configuration: Release
         # Build static libraries
-        static: ${{ matrix.staticcompile == 'ON'}}
+        static: ${{ matrix.staticcompile }}
         # Link to the static runtime
-        static-runtime: ${{ matrix.staticcompile == 'ON'}}
+        static-runtime: ${{ matrix.staticcompile }}
         # Destination directory
         #directory: # optional
     
