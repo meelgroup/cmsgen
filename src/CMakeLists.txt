@@ -41,7 +41,6 @@ if (NOT WIN32)
     add_cxx_flag_if_supported("-Wno-unused-but-set-variable")
     endif()
 endif()
-add_sanitize_flags()
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})

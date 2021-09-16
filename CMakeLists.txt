@@ -104,10 +104,6 @@ if (STATICCOMPILE)
     set(Boost_USE_STATIC_LIBS ON)
 endif()
 
-macro(add_sanitize_option flagname)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flagname}" )
-endmacro()
-
 include(CheckCXXCompilerFlag)
 macro(add_cxx_flag_if_supported flagname)
   check_cxx_compiler_flag("${flagname}" HAVE_FLAG_${flagname})
@@ -431,11 +427,6 @@ endforeach()
 message(STATUS "All defines at startup: ${COMPILE_DEFINES}")
 
 add_subdirectory(src src-cmsgen)
-if(EXISTS "${PROJECT_SOURCE_DIR}/utils/drat-trim/drat-trim.c")
-    add_subdirectory(${PROJECT_SOURCE_DIR}/utils/drat-trim utils/drat-trim)
-else()
-    message(STATUS "GIT Subprojects not initialized, not building drat-trim")
-endif()
 
 # -----------------------------------------------------------------------------
 # Add uninstall target for makefiles
