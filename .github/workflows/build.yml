@@ -19,35 +19,35 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: Setup Python
-      uses: actions/setup-python@v2.2.2
-      with:
-         # Version range or exact version of a Python version to use, using SemVer's version range syntax.
-         python-version: # optional, default is 3.x
-         # The target architecture (x86, x64) of the Python interpreter.
-         architecture: # optional
-         # Used to pull python distributions from actions/python-versions. Since there's a default, this is typically not supplied by the user.
-         token: # optional, default is ${{ github.token }}
-
     - name: Build Boost
       # You may pin to the exact commit or the version.
       # uses: egor-tensin/build-boost@bfb61b9fccc827f0c502fc400f6f63cc74f2d79a
       uses: egor-tensin/build-boost@v1
       with:
         # Version to build
-        version: 1.73.0
+        version: 1.74.0
         # Space-separated list of libraries
         libraries: program_options
         # Target platform
-        #platform: # optional, default is x64
+        platform: auto
         # Configuration to build
-        #configuration: # optional, default is Release
+        configuration: Release
         # Build static libraries
         static: ${{ matrix.staticcompile == 'ON'}}
         # Link to the static runtime
         static-runtime: ${{ matrix.staticcompile == 'ON'}}
         # Destination directory
         #directory: # optional
+    
+    - name: Setup Python
+      uses: actions/setup-python@v2.2.2
+      # with:
+         # Version range or exact version of a Python version to use, using SemVer's version range syntax.
+         # python-version: # optional, default is 3.x
+         # The target architecture (x86, x64) of the Python interpreter.
+         # architecture: # optional
+         # Used to pull python distributions from actions/python-versions. Since there's a default, this is typically not supplied by the user.
+         # token: # optional, default is ${{ github.token }}
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
