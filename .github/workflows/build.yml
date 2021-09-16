@@ -42,7 +42,7 @@ jobs:
         #directory: # optional
     
     - name: test
-      if: matrix.os == windows-latest
+      if: matrix.os == "windows-latest"
       run: |
           dir ${{ steps.boost.outputs.librarydir }}
           dir ${{ steps.boost.outputs.root }}
