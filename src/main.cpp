@@ -268,13 +268,16 @@ void Main::printResultFunc(
     , const lbool ret
 ) {
     assert(toFile);
-    if (ret == l_True && (printResult || toFile)) {
+    assert(ret == l_True || ret == l_False);
+    if (ret == l_True) {
         for (uint32_t var = 0; var < solver->nVars(); var++) {
             if (solver->get_model()[var] != l_Undef) {
                 *os << ((solver->get_model()[var] == l_True)? "" : "-") << var+1 << " ";
             }
         }
         *os << "0" << endl;
+    } else if (ret == l_False) {
+        cout << "WARNING: No samples generated, CNF is unsatisfiable" << endl;
     }
 }
 
