@@ -12,8 +12,8 @@ jobs:
 
     strategy:
       matrix:
-        # os: [ubuntu-18.04, ubuntu-20.04, windows-latest]
-        os: [windows-latest]
+        os: [ubuntu-18.04, ubuntu-20.04]
+        # os: [windows-latest]
         build_type: ['Release']
         staticcompile: [1, 0]
 
@@ -41,12 +41,10 @@ jobs:
         # Destination directory
         #directory: # optional
     
-    - name: test
-      run: |
-          cd ${{ steps.boost.outputs.root }}
-          dir /b /a /s
-          dir ${{ steps.boost.outputs.librarydir }}
-          dir ${{ steps.boost.outputs.root }}
+   # - name: test
+   #   run: |
+   #       dir ${{ steps.boost.outputs.librarydir }}
+   #       dir ${{ steps.boost.outputs.root }}
     
     - name: Setup Python
       uses: actions/setup-python@v2.2.2
