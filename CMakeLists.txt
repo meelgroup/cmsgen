@@ -22,6 +22,8 @@ cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 11)
 
+enable_language( CXX )
+
 include (GenerateExportHeader)
 include (GNUInstallDirs)
 
@@ -86,7 +88,7 @@ foreach (build_config ${build_types})
     endforeach()
 endforeach()
 
-PROJECT(cryptominisat5)
+PROJECT(cmsgen)
 
 # contains some library search cmake scripts
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
@@ -102,37 +104,9 @@ if (STATICCOMPILE)
     set(Boost_USE_STATIC_LIBS ON)
 endif()
 
-option(NOVALGRIND "Don't use valgrind" ON)
-option(ENABLE_PYTHON_INTERFACE "Enable Python interface" ON)
-option(EMSCRIPTEN "Generate only emscripten JS" OFF)
-if (EMSCRIPTEN)
-    set(ONLY_SIMPLE ON)
-    set(BUILD_SHARED_LIBS ON)
-    set(NOZLIB ON)
-    set(NOVALGRIND ON)
-    set(ENABLE_PYTHON_INTERFACE OFF)
-else()
-    set(THREADS_PREFER_PTHREAD_FLAG ON)
-    find_package (Threads REQUIRED)
-endif()
-
-option(FEEDBACKFUZZ "Use Clang coverage sanitizers" OFF)
-if (FEEDBACKFUZZ)
-    SET (CMAKE_CXX_COMPILER "clang++")
-    add_compile_options("-fsanitize=address")
-    add_compile_options("-fsanitize-coverage=edge,indirect-calls,8bit-counters")
-endif()
-
-option(LARGEMEM "Allow memory usage to grow to Terabyte values -- uses 64b offsets. Slower, but allows the solver to run for much longer." OFF)
-if (LARGEMEM)
-    add_definitions(-DLARGE_OFFSETS)
-endif()
-
 macro(add_sanitize_option flagname)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flagname}" )
 endmacro()
-
-option(SANITIZE "Use Clang sanitizers. You MUST use clang++ as the compiler for this to work" OFF)
 
 include(CheckCXXCompilerFlag)
 macro(add_cxx_flag_if_supported flagname)
@@ -151,41 +125,6 @@ macro(add_c_flag_if_supported flagname)
     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${flagname}" )
   endif()
 endmacro()
-
-macro(add_sanitize_flags)
-if (SANITIZE)
-    MESSAGE(WARNING "Using clang sanitizers -- you MUST use clang++ or the compile WILL fail")
-    add_sanitize_option("-fsanitize=address")
-    add_sanitize_option("-fsanitize=integer")
-    add_sanitize_option("-fsanitize=undefined")
-
-    add_sanitize_option("-fsanitize=null")
-    add_sanitize_option("-fsanitize=alignment")
-    #add_sanitize_option("-fno-sanitize-recover")
-
-    add_sanitize_option("-fsanitize=return")
-    add_sanitize_option("-fsanitize=bounds")
-    add_sanitize_option("-fsanitize=float-divide-by-zero")
-    add_sanitize_option("-fsanitize=integer-divide-by-zero")
-    add_sanitize_option("-fsanitize=unsigned-integer-overflow")
-    add_sanitize_option("-fsanitize=signed-integer-overflow")
-    add_sanitize_option("-fsanitize=bool")
-    add_sanitize_option("-fsanitize=enum")
-    add_sanitize_option("-fsanitize=float-cast-overflow")
-
-    #add_sanitize_option("-Weverything")
-    #add_sanitize_option("-Wshorten-64-to-32")
-    #add_sanitize_option("-Wweak-vtables")
-    #add_sanitize_option("-Wsign-conversion")
-    #add_sanitize_option("-Wconversion")
-endif()
-endmacro()
-
-option(USE_GAUSS "Build with every-level GAUSS enabled" OFF)
-if (USE_GAUSS)
-    add_definitions(-DUSE_GAUSS)
-    message(STATUS "Building with GAUSS enabled at every level")
-endif()
 
 option(ENABLE_ASSERTIONS "Build with assertions enabled" ON)
 message(STATUS "build type is ${CMAKE_BUILD_TYPE}")
@@ -291,8 +230,6 @@ else()
     set(DEF_INSTALL_CMAKE_DIR CMake)
 endif()
 
-option(ENABLE_TESTING "Enable testing" OFF)
-option(COVERAGE "Build with coverage check" OFF)
 if (STATICCOMPILE)
     set(ENABLE_TESTING OFF)
 endif()
@@ -345,13 +282,6 @@ if (COVERAGE)
 endif()
 
 
-option(IPASIR "Also build IPASIR" OFF)
-
-option(LIMITMEM "*Only used for testing*. Limit memory used by CMS through number of variables" OFF)
-if (LIMITMEM)
-    add_definitions(-DLIMITMEM)
-endif()
-
 # -----------------------------------------------------------------------------
 # Uncomment these for static compilation under Linux (messes up Valgrind)
 # -----------------------------------------------------------------------------
@@ -389,7 +319,7 @@ if ((${CMAKE_SYSTEM_NAME} MATCHES "Windows") AND (NOT BUILD_SHARED_LIBS))
 endif()
 
 if(NOT MSVC)
-  set(DEF_INSTALL_CMAKE_DIR lib/cmake/cryptominisat5)
+  set(DEF_INSTALL_CMAKE_DIR lib/cmake/cmsgen)
 endif()
 
 option(SLOW_DEBUG "Use more debug flags" OFF)
@@ -427,43 +357,7 @@ MESSAGE(STATUS "PROJECT_VERSION_MINOR: ${PROJECT_VERSION_MINOR}")
 MESSAGE(STATUS "PROJECT_VERSION_PATCH: ${PROJECT_VERSION_PATCH}")
 
 option(ONLY_SIMPLE "Only build very simplistic executable -- no Boost needed" OFF)
-if (NOT ONLY_SIMPLE)
-    find_package( Boost 1.46 COMPONENTS program_options)
-endif()
-
-option(FINAL_PREDICTOR "Use final predictor" OFF)
-option(FINAL_PREDICTOR_BRANCH "Use final predictor" OFF)
-if (FINAL_PREDICTOR)
-    add_definitions( -DFINAL_PREDICTOR )
-endif()
-if (FINAL_PREDICTOR_BRANCH)
-    add_definitions( -DFINAL_PREDICTOR_BRANCH )
-endif()
-
-if (NOT NOSQLITE)
-    find_package (Sqlite3)
-    IF (SQLITE3_FOUND)
-        MESSAGE(STATUS "OK, Found Sqlite3!")
-        include_directories(${SQLITE3_INCLUDE_DIR})
-        add_definitions( -DUSE_SQLITE3 )
-        set(USING_SQLITE ON)
-    else ()
-        MESSAGE(STATUS "WARNING: Did not find Sqlite3, Sqlite3 support will be disabled")
-    endif ()
-endif()
-
-option(STATS "Don't use statistics at all" OFF)
-if (STATS)
-    if (FINAL_PREDICTOR)
-        message(FATAL_ERROR "Cannot have stats and final predictor on both")
-    endif()
-    add_definitions( -DSTATS_NEEDED )
-    if (NOT SQLITE3_FOUND)
-        message(FATAL_ERROR "SQLite needed for STATS")
-    endif()
-ELSE ()
-    MESSAGE(STATUS "Not compiling detailed statistics. The system is faster without them")
-ENDIF ()
+find_package( Boost 1.46 COMPONENTS program_options)
 
 # ----------
 # manpage
@@ -474,43 +368,21 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND MANPAGE)
     if (HELP2MAN_FOUND)
 
         set(mandir ${CMAKE_INSTALL_PREFIX}/share/man/man1)
-        # INSTALL(CODE "FILE(MAKE_DIRECTORY ${mandir})")
-
-
-        if (NOT ONLY_SIMPLE)
-            ADD_CUSTOM_TARGET(man_cms5
-                ALL
-                DEPENDS cryptominisat5-bin
-            )
-
-            ADD_CUSTOM_COMMAND(
-                TARGET man_cms5
-                COMMAND help2man
-                ARGS --version-string=${CMS_FULL_VERSION} --help-option="--hhelp" --include ${PROJECT_SOURCE_DIR}/manpage-extras \"$<TARGET_FILE:cryptominisat5-bin>\" -o "${CMAKE_CURRENT_BINARY_DIR}/cryptominisat5.1" --name="SAT solver"
-            )
-
-            INSTALL(
-                FILES ${CMAKE_CURRENT_BINARY_DIR}/cryptominisat5.1
-                DESTINATION ${mandir}
-            )
-
-        endif()
-        ADD_CUSTOM_TARGET(man_cms5_simple
+        ADD_CUSTOM_TARGET(man_cms5
             ALL
-            DEPENDS cryptominisat5_simple-bin
+            DEPENDS cmsgen-bin
         )
 
         ADD_CUSTOM_COMMAND(
-            TARGET man_cms5_simple
+            TARGET man_cms5
             COMMAND help2man
-            ARGS --version-string=${CMS_FULL_VERSION} --help-option="-h" --include ${PROJECT_SOURCE_DIR}/manpage-extras \"$<TARGET_FILE:cryptominisat5_simple-bin>\" -o "${CMAKE_CURRENT_BINARY_DIR}/cryptominisat5_simple.1" --name="SAT solver"
+            ARGS --version-string=${CMS_FULL_VERSION} --help-option="--help" --include ${PROJECT_SOURCE_DIR}/manpage-extras \"$<TARGET_FILE:cmsgen-bin>\" -o "${CMAKE_CURRENT_BINARY_DIR}/cmsgen.1" --name="SAT solver"
         )
 
         INSTALL(
-            FILES ${CMAKE_CURRENT_BINARY_DIR}/cryptominisat5_simple.1
+            FILES ${CMAKE_CURRENT_BINARY_DIR}/cmsgen.1
             DESTINATION ${mandir}
         )
-
         message(STATUS "Manpage will be created and installed")
     else()
         MESSAGE(STATUS "Cannot find help2man, not creating manpage")
@@ -537,17 +409,6 @@ if (NOT NOZLIB AND NOT ((NOT BUILD_SHARED_LIBS) AND WIN32))
     ENDIF (ZLIB_FOUND)
 endif()
 
-if (NOT NOVALGRIND)
-    find_package(Valgrind)
-    if (VALGRIND_FOUND )
-        message(STATUS "OK, Found Valgrind. Using valgrind client requests to mark freed clauses in pool as undefined")
-        add_definitions(-DUSE_VALGRIND)
-        include_directories(${VALGRIND_INCLUDE_DIR})
-    else()
-        message(STATUS "Cannot find valgrind or it's disabled, we will not be able to mark memory pool objects as undefined")
-    endif()
-endif()
-
 include(CheckFloatPrecision)
 check_float_precision()
 if (HAVE__FPU_SETCW)
@@ -555,182 +416,10 @@ if (HAVE__FPU_SETCW)
     message(STATUS "Found FPU code for yalsat: fpu_control.h, _FPU_SINGLE, _FPU_DOUBLE")
 endif()
 
-
-# -----------------------------------------------------------------------------
-# MIT option
-# -----------------------------------------------------------------------------
-option(REQUIRE_M4RI "Must use m4ri" OFF)
-option(NOM4RI "Don't use m4ri" OFF)
-option(NOBOSPHORUS "Don't use Bosphorus" ON)
-option(REQUIRE_BOSPHORUS "Must use Bosphorus" OFF)
-option(MIT "Build with only MIT licensed components" OFF)
-if (MIT)
-    set(NOM4RI ON)
-    set(NOBOSPHORUS ON)
-    if(REQUIRE_M4RI)
-        message(FATAL_ERROR "Cannot have both MIT and REQUIRE_M4RI at the same time")
-    endif()
-    if(REQUIRE_BOSPHORUS)
-        message(FATAL_ERROR "Cannot have both MIT and REQUIRE_BOSPHORUS at the same time")
-    endif()
-endif()
-
-# -----------------------------------------------------------------------------
-# Look for M4RI (for Gauss)
-# -----------------------------------------------------------------------------
-if (NOT NOM4RI)
-    find_package(M4RI)
-    IF (M4RI_FOUND)
-        MESSAGE(STATUS "OK, Found M4RI lib at ${M4RI_LIBRARIES} and includes at ${M4RI_INCLUDE_DIRS}")
-        add_definitions( -DUSE_M4RI )
-    ELSE (M4RI_FOUND)
-        MESSAGE(WARNING "Did not find M4RI, XOR detection&manipulation disabled")
-        if (REQUIRE_M4RI)
-            MESSAGE(FATAL_ERROR "REQUIRE_M4RI was set but M4RI was not found!")
-        endif()
-    ENDIF (M4RI_FOUND)
-endif()
-
-# -----------------------------------------------------------------------------
-# Look for Boshphorus
-# -----------------------------------------------------------------------------
-if (NOT NOBOSPHORUS)
-    find_package(bosphorus)
-    if (NOT BOSPHORUS_LIBRARIES)
-        if (REQUIRE_BOSPHORUS)
-            message(FATAL_ERROR "Bosphorus NOT found, but it was required with REQUIRE_BOSPHORUS")
-        else()
-            message(WARNING "Bosphorus NOT found")
-        endif()
-    else()
-        message(STATUS "Bosphorus -- found version ${BOSPHORUS_VERSION_MAJOR}.${BOSPHORUS_VERSION_MINOR}")
-        message(STATUS "Bosphorus -- libraries: ${BOSPHORUS_LIBRARIES}")
-        message(STATUS "Bosphorus -- include dirs: ${BOSPHORUS_INCLUDE_DIRS}")
-    endif()
-endif()
-
-# -----------------------------------------------------------------------------
-# Look for BreakID
-# -----------------------------------------------------------------------------
-find_package(breakid)
-if (NOT BREAKID_LIBRARIES)
-    message(WARNING "BreakID NOT found")
-else()
-    message(STATUS "BreakID -- found version ${BREAKID_VERSION_MAJOR}.${BREAKID_VERSION_MINOR}")
-    message(STATUS "BreakID -- libraries: ${BREAKID_LIBRARIES}")
-    message(STATUS "BreakID -- include dirs: ${BREAKID_INCLUDE_DIRS}")
-    add_definitions(-DUSE_BREAKID)
-endif()
-
-
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
-
-macro(cmsat_add_public_header LIBTARGET HEADER)
-    get_target_property(EXISTING_PUBLIC_HEADERS ${LIBTARGET} PUBLIC_HEADER)
-    if(EXISTING_PUBLIC_HEADERS)
-        list(APPEND EXISTING_PUBLIC_HEADERS "${HEADER}")
-    else()
-        # Do not append to empty list
-        set(EXISTING_PUBLIC_HEADERS "${HEADER}")
-    endif()
-    set_target_properties(
-        ${LIBTARGET}
-        PROPERTIES
-        PUBLIC_HEADER "${EXISTING_PUBLIC_HEADERS}"
-     )
-endmacro()
-
-# -----------------------------------------------------------------------------
-# Look for python
-# -----------------------------------------------------------------------------
-if (STATICCOMPILE)
-    set(ENABLE_PYTHON_INTERFACE OFF)
-endif()
-
-option(FORCE_PYTHON2 OFF)
-option(FORCE_PYTHON3 OFF)
-
-if (FORCE_PYTHON3 AND FORCE_PYTHON2)
-    message(FATAL_ERROR "Cannot force both Python2 and Python3. Wrong options given.")
-endif()
-
-message(STATUS "In case your Python interpreter is not found, or a wrong one is found, please set it with '-DPYTHON_EXECUTABLE:FILEPATH=your path here'")
-if (NOT FORCE_PYTHON2)
-    find_package(PythonInterp 3)
-    find_package(PythonLibs 3)
-    if (PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND AND PYTHON_INCLUDE_DIRS)
-        message(STATUS "Python 3 -- PYTHON_EXECUTABLE=${PYTHON_EXECUTABLE}")
-        message(STATUS "Python 3 -- PYTHON_LIBRARIES=${PYTHON_LIBRARIES}")
-        message(STATUS "Python 3 -- PYTHON_INCLUDE_DIRS=${PYTHON_INCLUDE_DIRS}")
-        message(STATUS "Python 3 -- PYTHONLIBS_VERSION_STRING=${PYTHONLIBS_VERSION_STRING}")
-    endif()
-endif()
-
-if (NOT (PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND AND PYTHON_INCLUDE_DIRS) AND FORCE_PYTHON3)
-    message(FATAL_ERROR "Forced Python3 but did not find Python3")
-endif()
-
-if (NOT (PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND AND PYTHON_INCLUDE_DIRS) AND NOT FORCE_PYTHON3)
-    unset(PYTHONLIBS_FOUND CACHE)
-    unset(PYTHON_LIBRARIES CACHE)
-    unset(PYTHON_INCLUDE_PATH CACHE)
-    unset(PYTHON_INCLUDE_DIRS CACHE)
-    unset(PYTHON_DEBUG_LIBRARIES CACHE)
-    unset(PYTHONLIBS_VERSION_STRING CACHE)
-
-    unset(PYTHONINTERP_FOUND CACHE)
-    unset(PYTHON_EXECUTABLE CACHE)
-    unset(PYTHON_VERSION_STRING CACHE)
-
-    message(STATUS "Python 3 not fully found or Python 2 has been forced -- trying Python 2.7")
-    find_package(PythonInterp 2.7)
-    find_package(PythonLibs 2.7)
-
-    message(STATUS "Python 2.7 -- PYTHON_EXECUTABLE=${PYTHON_EXECUTABLE}")
-    message(STATUS "Python 2.7 -- PYTHON_LIBRARIES=${PYTHON_LIBRARIES}")
-    message(STATUS "Python 2.7 -- PYTHON_INCLUDE_DIRS=${PYTHON_INCLUDE_DIRS}")
-    message(STATUS "Python 2.7 -- PYTHONLIBS_VERSION_STRING=${PYTHONLIBS_VERSION_STRING}")
-endif()
-
-if (NOT (PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND AND PYTHON_INCLUDE_DIRS) AND FORCE_PYTHON2)
-    message(FATAL_ERROR "Forced Python2 but did not find Python2")
-endif()
-
-
-# -----------------------------------------------------------------------------
-# Look for rust
-# disabled -- not sure how Rust bindings should be built....
-# maybe just use Cargo and don't build the interface from CMake?
-# -----------------------------------------------------------------------------
-# find_package(rustc)
-# find_package(rustdoc)
-# find_package(cargo)
-# if (RUSTC_EXECUTABLE AND CARGO_EXECUTABLE AND RUSTDOC_EXECUTABLE)
-#     #set(BUILD_RUST_INTERFACE)
-#     message(STATUS "RUST -- RUSTC_EXECUTABLE=${RUSTC_EXECUTABLE}")
-#     message(STATUS "RUST -- CARGO_EXECUTABLE=${CARGO_EXECUTABLE}")
-#     message(STATUS "RUST -- RUSTDOC_EXECUTABLE=${RUSTDOC_EXECUTABLE}")
-#
-#     include(Rust)
-#     add_subdirectory(rust rustinterf)
-# endif()
-
-
-#command-line parsing executable needs boost program-options
-if(NOT Boost_FOUND)
-    set(ONLY_SIMPLE ON)
-    message(STATUS "Only building executable with few command-line options because the boost program_options library were not available")
-else()
-    message(STATUS "Boost -- found at library: ${Boost_LIBRARIES}")
-    message(STATUS "Boost -- adding '${Boost_LIBRARY_DIRS}' to link directories")
-    link_directories(${Boost_LIBRARY_DIRS})
-endif()
-
 # -----------------------------------------------------------------------------
 # Provide an export name to be used by targets that wish to export themselves.
 # -----------------------------------------------------------------------------
-set(CRYPTOMINISAT5_EXPORT_NAME "cryptominisat5Targets")
+set(CRYPTOMINISAT5_EXPORT_NAME "cmsgenTargets")
 
 #query definitions
 get_directory_property( DirDefs DIRECTORY ${CMAKE_SOURCE_DIR} COMPILE_DEFINITIONS )
@@ -741,7 +430,7 @@ foreach( d ${DirDefs} )
 endforeach()
 message(STATUS "All defines at startup: ${COMPILE_DEFINES}")
 
-add_subdirectory(src cmsat5-src)
+add_subdirectory(src src-cmsgen)
 if(EXISTS "${PROJECT_SOURCE_DIR}/utils/drat-trim/drat-trim.c")
     add_subdirectory(${PROJECT_SOURCE_DIR}/utils/drat-trim utils/drat-trim)
 else()
@@ -762,35 +451,6 @@ add_custom_target(uninstall
     DEPENDS uninstall_pycyrptosat
 )
 
-# -----------------------------------------------------------------------------
-# Testing
-# -----------------------------------------------------------------------------
-if (ENABLE_TESTING)
-    enable_testing()
-
-    #use valgrind
-    find_program(MEMORYCHECK_COMMAND valgrind)
-    if(MEMORYCHECK_COMMAND-NOTFOUND)
-      message(WARNING "Valgrind not found. Test will be run without valgrind.")
-    else()
-      message(STATUS "Valgrind found: ${MEMORYCHECK_COMMAND}. Running test using it.")
-      set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full")
-    endif()
-
-    # too unstable to add (depends on CPU)
-    #if (NOT STATS AND NOT SLOW_DEBUG)
-        #add_test (NAME library_speed_test COMMAND tests/library_speed_test)
-    #endif()
-
-    message(STATUS "Testing is enabled")
-    set(UNIT_TEST_EXE_SUFFIX "Tests" CACHE STRING "Suffix for Unit test executable")
-    add_subdirectory(tests)
-    add_subdirectory(scripts/fuzz)
-
-else()
-    message(WARNING "Testing is disabled")
-endif()
-
 if (ENABLE_PYTHON_INTERFACE)
     if (PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND AND PYTHON_INCLUDE_DIRS AND NOT COVERAGE)
         message(STATUS "Found python interpreter, libs and header files")
@@ -801,60 +461,3 @@ if (ENABLE_PYTHON_INTERFACE)
     endif()
 endif()
 
-# -----------------------------------------------------------------------------
-# Export our targets so that other CMake based projects can interface with
-# the build of cryptominisat5 in the build-tree
-# -----------------------------------------------------------------------------
-set(CRYPTOMINISAT5_TARGETS_FILENAME "cryptominisat5Targets.cmake")
-set(CRYPTOMINISAT5_CONFIG_FILENAME "cryptominisat5Config.cmake")
-set(CRYPTOMINISAT5_STATIC_DEPS
-    ${SQLITE3_LIBRARIES}
-)
-IF (M4RI_FOUND)
-    set(CRYPTOMINISAT5_STATIC_DEPS
-        ${CRYPTOMINISAT5_STATIC_DEPS} ${M4RI_LIBRARIES}
-        )
-endif()
-
-# Export targets
-set(MY_TARGETS cryptominisat5)
-if (IPASIR)
-    set(MY_TARGETS ${MY_TARGETS} ipasircryptominisat5)
-endif()
-export(
-    TARGETS ${MY_TARGETS}
-    FILE "${CMAKE_CURRENT_BINARY_DIR}/${CRYPTOMINISAT5_TARGETS_FILENAME}"
-)
-
-# Create cryptominisat5Config file
-set(EXPORT_TYPE "Build-tree")
-set(CONF_INCLUDE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/include")
-configure_file(cryptominisat5Config.cmake.in
-    "${CMAKE_CURRENT_BINARY_DIR}/${CRYPTOMINISAT5_CONFIG_FILENAME}" @ONLY
-)
-
-# Export this package to the CMake user package registry
-# Now the user can just use find_package(cryptominisat5) on their system
-export(PACKAGE cryptominisat5)
-
-set(DEF_INSTALL_CMAKE_DIR lib/cmake/cryptominisat5)
-set(CRYPTOMINISAT5_INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH
-    "Installation directory for cryptominisat5 CMake files")
-
-# Create cryptominisat5Config file
-set(EXPORT_TYPE "installed")
-set(CONF_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include")
-configure_file(cryptominisat5Config.cmake.in
-   "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/${CRYPTOMINISAT5_CONFIG_FILENAME}" @ONLY
-)
-
-install(FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/${CRYPTOMINISAT5_CONFIG_FILENAME}"
-    DESTINATION "${CRYPTOMINISAT5_INSTALL_CMAKE_DIR}"
-)
-
-# Install the export set for use with the install-tree
-install(
-    EXPORT ${CRYPTOMINISAT5_EXPORT_NAME}
-    DESTINATION "${CRYPTOMINISAT5_INSTALL_CMAKE_DIR}"
-)

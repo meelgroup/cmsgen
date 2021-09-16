@@ -23,7 +23,7 @@ THE SOFTWARE.
 #include "clausecleaner.h"
 #include "clauseallocator.h"
 #include "solver.h"
-#include "cryptominisat5/solvertypesmini.h"
+#include "cmsgen/solvertypesmini.h"
 
 using namespace CMSat;
 

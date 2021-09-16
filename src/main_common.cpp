@@ -78,17 +78,6 @@ void MainCommon::handle_drat_option()
         }
         conf.doCompHandler = false;
     }
-
-#ifdef USE_BREAKID
-    if (conf.doBreakid) {
-        if (conf.verbosity) {
-            cout
-            << "c BreakID is not supported with DRAT, turning it off"
-            << endl;
-        }
-        conf.doBreakid = false;
-    }
-#endif
 }
 
 uint32_t MainCommon::print_model(CMSat::SATSolver* solver, std::ostream* os)

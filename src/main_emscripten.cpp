@@ -32,7 +32,7 @@ using std::endl;
 #include "main_common.h"
 
 #include "solverconf.h"
-#include "cryptominisat5/cryptominisat.h"
+#include "cmsgen/cryptominisat.h"
 #include "dimacsparser.h"
 #include "streambuffer.h"
 

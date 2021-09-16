@@ -21,7 +21,7 @@ THE SOFTWARE.
 ***********************************************/
 
 #include "constants.h"
-#include "cryptominisat5/cryptominisat.h"
+#include "cmsgen/cryptominisat.h"
 #include "solver.h"
 #include "drat.h"
 #include "shareddata.h"
@@ -940,30 +940,14 @@ DLL_PUBLIC const char* SATSolver::get_compilation_env()
 std::string SATSolver::get_text_version_info()
 {
     std::stringstream ss;
-    ss << "c CryptoMiniSat version " << get_version() << endl;
-    ss << "c CMS Copyright Mate Soos (soos.mate@gmail.com)" << endl;
-    ss << "c CMS SHA revision " << get_version_sha1() << endl;
-    #ifdef USE_M4RI
-    ss << "c CMS is GPL licensed due to M4RI being linked. Build without M4RI to get MIT version" << endl;
-    #else
-    ss << "c CMS is MIT licensed" << endl;
-    #endif
-    ss << "c Using Yalsat by Armin Biere, see Balint et al. Improving implementation of SLS solvers [...], SAT'14" << endl;
-    ss << "c Using WalkSAT by Henry Kautz, see Kautz and Selman Pushing the envelope: planning, propositional logic, and stochastic search, AAAI'96," << endl;
-    #ifdef USE_BREAKID
-    ss << "c Using BreakID by Devriendt, Bogaerts, Bruynooghe and Denecker" << endl;
-    ss << "c Using Bliss graph automorphism library (under LGPL) by Tommi Junttila" << endl;
-    #endif
-
-    #ifdef USE_GAUSS
-    ss << "c Using code from 'When Boolean Satisfiability Meets Gauss-E. in a Simplex Way'" << endl;
-    ss << "c       by C.-S. Han and J.-H. Roland Jiang in CAV 2012. Fixes by M. Soos" << endl;
-    #endif
-    ss << "c CMS compilation env " << get_compilation_env() << endl;
+    ss << "c CMSGen Copyright Mate Soos (soos.mate@gmail.com)" << endl;
+    ss << "c CMSGen SHA revision " << get_version_sha1() << endl;
+    ss << "c CMSGen is MIT licensed" << endl;
+    ss << "c CMSGen compilation env " << get_compilation_env() << endl;
     #ifdef __GNUC__
-    ss << "c CMS compiled with gcc version " << __VERSION__ << endl;
+    ss << "c CMSGen compiled with gcc version " << __VERSION__ << endl;
     #else
-    ss << "c CMS compiled with non-gcc compiler" << endl;
+    ss << "c CMSGen compiled with non-gcc compiler" << endl;
     #endif
 
     return ss.str();

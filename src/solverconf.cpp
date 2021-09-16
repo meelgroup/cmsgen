@@ -32,7 +32,7 @@ DLL_PUBLIC SolverConf::SolverConf() :
         var_inc_vsids_start(1)
         , var_decay_vsids_start(0.8) // 1/0.8 = 1.2 -- large is better for frequent restarts
         , var_decay_vsids_max(0.95) // 1/0.95 = 1.05 -- smaller is better for hard instances
-        , random_var_freq(0)
+        , random_var_freq(0.9999)
         , polarity_mode(PolarityMode::polarmode_automatic)
 
         //Clause cleaning
@@ -62,7 +62,7 @@ DLL_PUBLIC SolverConf::SolverConf() :
         //test conducted: out-drat-check-8359337.wlm01-1-drat0
 
         //maple
-        , maple(true)
+        , maple(false)
         , modulo_maple_iter(3)
 
         //Restarting
@@ -73,7 +73,7 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , blocking_restart_trail_hist_length(5000)
         , blocking_restart_multip(1.4)
         , broken_glue_restart(true)
-        , fixed_restart_num_confl(1000)
+        , fixed_restart_num_confl(100)
 
         , local_glue_multiplier(0.80)
         , shortTermHistorySize (50)
@@ -151,7 +151,7 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , ternary_max_create(0.5)
 
         //BreakID
-        , doBreakid(true)
+        , doBreakid(false)
         , breakid_use_assump(true)
         , breakid_every_n(1)
         , breakid_vars_limit_K(300)
@@ -223,7 +223,7 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , simplify_at_every_startup(false)
         , do_simplify_problem(true)
         , full_simplify_at_startup(false)
-        , never_stop_search(false)
+        , never_stop_search(true)
         , num_conflicts_of_search(50ULL*1000ULL)
         , num_conflicts_of_search_inc(1.4)
         , num_conflicts_of_search_inc_max(10)
@@ -287,7 +287,7 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , subsume_gothrough_multip(2.0)
 
         //WalkSAT
-        , doSLS(true)
+        , doSLS(false)
         , sls_every_n(4)
         , yalsat_max_mems(150)
         , sls_memoutMB(500)

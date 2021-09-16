@@ -30,7 +30,7 @@ THE SOFTWARE.
 
 #include "main_common.h"
 #include "solverconf.h"
-#include "cryptominisat5/cryptominisat.h"
+#include "cmsgen/cryptominisat.h"
 
 using std::string;
 using std::vector;
@@ -67,8 +67,6 @@ class Main: public MainCommon
         void manually_parse_some_options();
         void parse_restart_type();
         void parse_polarity_type();
-        void dump_decisions_for_model();
-        void check_num_threads_sanity(const unsigned thread_num) const;
 
         po::positional_options_description p;
         po::options_description all_options;
@@ -100,16 +98,13 @@ class Main: public MainCommon
         void printVersionInfo();
         int correctReturnValue(const lbool ret) const;
         lbool multi_solutions();
-        void dump_red_file();
-        void ban_found_solution();
 
         //Config
-        std::string resultFilename;
+        std::string resultFilename = "samples.out";
         std::string debugLib;
         int printResult = true;
         string commandLine;
-        uint32_t max_nr_of_solutions = 1;
-        bool dont_ban_solutions = false;
+        uint32_t max_nr_of_solutions = 100;
         int sql = 0;
         string sqlite_filename;
         string decisions_for_model_fname;

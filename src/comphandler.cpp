@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include <iostream>
 #include <cassert>
 #include <iomanip>
-#include "cryptominisat5/cryptominisat.h"
+#include "cmsgen/cryptominisat.h"
 #include "sqlstats.h"
 
 using namespace CMSat;

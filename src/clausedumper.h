@@ -26,7 +26,7 @@ THE SOFTWARE.
 #include <fstream>
 #include <vector>
 #include <limits>
-#include "cryptominisat5/solvertypesmini.h"
+#include "cmsgen/solvertypesmini.h"
 #include "cloffset.h"
 
 using std::vector;

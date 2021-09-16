@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 #include <string.h>
 #include "streambuffer.h"
-#include "cryptominisat5/cryptominisat.h"
+#include "cmsgen/cryptominisat.h"
 #include <cstdlib>
 #include <cmath>
 
