@@ -42,12 +42,10 @@ jobs:
         #platform: # optional, default is x64
         # Configuration to build
         #configuration: # optional, default is Release
-        if ${{ matrix.staticcompile == 'ON'}}; then
-          # Build static libraries
-          static: 1
-          # Link to the static runtime
-          static-runtime: 1
-        fi
+        # Build static libraries
+        static: ${{ matrix.staticcompile == 'ON'}}
+        # Link to the static runtime
+        static-runtime: ${{ matrix.staticcompile == 'ON'}}
         # Destination directory
         #directory: # optional
 
