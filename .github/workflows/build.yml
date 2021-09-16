@@ -35,21 +35,21 @@ jobs:
       uses: egor-tensin/build-boost@v1
       with:
         # Version to build
-        version: 
+        version: 1.73.0
         # Space-separated list of libraries
-        libraries: 
-        # Toolset to use
-        toolset: # optional, default is auto
+        libraries: program_options
         # Target platform
-        platform: # optional, default is x64
+        #platform: # optional, default is x64
         # Configuration to build
-        configuration: # optional, default is Release
-        # Build static libraries
-        static: # optional, default is 0
-        # Link to the static runtime
-        static-runtime: # optional, default is 0
+        #configuration: # optional, default is Release
+        if ${{ matrix.staticcompile == 'ON'}}; then
+          # Build static libraries
+          static: 1
+          # Link to the static runtime
+          static-runtime: 1
+        fi
         # Destination directory
-        directory: # optional
+        #directory: # optional
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
