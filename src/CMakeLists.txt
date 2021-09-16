@@ -45,10 +45,8 @@ endif()
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-if(Boost_FOUND)
-    include_directories(${Boost_INCLUDE_DIRS})
-    link_directories(${Boost_LIBRARY_DIRS})
-endif()
+include_directories(${Boost_INCLUDE_DIRS})
+link_directories(Boost_LIBRARY_DIRS)
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/GitSHA1.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/GitSHA1.cpp" @ONLY)
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cryptominisat.h.in" "${CMAKE_CURRENT_BINARY_DIR}/cmsgen/cryptominisat.h" @ONLY)
