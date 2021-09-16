@@ -358,6 +358,10 @@ MESSAGE(STATUS "Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
 MESSAGE(STATUS "BOOST_LIBRARYDIR  : ${BOOST_LIBRARYDIR}")
 link_directories(Boost_LIBRARY_DIRS)
 
+if(MSVC)
+    add_definitions(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
+endif()
+
 # ----------
 # manpage
 # ----------
