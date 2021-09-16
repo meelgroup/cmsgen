@@ -41,6 +41,12 @@ jobs:
         # Destination directory
         #directory: # optional
     
+    - name: test
+      if: matrix.os == windows-latest
+      run: |
+          dir ${{ steps.boost.outputs.librarydir }}
+          dir ${{ steps.boost.outputs.root }}
+    
     - name: Setup Python
       uses: actions/setup-python@v2.2.2
       # with:
