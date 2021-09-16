@@ -353,7 +353,7 @@ MESSAGE(STATUS "PROJECT_VERSION_MINOR: ${PROJECT_VERSION_MINOR}")
 MESSAGE(STATUS "PROJECT_VERSION_PATCH: ${PROJECT_VERSION_PATCH}")
 
 option(ONLY_SIMPLE "Only build very simplistic executable -- no Boost needed" OFF)
-find_package( Boost 1.46 COMPONENTS program_options)
+find_package( Boost 1.46 REQUIRED COMPONENTS program_options)
 
 # ----------
 # manpage
