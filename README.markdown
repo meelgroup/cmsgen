@@ -87,3 +87,13 @@ C:\cms\build> cmake --build --config Release .
 ```
 
 You now have the static binary under `C:\cms\build\Release\cryptominisat5.exe`
+
+
+CryptoMiniSat vs CMSGen
+-----
+CMSGen is a version of CryptoMiniSat that's made simpler to work with for researchers. But it is possible to get a version of CryptoMiniSat, build it, and run it with a specific command line set to achieve the _same exact behaviour_ as per the paper published. To do this:
+
+* Clone this repository
+* Execute: `git checkout 028357ee4b29a1da36e4d0929cc44138e5ae36e9`
+* Execute: `./cryptominisat5 --maxsol $1  --nobansol --restart fixed --maple 0 --verb 0 --scc 1 -n 1  --presimp 0 --polar rnd --freq 0.9999 --fixedconfl  $2 --random $3 --dumpresult $4 [CNFFILE]` where `--random` is the seed and `--maxsol` is the number of samples.
+
