@@ -4,7 +4,7 @@
 CMSGen uniform-like sampler
 ===========================================
 
-This system provides CMSGen, a uniform-like sampler.
+This system provides CMSGen, a fast uniform-like sampler.
 
 When citing, always reference our [FMCAD'21 paper](https://TODO), bibtex record is [here](https://TODO).
 
