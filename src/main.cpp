@@ -558,6 +558,9 @@ int Main::solve()
     //printResultFunc(&cout, false, ret);
     assert(resultfile);
     printResultFunc(resultfile, true, ret);
+    if (ret == l_True) {
+        cout << "c Finished generating all " << max_nr_of_solutions << " samples" << endl;
+    }
 
     return correctReturnValue(ret);
 }
