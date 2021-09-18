@@ -4,9 +4,7 @@
 CMSGen a fast uniform-like sampler
 ===========================================
 
-This system provides CMSGen, a fast uniform-like sampler.
-
-When citing, always reference our [FMCAD'21 paper](https://TODO), bibtex record is [here](https://TODO).
+This system provides CMSGen, a fast uniform-like sampler. While we give no guarntees that the sampling is uniform, it is currently the best non-guaranteed uniform sampler as per our testing with [Barbarik](https://github.com/meelgroup/barbarik). In case you need guaranteed uniform sampling, please check out [UniGen](https://github.com/meelgroup/unigen). When citing CMSGen, always reference our [FMCAD'21 paper](https://meelgroup.github.io/files/publications/fmcad21_shakuni.pdf).
 
 Command-line usage
 -----
