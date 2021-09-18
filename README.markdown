@@ -4,7 +4,7 @@
 CMSGen a fast uniform-like sampler
 ===========================================
 
-This system provides CMSGen, a fast uniform-like sampler. While we give no guarntees that the sampling is uniform, it is currently the best non-guaranteed uniform sampler as per our testing with [Barbarik](https://github.com/meelgroup/barbarik). In case you need guaranteed uniform sampling, please check out [UniGen](https://github.com/meelgroup/unigen). When citing CMSGen, always reference our [FMCAD'21 paper](https://meelgroup.github.io/files/publications/fmcad21_shakuni.pdf).
+This system provides CMSGen, a fast uniform-like sampler. While we give no guarntees that the sampling is uniform, it is currently the best non-guaranteed uniform sampler as per our testing with [Barbarik](https://github.com/meelgroup/barbarik). In case you need guaranteed uniform sampling, please check out [UniGen](https://github.com/meelgroup/unigen). When citing CMSGen, always reference our [FMCAD'21 paper](https://meelgroup.github.io/files/publications/fmcad21_shakuni.pdf) (bibtex [here](https://meelgroup.github.io/publication/fmcad21/cite.bib)).
 
 Command-line usage
 -----
@@ -93,5 +93,6 @@ CMSGen is a version of CryptoMiniSat that's made simpler to work with for resear
 
 * Clone this repository
 * Execute: `git checkout 028357ee4b29a1da36e4d0929cc44138e5ae36e9`
-* Execute: `./cryptominisat5 --maxsol $1  --nobansol --restart fixed --maple 0 --verb 0 --scc 1 -n 1  --presimp 0 --polar rnd --freq 0.9999 --fixedconfl  $2 --random $3 --dumpresult $4 [CNFFILE]` where `--random` is the seed and `--maxsol` is the number of samples.
+* Build as per above
+* Execute: `./cryptominisat5 --maxsol $1  --nobansol --restart fixed --maple 0 --verb 0 --scc 1 -n 1  --presimp 0 --polar rnd --freq 0.9999 --fixedconfl  $2 --random $3 --dumpresult $4 [CNFFILE]`, where `--random` is the seed and `--maxsol` is the number of samples.
 
