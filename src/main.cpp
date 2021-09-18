@@ -479,22 +479,11 @@ void Main::manually_parse_some_options()
 
     parse_polarity_type();
 
-    //Conflict
-    if (vm.count("maxdump") && redDumpFname.empty()) {
-        throw WrongParam("maxdump", "--dumpred <filename> must be activated if issuing --maxdump <size>");
-    }
-
     parse_restart_type();
 
     assert(conf.preprocess == 0);
     if (vm.count("input")) {
         filesToRead = vm["input"].as<vector<string> >();
-
-        if (!vm.count("sqlitedb")) {
-            sqlite_filename = filesToRead[0] + ".sqlite";
-        } else {
-            sqlite_filename = vm["sqlitedb"].as<string>();
-        }
         fileNamePresent = true;
     } else {
         fileNamePresent = false;
@@ -592,7 +581,7 @@ lbool Main::multi_solutions()
                 printResultFunc(resultfile, true, ret);
             }
 
-            if (conf.verbosity && current_nr_of_solutions % 10 == 0) {
+            if (current_nr_of_solutions % 10 == 0) {
                 cout
                 << "c Number of samples found until now: "
                 << std::setw(6) << current_nr_of_solutions
