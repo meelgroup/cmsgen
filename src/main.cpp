@@ -532,6 +532,7 @@ void Main::parseCommandLine()
 
 int Main::solve()
 {
+    double myTime = cpuTime();
     solver = new SATSolver((void*)&conf);
     solverToInterrupt = solver;
     if (dratf) {
@@ -561,6 +562,7 @@ int Main::solve()
     if (ret == l_True) {
         cout << "c Finished generating all " << max_nr_of_solutions << " samples" << endl;
     }
+    cout << "c Total time: " << (cpuTime()-myTime) << endl;
 
     return correctReturnValue(ret);
 }
