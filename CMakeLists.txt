@@ -226,16 +226,12 @@ else()
     set(DEF_INSTALL_CMAKE_DIR CMake)
 endif()
 
-if (STATICCOMPILE)
-    set(ENABLE_TESTING OFF)
-endif()
-
 if (COVERAGE AND BUILD_SHARED_LIBS)
     MESSAGE(FATAL_ERROR "Coverage can only be computed on static compilation")
 endif()
 
 if (NOT WIN32)
-    if(NOT ENABLE_TESTING AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND NOT COVERAGE)
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND NOT COVERAGE)
         #add_cxx_flag_if_supported("-fvisibility=hidden")
     endif()
     add_compile_options("-fPIC")
