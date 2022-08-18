@@ -11,7 +11,7 @@ Command-line usage
 Let's take a DIMACS CNF file `input.cnf`. To get 50 uniform-like samples, run:
 
 ```
-./cmsgen input.cnf --samplesfile mysamples.out --samples 50
+./cmsgen input.cnf --samplefile mysamples.out --samples 50
  Writing samples to file: mysamples.out
 ```
 
@@ -24,8 +24,8 @@ To build and install, issue:
 sudo apt-get install build-essential cmake
 # not required but very useful
 sudo apt-get install zlib1g-dev libboost-program-options-dev help2man
-tar xzvf cryptominisat-version.tar.gz
-cd cryptominisat-version
+git clone https://github.com/msoos/cryptominisat
+cd cryptominisat
 mkdir build && cd build
 cmake ..
 make
