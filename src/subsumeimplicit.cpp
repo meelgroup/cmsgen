@@ -145,7 +145,6 @@ void SubsumeImplicit::subsume_implicit(const bool check_stats, std::string calle
 
     const double time_used = cpuTime() - myTime;
     const bool time_out = (timeAvailable <= 0);
-    const double time_remain = float_div(timeAvailable, orig_timeAvailable);
     runStats.numCalled++;
     runStats.time_used += time_used;
     runStats.time_out += time_out;

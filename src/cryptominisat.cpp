@@ -912,10 +912,6 @@ DLL_PUBLIC void SATSolver::set_single_run()
         exit(-1);
     }
     data->promised_single_call = true;
-
-    for (size_t i = 0; i < data->solvers.size(); ++i) {
-        Solver& s = *data->solvers[i];
-    }
 }
 
 DLL_PUBLIC void SATSolver::set_var_weight(Lit lit, double weight)

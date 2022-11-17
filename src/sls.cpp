@@ -22,7 +22,6 @@ THE SOFTWARE.
 
 #include "sls.h"
 #include "solver.h"
-#include "yalsat.h"
 #include "walksat.h"
 
 using namespace CMSat;
@@ -36,13 +35,11 @@ SLS::~SLS()
 
 lbool SLS::run()
 {
-    if (solver->conf.which_sls == "yalsat") {
-        return run_yalsat();
-    } else if (solver->conf.which_sls == "walksat") {
+    if (solver->conf.which_sls == "walksat") {
         return run_walksat();
     } else {
         cout << "ERROR: SLS configuration '" << solver->conf.which_sls
-        << "' does not exist. Only 'walksat' and 'yalsat' are acceptable."
+        << "' does not exist. Only 'walksat' is acceptable."
         << endl;
         exit(-1);
     }
@@ -55,26 +52,6 @@ lbool SLS::run_walksat()
     double maxmem = solver->conf.sls_memoutMB*solver->conf.var_and_mem_out_mult;
     if (mem_needed_mb < maxmem) {
         lbool ret = walksat.main();
-        return ret;
-    };
-
-    if (solver->conf.verbosity) {
-        cout << "c [sls] would need "
-        << std::setprecision(2) << std::fixed << mem_needed_mb
-        << " MB but that's over limit of " << std::fixed << maxmem
-        << " MB -- skipping" << endl;
-    }
-
-    return l_Undef;
-}
-
-lbool SLS::run_yalsat()
-{
-    Yalsat yalsat(solver);
-    double mem_needed_mb = (double)approx_mem_needed()/(1000.0*1000.0);
-    double maxmem = solver->conf.sls_memoutMB*solver->conf.var_and_mem_out_mult;
-    if (mem_needed_mb < maxmem) {
-        lbool ret = yalsat.main();
         return ret;
     };
 

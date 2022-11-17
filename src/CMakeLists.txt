@@ -77,8 +77,6 @@ set(cryptoms_lib_files
     searchstats.cpp
     xorfinder.cpp
     cryptominisat_c.cpp
-    yalsat.cpp
-    yals.c
     walksat.cpp
     sls.cpp
     gaussian.cpp
