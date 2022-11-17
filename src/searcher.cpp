@@ -33,7 +33,6 @@ THE SOFTWARE.
 #include <cstddef>
 #include <cmath>
 #include <ratio>
-#include "sqlstats.h"
 #include "datasync.h"
 #include "reducedb.h"
 #include "watchalgos.h"
@@ -812,7 +811,6 @@ Clause* Searcher::analyze_conflict(
     const PropBy confl
     , uint32_t& out_btlevel
     , uint32_t& glue
-    , uint32_t& old_glue
 ) {
     //Set up environment
     #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
@@ -830,9 +828,6 @@ Clause* Searcher::analyze_conflict(
     print_debug_resolution_data(confl);
     Clause* last_resolved_cl = create_learnt_clause<update_bogoprops>(confl);
     stats.litsRedNonMin += learnt_clause.size();
-    #ifdef STATS_NEEDED
-    old_glue = calc_glue(learnt_clause);
-    #endif
     minimize_learnt_clause<update_bogoprops>();
     stats.litsRedFinal += learnt_clause.size();
 
@@ -957,12 +952,10 @@ bool Searcher::litRedundant(const Lit p, uint32_t abstract_levels)
 template Clause* Searcher::analyze_conflict<true>(const PropBy confl
     , uint32_t& out_btlevel
     , uint32_t& glue
-    , uint32_t& old_glue
 );
 template Clause* Searcher::analyze_conflict<false>(const PropBy confl
     , uint32_t& out_btlevel
     , uint32_t& glue
-    , uint32_t& old_glue
 );
 
 bool Searcher::subset(const vector<Lit>& A, const Clause& B)
@@ -1115,7 +1108,6 @@ lbool Searcher::search()
     check_no_duplicate_lits_anywhere();
     check_order_heap_sanity();
     #endif
-    const double myTime = cpuTime();
 
     //Stats reset & update
     stats.numRestarts++;
@@ -1157,7 +1149,6 @@ lbool Searcher::search()
             #endif
             hist.trailDepthHistLonger.push(trail.size());
             if (!handle_conflict<false>(confl)) {
-                dump_search_loop_stats(myTime);
                 return l_False;
             }
             check_need_restart();
@@ -1191,7 +1182,6 @@ lbool Searcher::search()
             reduce_db_if_needed();
             dec_ret = new_decision<false>();
             if (dec_ret != l_Undef) {
-                dump_search_loop_stats(myTime);
                 return dec_ret;
             }
         }
@@ -1208,20 +1198,7 @@ lbool Searcher::search()
     if (!solver->datasync->syncData()) {
         return l_False;
     }
-    dump_search_loop_stats(myTime);
-
     return l_Undef;
-}
-
-void Searcher::dump_search_sql(const double myTime)
-{
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed_min(
-            solver
-            , "search"
-            , cpuTime()-myTime
-        );
-    }
 }
 
 /**
@@ -1667,14 +1644,6 @@ void Searcher::set_clause_data(
 Clause* Searcher::handle_last_confl_otf_subsumption(
     Clause* cl
     , const uint32_t glue
-    , const uint32_t
-    #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-    old_glue
-    #endif
-    , const uint32_t
-    #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-    old_decision_level
-    #endif
     , bool decision_cl
 ) {
     #ifdef STATS_NEEDED
@@ -1848,7 +1817,6 @@ bool Searcher::handle_conflict(const PropBy confl)
         confl
         , backtrack_level  //return backtrack level here
         , glue             //return glue here
-        , old_glue         //return glue before minimization here
     );
     print_learnt_clause();
 
@@ -1888,8 +1856,6 @@ bool Searcher::handle_conflict(const PropBy confl)
     Clause* cl = handle_last_confl_otf_subsumption(
         subsumed_cl
         , glue
-        , old_glue
-        , old_decision_level
         , false //decision clause?
     );
     assert(learnt_clause.size() <= 2 || cl != NULL);
@@ -1913,8 +1879,6 @@ bool Searcher::handle_conflict(const PropBy confl)
         cl = handle_last_confl_otf_subsumption(
             NULL                   //orig cl to minimise
             , learnt_clause.size() //glue
-            , learnt_clause.size() //old_glue
-            , old_decision_level
             , true //decision clause?
         );
         attach_and_enqueue_learnt_clause<update_bogoprops>(cl, false);
@@ -2162,25 +2126,6 @@ void Searcher::rebuildOrderHeap()
         }
     }
     order_heap_vsids.build(vs);
-}
-
-inline void Searcher::dump_search_loop_stats(double myTime)
-{
-    #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-    check_calc_satzilla_features();
-    #endif
-
-    print_restart_header();
-    dump_search_sql(myTime);
-    if (conf.verbosity && conf.print_all_restarts)
-        print_restart_stat_line();
-    #ifdef STATS_NEEDED
-    if (sqlStats
-        && conf.dump_individual_restarts_and_clauses
-    ) {
-        dump_restart_sql(rst_dat_type::norm);
-    }
-    #endif
 }
 
 bool Searcher::must_abort(const lbool status) {
@@ -3170,13 +3115,6 @@ void Searcher::consolidate_watches(const bool full)
 
     std::stringstream ss;
     ss << "consolidate " << (full ? "full" : "mini") << " watches";
-    if (sqlStats) {
-        sqlStats->time_passed_min(
-            solver
-            , ss.str()
-            , time_used
-        );
-    }
 }
 
 //Normal running
@@ -3228,7 +3166,6 @@ void Searcher::cancelUntil(uint32_t level
             const uint32_t var = trail[sublevel].var();
             assert(value(var) != l_Undef);
 
-            double reward = 0;
             #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR_BRANCH)
             if (!update_bogoprops && varData[var].reason == PropBy()) {
                 //we want to dump & this was a decision var

@@ -50,7 +50,6 @@ THE SOFTWARE.
 #include "clauseallocator.h"
 #include "toplevelgaussabst.h"
 #include "subsumeimplicit.h"
-#include "sqlstats.h"
 #include "datasync.h"
 #include "xorfinder.h"
 #include "trim.h"
@@ -730,15 +729,6 @@ void OccSimplifier::eliminate_empty_resolvent_vars()
         << solver->conf.print_times(time_used, time_out)
         << endl;
     }
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed(
-            solver
-            , "empty resolvent"
-            , time_used
-            , time_out
-            , time_remain
-        );
-    }
 }
 
 bool OccSimplifier::can_eliminate_var(const uint32_t var) const
@@ -1195,15 +1185,6 @@ end:
         else
             runStats.print_extra_times();
     }
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed(
-            solver
-            , "bve"
-            , time_used
-            , time_out
-            , time_remain
-        );
-    }
 
     assert(limit_to_decrease == &norm_varelim_time_limit);
     bvestats.varElimTimeOut += time_out;
@@ -1233,13 +1214,6 @@ bool OccSimplifier::fill_occur_and_print_stats()
     sanityCheckElimedVars();
     const double linkInTime = cpuTime() - myTime;
     runStats.linkInTime += linkInTime;
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed_min(
-            solver
-            , "occur build"
-            , linkInTime
-        );
-    }
 
     //Print memory usage after occur link-in
     if (solver->conf.verbosity) {
@@ -1539,15 +1513,6 @@ bool OccSimplifier::ternary_res()
         << " res-bin: " << runStats.ternary_added_bin
         << solver->conf.print_times(time_used, time_out, time_remain)
         << endl;
-    }
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed(
-            solver
-            , "ternary res"
-            , time_used
-            , time_out
-            , time_remain
-        );
     }
     runStats.triresolveTime += time_used;
 
@@ -1945,13 +1910,6 @@ void OccSimplifier::finishUp(
     //Update global stats
     const double time_used = cpuTime() - myTime;
     runStats.finalCleanupTime += time_used;
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed_min(
-            solver
-            , "occur cleanup"
-            , time_used
-        );
-    }
     globalStats += runStats;
     sub_str->finishedRun();
 

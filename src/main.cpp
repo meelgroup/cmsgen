@@ -102,7 +102,6 @@ Main::Main(int _argc, char** _argv) :
 
 void Main::readInAFile(SATSolver* solver2, const string& filename)
 {
-    solver2->add_sql_tag("filename", filename);
     if (conf.verbosity) {
         cout << "c Reading file '" << filename << "'" << endl;
     }
@@ -235,7 +234,6 @@ void Main::parseInAllFiles(SATSolver* solver2)
         readInAFile(solver2, fname.c_str());
     }
 
-    solver->add_sql_tag("stdin", fileNamePresent ? "False" : "True");
     if (!fileNamePresent) {
         readInStandardInput(solver2);
     }
@@ -517,9 +515,6 @@ int Main::solve()
         solver->set_drat(dratf, clause_ID_needed);
     }
     solver->set_num_threads(num_threads);
-    if (sql != 0) {
-        solver->set_sqlite(sqlite_filename);
-    }
 
     //Print command line used to execute the solver: for options and inputs
     if (conf.verbosity) {

@@ -26,7 +26,6 @@ THE SOFTWARE.
 #include "solver.h"
 #include "watchalgos.h"
 #include "clauseallocator.h"
-#include "sqlstats.h"
 
 #include <iomanip>
 using namespace CMSat;
@@ -496,21 +495,6 @@ void DistillerLongWithImpl::dump_stats_for_shorten_all_cl_with_cache_stamp(
         cout << "c [distill-with-bin-ext]"
         << solver->conf.print_times(time_used, time_out, time_remain)
         << endl;
-    }
-    if (solver->sqlStats) {
-        std::stringstream ss;
-        ss << "shorten"
-        << (alsoStrengthen ? " and str" : "")
-        << (red ? " red" : " irred")
-        <<  " cls with cache and stamp"
-        ;
-        solver->sqlStats->time_passed(
-            solver
-            , ss.str()
-            , time_used
-            , time_out
-            , time_remain
-        );
     }
 }
 

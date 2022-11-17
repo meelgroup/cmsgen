@@ -685,14 +685,6 @@ DLL_PUBLIC void SATSolver::new_vars(const size_t n)
     data->vars_to_add += n;
 }
 
-DLL_PUBLIC void SATSolver::add_sql_tag(const std::string& name, const std::string& val)
-{
-    for(Solver* solver: data->solvers) {
-        solver->add_sql_tag(name, val);
-    }
-}
-
-
 DLL_PUBLIC const char* SATSolver::get_version_sha1()
 {
     return Solver::get_version_sha1();
@@ -776,11 +768,6 @@ DLL_PUBLIC std::vector<Lit> SATSolver::get_zero_assigned_lits() const
     return data->solvers[data->which_solved]->get_zero_assigned_lits();
 }
 
-DLL_PUBLIC unsigned long SATSolver::get_sql_id() const
-{
-    return 0;
-}
-
 DLL_PUBLIC bool SATSolver::okay() const
 {
     return data->okay;
@@ -826,18 +813,6 @@ SATSolver::get_recovered_xors(bool elongate) const
         ret.push_back(tmp);
     }
     return ret;
-}
-
-DLL_PUBLIC void SATSolver::set_sqlite(std::string filename)
-{
-    if (data->solvers.size() > 1) {
-        std::cerr
-        << "Multithreaded solving and SQL cannot be specified at the same time"
-        << endl;
-        exit(-1);
-    }
-    data->sql = 1;
-    data->solvers[0]->set_sqlite(filename);
 }
 
 DLL_PUBLIC uint64_t SATSolver::get_sum_conflicts()

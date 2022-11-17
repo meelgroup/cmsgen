@@ -57,7 +57,6 @@ THE SOFTWARE.
 #include "trim.h"
 #include "streambuffer.h"
 #include "gaussian.h"
-#include "sqlstats.h"
 #include "drat.h"
 #include "xorfinder.h"
 #include "sls.h"
@@ -79,8 +78,6 @@ using std::endl;
 Solver::Solver(const SolverConf *_conf, std::atomic<bool>* _must_interrupt_inter) :
     Searcher(_conf, this, _must_interrupt_inter)
 {
-    sqlStats = NULL;
-
     if (conf.doProbe) {
         prober = new Prober(this);
     }
@@ -101,7 +98,6 @@ Solver::Solver(const SolverConf *_conf, std::atomic<bool>* _must_interrupt_inter
     Searcher::solver = this;
     reduceDB = new ReduceDB(this);
 
-    set_up_sql_writer();
     next_lev1_reduce = conf.every_lev1_reduce;
     next_lev2_reduce =  conf.every_lev2_reduce;
     #if defined(FINAL_PREDICTOR) || defined(STATS_NEEDED)
@@ -113,7 +109,6 @@ Solver::Solver(const SolverConf *_conf, std::atomic<bool>* _must_interrupt_inter
 
 Solver::~Solver()
 {
-    delete sqlStats;
     delete prober;
     delete intree;
     delete occsimplifier;
@@ -125,26 +120,6 @@ Solver::~Solver()
     delete subsumeImplicit;
     delete datasync;
     delete reduceDB;
-}
-
-void Solver::set_sqlite(string
-    #ifdef USE_SQLITE3
-    filename
-    #endif
-) {
-    #ifdef USE_SQLITE3
-    sqlStats = new SQLiteStats(filename);
-    if (!sqlStats->setup(this)) {
-        exit(-1);
-    }
-    if (conf.verbosity >= 4) {
-        cout << "c Connected to SQLite server" << endl;
-    }
-    #else
-    std::cerr << "SQLite support was not compiled in, cannot use it. Exiting."
-    << endl;
-    std::exit(-1);
-    #endif
 }
 
 void Solver::set_shared_data(SharedData* shared_data)
@@ -851,13 +826,6 @@ bool Solver::clean_xor_clauses_from_duplicate_and_set_vars()
         << conf.print_times(time_used)
         << endl;
     }
-    if (sqlStats) {
-        sqlStats->time_passed_min(
-            solver
-            , "xor-clean"
-            , time_used
-        );
-    }
 
     return okay();
 }
@@ -929,13 +897,6 @@ bool Solver::renumber_variables(bool must_renumber)
         << "c [renumber]"
         << conf.print_times(time_used)
         << endl;
-    }
-    if (sqlStats) {
-        sqlStats->time_passed_min(
-            solver
-            , "renumber"
-            , time_used
-        );
     }
 
     if (conf.doSaveMem) {
@@ -1017,8 +978,6 @@ void Solver::new_var(const bool bva, const uint32_t orig_outer)
 void Solver::save_on_var_memory(const uint32_t newNumVars)
 {
     //print_mem_stats();
-
-    const double myTime = cpuTime();
     minNumVars = newNumVars;
     Searcher::save_on_var_memory();
 
@@ -1027,15 +986,6 @@ void Solver::save_on_var_memory(const uint32_t newNumVars)
         occsimplifier->save_on_var_memory();
     }
     datasync->save_on_var_memory();
-
-    const double time_used = cpuTime() - myTime;
-    if (sqlStats) {
-        sqlStats->time_passed_min(
-            this
-            , "save var mem"
-            , time_used
-        );
-    }
     //print_mem_stats();
 }
 
@@ -1212,7 +1162,6 @@ void Solver::extend_solution(const bool only_sampling_solution)
     }
     #endif
 
-    const double myTime = cpuTime();
     model = back_number_solution_from_inter_to_outer(model);
     if (conf.need_decisions_reaching) {
         map_inter_to_outer(decisions_reaching_model);
@@ -1252,27 +1201,6 @@ void Solver::extend_solution(const bool only_sampling_solution)
     }
 
     check_model_for_assumptions();
-    if (sqlStats) {
-        sqlStats->time_passed_min(
-            this
-            , "extend solution"
-            , cpuTime()-myTime
-        );
-    }
-}
-
-void Solver::set_up_sql_writer()
-{
-    if (!sqlStats) {
-        return;
-    }
-
-    bool ret = sqlStats->setup(this);
-    if (!ret) {
-        std::cerr
-        << "c ERROR: SQL was required (with option '--sql 2'), but couldn't connect to SQL server." << endl;
-        std::exit(-1);
-    }
 }
 
 void Solver::check_xor_cut_config_sanity() const
@@ -1451,9 +1379,6 @@ lbool Solver::solve_with_assumptions(
     }
 
     end:
-    if (sqlStats) {
-        sqlStats->finishup(status);
-    }
 
     handle_found_solution(status, only_sampling_solution);
     unfill_assumptions_set();
@@ -1462,119 +1387,6 @@ lbool Solver::solve_with_assumptions(
     conf.maxTime = std::numeric_limits<double>::max();
     drat->flush();
     return status;
-}
-
-void Solver::dump_memory_stats_to_sql()
-{
-    if (!sqlStats) {
-        return;
-    }
-
-    const double my_time = cpuTime();
-
-    sqlStats->mem_used(
-        this
-        , "solver"
-        , my_time
-        , mem_used()/(1024*1024)
-    );
-
-    sqlStats->mem_used(
-        this
-        , "vardata"
-        , my_time
-        , mem_used_vardata()/(1024*1024)
-    );
-
-    sqlStats->mem_used(
-        this
-        , "stamp"
-        , my_time
-        , Searcher::mem_used_stamp()/(1024*1024)
-    );
-
-    sqlStats->mem_used(
-        this
-        , "cache"
-        , my_time
-        , implCache.mem_used()/(1024*1024)
-    );
-
-    sqlStats->mem_used(
-        this
-        , "longclauses"
-        , my_time
-        , CNF::mem_used_longclauses()/(1024*1024)
-    );
-
-    sqlStats->mem_used(
-        this
-        , "watch-alloc"
-        , my_time
-        , watches.mem_used_alloc()/(1024*1024)
-    );
-
-    sqlStats->mem_used(
-        this
-        , "watch-array"
-        , my_time
-        , watches.mem_used_array()/(1024*1024)
-    );
-
-    sqlStats->mem_used(
-        this
-        , "renumber"
-        , my_time
-        , CNF::mem_used_renumberer()/(1024*1024)
-    );
-
-
-    if (occsimplifier) {
-        sqlStats->mem_used(
-            this
-            , "occsimplifier"
-            , my_time
-            , occsimplifier->mem_used()/(1024*1024)
-        );
-
-        sqlStats->mem_used(
-            this
-            , "xor"
-            , my_time
-            , occsimplifier->mem_used_xor()/(1024*1024)
-        );
-    }
-
-    sqlStats->mem_used(
-        this
-        , "varreplacer"
-        , my_time
-        , varReplacer->mem_used()/(1024*1024)
-    );
-
-    if (prober) {
-        sqlStats->mem_used(
-            this
-            , "prober"
-            , my_time
-            , prober->mem_used()/(1024*1024)
-        );
-    }
-
-    double vm_mem_used = 0;
-    const uint64_t rss_mem_used = memUsedTotal(vm_mem_used);
-    sqlStats->mem_used(
-        this
-        , "rss"
-        , my_time
-        , rss_mem_used/(1024*1024)
-    );
-    sqlStats->mem_used(
-        this
-        , "vm"
-        , my_time
-        , vm_mem_used/(1024*1024)
-    );
 }
 
 long Solver::calc_num_confl_to_do_this_iter(const size_t iteration_num) const
@@ -1607,7 +1419,6 @@ lbool Solver::iterate_until_solved()
         if (conf.verbosity && iteration_num >= 2) {
             print_clause_size_distrib();
         }
-        dump_memory_stats_to_sql();
 
         const long num_confl = calc_num_confl_to_do_this_iter(iteration_num);
         if (num_confl <= 0) {
@@ -1672,7 +1483,6 @@ void Solver::check_too_many_low_glues()
 
 void Solver::handle_found_solution(const lbool status, const bool only_sampling_solution)
 {
-    double mytime = cpuTime();
     if (status == l_True) {
         extend_solution(only_sampling_solution);
         cancelUntil(0);
@@ -1696,10 +1506,6 @@ void Solver::handle_found_solution(const lbool status, const bool only_sampling_
     #ifdef DEBUG_IMPLICIT_STATS
     check_implicit_stats();
     #endif
-
-    if (sqlStats) {
-        sqlStats->time_passed_min(this, "solution extend", cpuTime() - mytime);
-    }
 }
 
 lbool Solver::execute_inprocess_strategy(
@@ -2787,14 +2593,6 @@ void Solver::check_implicit_propagated() const
             }
         }
     }
-    const double time_used = cpuTime() - myTime;
-    if (sqlStats) {
-        sqlStats->time_passed_min(
-            this
-            , "check implicit propagated"
-            , time_used
-        );
-    }
 }
 
 size_t Solver::get_num_vars_elimed() const
@@ -3246,16 +3044,7 @@ void Solver::check_implicit_stats(const bool onlypairs) const
     assert(thisNumRedBins % 2 == 0);
     assert(thisNumRedBins/2 == binTri.redBins);
 
-    end:
-
-    const double time_used = cpuTime() - myTime;
-    if (sqlStats) {
-        sqlStats->time_passed_min(
-            this
-            , "check implicit stats"
-            , time_used
-        );
-    }
+    end:;
 }
 
 void Solver::check_stats(const bool allowFreed) const
@@ -3288,20 +3077,6 @@ void Solver::check_stats(const bool allowFreed) const
     assert(numLitsIrred == litStats.irredLits);
 
     const double time_used = cpuTime() - myTime;
-    if (sqlStats) {
-        sqlStats->time_passed_min(
-            this
-            , "check literal stats"
-            , time_used
-        );
-    }
-}
-
-void Solver::add_sql_tag(const string& name, const string& val)
-{
-    if (sqlStats) {
-        sqlStats->add_tag(std::make_pair(name, val));
-    }
 }
 
 vector<Lit> Solver::get_toplevel_units_internal(bool outer_numbering) const

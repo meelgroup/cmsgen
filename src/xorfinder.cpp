@@ -25,7 +25,6 @@ THE SOFTWARE.
 #include "solver.h"
 #include "occsimplifier.h"
 #include "clauseallocator.h"
-#include "sqlstats.h"
 
 #include <limits>
 //#define XOR_DEBUG
@@ -173,16 +172,6 @@ void XorFinder::find_xors()
         runStats.print_short(solver, time_remain);
     }
     globalStats += runStats;
-
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed(
-            solver
-            , "xor-find"
-            , cpuTime() - myTime
-            , time_out
-            , time_remain
-        );
-    }
 }
 
 void XorFinder::print_found_xors()
@@ -445,14 +434,6 @@ vector<Xor> XorFinder::remove_xors_without_connecting_vars(const vector<Xor>& th
         << solver->conf.print_times(time_used)
         << endl;
     }
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed_min(
-            solver
-            , "xor-rem-no-connecting-vars"
-            , time_used
-        );
-    }
-
     return ret;
 }
 
@@ -614,15 +595,6 @@ bool XorFinder::xor_together_xors(vector<Xor>& this_xors)
         << endl;
     }
 
-
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed_min(
-            solver
-            , "xor-xor-together"
-            , recur_time
-        );
-    }
-
     #if defined(SLOW_DEBUG) || defined(XOR_DEBUG)
     //Make sure none is 2.
     assert(toClear.empty());
@@ -753,15 +725,6 @@ bool XorFinder::add_new_truths_from_xors(vector<Xor>& this_xors, vector<Lit>* ou
         << " bin " << num_bins_added
         << solver->conf.print_times(add_time)
         << endl;
-    }
-
-
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed_min(
-            solver
-            , "xor-add-new-bin-unit"
-            , add_time
-        );
     }
 
     return solver->okay();

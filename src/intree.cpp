@@ -24,7 +24,6 @@ THE SOFTWARE.
 #include "solver.h"
 #include "varreplacer.h"
 #include "clausecleaner.h"
-#include "sqlstats.h"
 #include "watchalgos.h"
 
 #include <cmath>
@@ -193,16 +192,6 @@ bool InTree::intree_probe()
         << " trans-red::" << removedRedBin
         << solver->conf.print_times(time_used,  time_out, time_remain)
         << endl;
-    }
-
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed(
-            solver
-            , "intree"
-            , time_used
-            , time_out
-            , time_remain
-        );
     }
 
     solver->use_depth_trick = true;

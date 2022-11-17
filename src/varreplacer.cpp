@@ -26,7 +26,6 @@ THE SOFTWARE.
 #include "clausecleaner.h"
 #include "time_mem.h"
 #include "clauseallocator.h"
-#include "sqlstats.h"
 #include "sccfinder.h"
 
 #include <iostream>
@@ -282,13 +281,6 @@ end:
             runStats.print(solver->nVarsOuter());
         else
             runStats.print_short(solver);
-    }
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed_min(
-            solver
-            , "vrep"
-            , time_used
-        );
     }
 
     if (solver->okay()) {

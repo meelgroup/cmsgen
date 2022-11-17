@@ -29,7 +29,6 @@ THE SOFTWARE.
 #include "varreplacer.h"
 #include "time_mem.h"
 #include "solver.h"
-#include "sqlstats.h"
 
 using namespace CMSat;
 using std::cout;
@@ -207,14 +206,6 @@ void SCCFinder::Stats::print_short(Solver* solver) const
         cout << "  T: " << std::setprecision(2) << std::fixed << cpu_time;
     }
     cout << endl;
-
-    if (solver && solver->sqlStats) {
-        solver->sqlStats->time_passed_min(
-            solver
-            , "scc"
-            , cpu_time
-        );
-    }
 }
 
 size_t SCCFinder::mem_used() const

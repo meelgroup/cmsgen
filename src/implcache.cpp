@@ -29,7 +29,6 @@ THE SOFTWARE.
 #include "varreplacer.h"
 #include "varupdatehelper.h"
 #include "time_mem.h"
-#include "sqlstats.h"
 
 using namespace CMSat;
 using std::cout;
@@ -254,13 +253,6 @@ bool ImplCache::clean(Solver* solver, bool* setSomething)
         << solver->conf.print_times(time_used)
         << endl;
     }
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed_min(
-            solver
-            , "clean cache"
-            , time_used
-        );
-    }
 
     return solver->okay();
 }
@@ -376,14 +368,6 @@ end:
         runStats.print_short(solver);
     }
     globalStats += runStats;
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed_min(
-            solver
-            , "cache extractboth"
-            , time_used
-        );
-    }
-
     return solver->okay();
 }
 

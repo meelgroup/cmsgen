@@ -26,7 +26,6 @@ THE SOFTWARE.
 #include "solver.h"
 #include "watchalgos.h"
 #include "clauseallocator.h"
-#include "sqlstats.h"
 
 #include <iomanip>
 using namespace CMSat;
@@ -238,15 +237,6 @@ bool DistillerLong::distill_long_cls_all(
         << " lit-r:" << runStats.numLitsRem
         << solver->conf.print_times(time_used, time_out, time_remain)
         << endl;
-    }
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed(
-            solver
-            , "distill long cls"
-            , time_used
-            , time_out
-            , time_remain
-        );
     }
 
     //Update stats

@@ -34,7 +34,6 @@ THE SOFTWARE.
 #include "time_mem.h"
 #include "clausecleaner.h"
 #include "completedetachreattacher.h"
-#include "sqlstats.h"
 
 using namespace CMSat;
 using std::make_pair;
@@ -446,15 +445,6 @@ void Prober::update_and_print_stats(const double myTime, const uint64_t num_prop
         else
             runStats.print_short(solver, time_out, time_remain);
     }
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed(
-            solver
-            , "probe"
-            , time_used
-            , time_out
-            , time_remain
-        );
-    }
 }
 
 void Prober::clear_up_before_first_set()
@@ -757,13 +747,11 @@ bool Prober::propagate(Lit& failed)
         PropBy confl = solver->propagate<true>();
         if (!confl.isNULL()) {
             uint32_t  glue;
-            uint32_t  old_glue;
             uint32_t  backtrack_level;
             solver->analyze_conflict<true>(
                 confl
                 , backtrack_level  //return backtrack level here
                 , glue             //return glue here
-                , old_glue         //return unminimised glue here
             );
             if (solver->learnt_clause.empty()) {
                 solver->ok = false;

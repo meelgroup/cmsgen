@@ -77,13 +77,6 @@ namespace CMSat {
         void log_to_file(std::string filename);
 
         ////////////////////////////
-        // SQLite for statistics gathering
-        ////////////////////////////
-        void set_sqlite(std::string filename);
-        void add_sql_tag(const std::string& tagname, const std::string& tag);
-        unsigned long get_sql_id() const;
-
-        ////////////////////////////
         // Configuration
         // -- Note that nothing else can be changed, only these.
         // -- The main.cpp has access to the internal config, but it changes

@@ -35,7 +35,6 @@ THE SOFTWARE.
 #include "time_mem.h"
 #include "varupdatehelper.h"
 #include "watchalgos.h"
-#include "sqlstats.h"
 
 using namespace CMSat;
 using std::cout;

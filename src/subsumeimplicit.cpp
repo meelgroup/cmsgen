@@ -26,7 +26,6 @@ THE SOFTWARE.
 #include "solver.h"
 #include "watchalgos.h"
 #include "clauseallocator.h"
-#include "sqlstats.h"
 
 #include <cmath>
 #include <iomanip>
@@ -152,15 +151,6 @@ void SubsumeImplicit::subsume_implicit(const bool check_stats, std::string calle
     runStats.time_out += time_out;
     if (solver->conf.verbosity) {
         runStats.print_short(solver, caller.c_str());
-    }
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed(
-            solver
-            , std::string("subsume implicit")+caller
-            , time_used
-            , time_out
-            , time_remain
-        );
     }
 
     if (check_stats) {

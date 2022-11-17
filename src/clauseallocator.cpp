@@ -33,7 +33,6 @@ THE SOFTWARE.
 #include "solver.h"
 #include "searcher.h"
 #include "time_mem.h"
-#include "sqlstats.h"
 #ifdef USE_GAUSS
 #include "gaussian.h"
 #endif
@@ -388,13 +387,6 @@ void ClauseAllocator::consolidate(
         << " new bits offs: " << std::fixed << std::setprecision(2) << log_2_size;
         cout << solver->conf.print_times(time_used)
         << endl;
-    }
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed_min(
-            solver
-            , "consolidate"
-            , time_used
-        );
     }
 }
 

@@ -23,10 +23,6 @@ THE SOFTWARE.
 #include "reducedb.h"
 #include "solver.h"
 #include "solverconf.h"
-#include "sqlstats.h"
-#ifdef FINAL_PREDICTOR
-#include "all_predictors.h"
-#endif
 
 #include <functional>
 #include <cmath>
@@ -131,8 +127,6 @@ void ReduceDB::sort_red_cls(ClauseClean clean_type)
 //kept no. of clauses as other solvers do
 void ReduceDB::handle_lev2()
 {
-    solver->dump_memory_stats_to_sql();
-
     const double myTime = cpuTime();
     assert(solver->watches.get_smudged_list().empty());
 
@@ -173,16 +167,7 @@ void ReduceDB::handle_lev2()
         << solver->conf.print_times(cpuTime()-myTime)
         << endl;
     }
-
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed_min(
-            solver
-            , "dbclean-lev2"
-            , cpuTime()-myTime
-        );
-    }
     total_time += cpuTime()-myTime;
-
     last_reducedb_num_conflicts = solver->sumConflicts;
 }
 
@@ -323,14 +308,6 @@ void ReduceDB::handle_lev1()
         << " moved w0: " << moved_w0
         << solver->conf.print_times(cpuTime()-myTime)
         << endl;
-    }
-
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed_min(
-            solver
-            , "dbclean-lev1"
-            , cpuTime()-myTime
-        );
     }
     total_time += cpuTime()-myTime;
 }

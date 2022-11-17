@@ -25,7 +25,6 @@ THE SOFTWARE.
 #include "solver.h"
 #include "watchalgos.h"
 #include "clauseallocator.h"
-#include "sqlstats.h"
 #include "solver.h"
 #include "solvertypes.h"
 #include "subsumeimplicit.h"
@@ -275,15 +274,6 @@ void SubsumeStrengthen::backw_sub_long_with_long()
         << solver->conf.print_times(time_used, time_out, time_remain)
         << endl;
     }
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed(
-            solver
-            , "occ-sub-long-w-long"
-            , time_used
-            , time_out
-            , time_remain
-        );
-    }
 
     //Update time used
     runStats.subsumedBySub += subsumed;
@@ -340,15 +330,6 @@ bool SubsumeStrengthen::backw_str_long_with_long()
         << ") "
         << solver->conf.print_times(time_used, time_out, time_remain)
         << endl;
-    }
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed(
-            solver
-            , "occ-sub-str-long-w-long"
-            , time_used
-            , time_out
-            , time_remain
-        );
     }
 
     //Update time used
@@ -523,15 +504,6 @@ bool SubsumeStrengthen::handle_added_long_cl(
             << " 0-depth ass: " << solver->trail_size() - origTrailSize
             << solver->conf.print_times(time_used, time_out, time_remain)
             << endl;
-        }
-        if (solver->sqlStats) {
-            solver->sqlStats->time_passed(
-                solver
-                , "occ-sub-str-w-added-long"
-                , time_used
-                , time_out
-                , time_remain
-            );
         }
     }
 
@@ -999,16 +971,6 @@ bool SubsumeStrengthen::backw_sub_str_long_with_bins()
         << " 0-depth ass: " << solver->trail_size() - origTrailSize
         << solver->conf.print_times(time_used, time_out, time_remain)
         << endl;
-    }
-
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed(
-            solver
-            , "occ-backw-sub-str-long-w-bins"
-            , time_used
-            , time_out
-            , time_remain
-        );
     }
 
     //runStats.zeroDepthAssigns = solver->trail_size() - origTrailSize;

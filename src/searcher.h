@@ -79,7 +79,6 @@ class Searcher : public HyperEngine
         void finish_up_solve(lbool status);
         void reduce_db_if_needed();
         bool clean_clauses_if_needed();
-        void dump_search_loop_stats(double myTime);
         bool must_abort(lbool status);
         uint64_t luby_loop_num = 0;
         MTRand mtrand; ///< random number generator
@@ -133,7 +132,6 @@ class Searcher : public HyperEngine
         void cancelUntil(uint32_t level, uint32_t clid_plus = 0); ///<Backtrack until a certain level.
         bool check_order_heap_sanity() const;
 
-        SQLStats* sqlStats = NULL;
         void consolidate_watches(const bool full);
 
         //Gauss
@@ -179,10 +177,6 @@ class Searcher : public HyperEngine
             vector<Lit>& out_learnt,
             bool True_confl
         );
-
-        #ifdef STATS_NEEDED
-        void dump_restart_sql(rst_dat_type type);
-        #endif
 
     protected:
         void new_var(const bool bva, const uint32_t orig_outer) override;
@@ -257,8 +251,6 @@ class Searcher : public HyperEngine
         Clause* handle_last_confl_otf_subsumption(
             Clause* cl
             , const uint32_t glue
-            , const uint32_t old_glue
-            , const uint32_t old_decision_level
             , const bool decision_cl
         );
         template<bool update_bogoprops>
@@ -294,7 +286,6 @@ class Searcher : public HyperEngine
             PropBy confl //The conflict that we are investigating
             , uint32_t& out_btlevel  //backtrack level
             , uint32_t &glue         //glue of the learnt clause
-            , uint32_t &old_glue     //glue of the unminimised learnt clause
         );
         void update_clause_glue_from_analysis(Clause* cl);
         template<bool update_bogoprops>
@@ -412,29 +403,6 @@ class Searcher : public HyperEngine
             const ClauseStats& glue
             , const uint32_t backtrack_lev
         ) const;
-
-        //SQL
-        void dump_search_sql(const double myTime);
-        void set_clause_data(
-            Clause* cl
-            , const uint32_t glue
-            , const uint32_t old_glue
-            , const uint32_t old_decision_level);
-        #ifdef STATS_NEEDED
-        PropStats lastSQLPropStats;
-        SearchStats lastSQLGlobalStats;
-        void dump_sql_clause_data(
-            const uint32_t glue
-            , const uint32_t old_glue
-            , const uint32_t old_decision_level
-            , const uint64_t clid
-            , const bool decision_cl
-            , const bool ternary_resol_cl
-        );
-        int dump_this_many_cldata_in_stream = 0;
-        void sql_dump_last_in_solver();
-        #endif
-
 
         //Other
         void print_solution_type(const lbool status) const;

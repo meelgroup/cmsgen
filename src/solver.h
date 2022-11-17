@@ -79,8 +79,6 @@ class Solver : public Searcher
         Solver(const SolverConf *_conf = NULL, std::atomic<bool>* _must_interrupt_inter = NULL);
         ~Solver() override;
 
-        void add_sql_tag(const string& name, const string& val);
-        const vector<std::pair<string, string> >& get_sql_tags() const;
         void new_external_var();
         void new_external_vars(size_t n);
         bool add_clause_outer(const vector<Lit>& lits, bool red = false);
@@ -238,8 +236,6 @@ class Solver : public Searcher
         template<class T> vector<Lit> clause_outer_numbered(const T& cl) const;
         template<class T> vector<uint32_t> xor_outer_numbered(const T& cl) const;
         size_t mem_used() const;
-        void dump_memory_stats_to_sql();
-        void set_sqlite(string filename);
         //Not Private for testing (maybe could be called from outside)
         bool renumber_variables(bool must_renumber = true);
 
@@ -289,8 +285,6 @@ class Solver : public Searcher
             , const bool red
             , const bool sorted = false
         );
-        void set_up_sql_writer();
-        vector<std::pair<string, string> > sql_tags;
 
         void check_config_parameters() const;
         void check_xor_cut_config_sanity() const;
@@ -438,11 +432,6 @@ inline size_t Solver::get_num_long_red_cls() const
 inline const SolverConf& Solver::getConf() const
 {
     return conf;
-}
-
-inline const vector<std::pair<string, string> >& Solver::get_sql_tags() const
-{
-    return sql_tags;
 }
 
 inline const BinTriStats& Solver::getBinTriStats() const

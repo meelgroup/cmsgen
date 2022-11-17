@@ -26,7 +26,6 @@ THE SOFTWARE.
 #include "solver.h"
 #include "watchalgos.h"
 #include "clauseallocator.h"
-#include "sqlstats.h"
 
 using namespace CMSat;
 
@@ -217,16 +216,6 @@ void StrImplWImplStamp::StrImplicitData::print(
     << _solver->conf.print_times(time_used, time_out, time_remain)
     << " w-visit: " << numWatchesLooked
     << endl;
-
-    if (_solver->sqlStats) {
-        _solver->sqlStats->time_passed(
-            _solver
-            , "implicit str"
-            , time_used
-            , time_out
-            , time_remain
-        );
-    }
 }
 
 double StrImplWImplStamp::mem_used() const
