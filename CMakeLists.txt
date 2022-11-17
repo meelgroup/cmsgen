@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 11)
 
@@ -268,12 +268,6 @@ if (NOT WIN32)
     endif()
 endif()
 
-if (COVERAGE)
-    add_compile_options("--coverage")
-    SET(CMAKE_EXE_LINKER_FLAGS "--coverage")
-endif()
-
-
 # -----------------------------------------------------------------------------
 # Uncomment these for static compilation under Linux (messes up Valgrind)
 # -----------------------------------------------------------------------------
@@ -449,14 +443,3 @@ add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
     DEPENDS uninstall_pycyrptosat
 )
-
-if (ENABLE_PYTHON_INTERFACE)
-    if (PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND AND PYTHON_INCLUDE_DIRS AND NOT COVERAGE)
-        message(STATUS "Found python interpreter, libs and header files")
-        message(STATUS "Building python interface")
-        add_subdirectory(python pycryptosat)
-    else()
-        message(WARNING "Cannot find python interpreter, libs and header files, cannot build python interface")
-    endif()
-endif()
-
