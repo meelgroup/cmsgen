@@ -1979,10 +1979,6 @@ void Searcher::adjust_phases_restarts()
     if (max_confl_this_phase > 0)
         return;
 
-    //Note that all of this will be overridden by params.max_confl_to_do
-    if (conf.verbosity >= 3) {
-        cout << "c doing VSIDS" << endl;
-    }
     switch(conf.restartType) {
     case Restart::never:
     case Restart::glue:
