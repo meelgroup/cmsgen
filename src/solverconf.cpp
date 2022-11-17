@@ -194,7 +194,6 @@ DLL_PUBLIC SolverConf::SolverConf() :
             "sub-impl,"
             "occ-backw-sub-str, occ-clean-implicit, occ-bve,"
             "occ-ternary-res, occ-backw-sub-str, occ-xor, "
-            "card-find,"
             "cl-consolidate," //consolidate after OCC
             "scc-vrepl,"
             "sub-cls-with-bin,"
@@ -203,7 +202,6 @@ DLL_PUBLIC SolverConf::SolverConf() :
 
         //validated with run 8114195.wlm01
         , simplify_schedule_nonstartup(
-            "handle-comps,"
             "scc-vrepl,"
             "cache-clean,cache-tryboth,"
             "sub-impl,"
@@ -212,7 +210,7 @@ DLL_PUBLIC SolverConf::SolverConf() :
             "scc-vrepl,sub-impl,str-impl,sub-impl,"
             //occurrence based
             "occ-backw-sub-str,occ-clean-implicit,occ-bve,"//occ-gates,"
-            "occ-bva,occ-ternary-res,occ-xor,card-find,"
+            "occ-bva,occ-ternary-res,occ-xor,"
             //consolidate after OCC
             "cl-consolidate,"
             //strengthen again
@@ -222,7 +220,6 @@ DLL_PUBLIC SolverConf::SolverConf() :
             "renumber,sls"
         )
         , simplify_schedule_preproc(
-            "handle-comps,"
             "scc-vrepl, cache-clean, cache-tryboth,"
             "sub-impl,"
             "sub-str-cls-with-bin, distill-cls, scc-vrepl, sub-impl,"

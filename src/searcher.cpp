@@ -2903,7 +2903,7 @@ void Searcher::clear_gauss_matrices()
             << " %" <<endl;
         }
 
-        if (solver->conf.verbosity >= 2 && gqd.num_entered_mtx > 0) {
+        if (solver->conf.verbosity >= 3 && gqd.num_entered_mtx > 0) {
             cout
             << "c [gauss] num_props       : "<< print_value_kilo_mega(gqd.num_props) << endl
             << "c [gauss] num_conflicts   : "<< print_value_kilo_mega(gqd.num_conflicts)  << endl;
@@ -2911,7 +2911,7 @@ void Searcher::clear_gauss_matrices()
         gqd.reset_stats();
     }
 
-    if (solver->conf.verbosity >= 2 && sum_gauss_entered_mtx > 0) {
+    if (solver->conf.verbosity >= 3 && sum_gauss_entered_mtx > 0) {
         cout
         << "c [gauss] sum_gauss_prop: " << print_value_kilo_mega(sum_gauss_prop) << endl
         << "c [gauss] sum_gauss_confl : " << print_value_kilo_mega(sum_gauss_confl) << endl

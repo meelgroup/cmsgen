@@ -2503,7 +2503,6 @@ void Solver::print_watch_list(watch_subarray_const ws, const Lit lit) const
 
 void Solver::check_implicit_propagated() const
 {
-    const double myTime = cpuTime();
     size_t wsLit = 0;
     for(watch_array::const_iterator
         it = watches.begin(), end = watches.end()
@@ -2931,7 +2930,6 @@ void Solver::check_implicit_stats(const bool onlypairs) const
     #ifdef NDEBUG
     return;
     #endif
-    const double myTime = cpuTime();
 
     //Check number of red & irred binary clauses
     uint64_t thisNumRedBins = 0;
@@ -3006,7 +3004,6 @@ void Solver::check_stats(const bool allowFreed) const
 
     check_implicit_stats();
 
-    const double myTime = cpuTime();
     uint64_t numLitsIrred = count_lits(longIrredCls, false, allowFreed);
     if (numLitsIrred != litStats.irredLits) {
         std::cerr << "ERROR: " << endl
@@ -3025,8 +3022,6 @@ void Solver::check_stats(const bool allowFreed) const
     }
     assert(numLitsRed == litStats.redLits);
     assert(numLitsIrred == litStats.irredLits);
-
-    const double time_used = cpuTime() - myTime;
 }
 
 vector<Lit> Solver::get_toplevel_units_internal(bool outer_numbering) const
