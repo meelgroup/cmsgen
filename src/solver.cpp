@@ -1543,13 +1543,6 @@ void Solver::dump_memory_stats_to_sql()
             , my_time
             , occsimplifier->mem_used_xor()/(1024*1024)
         );
-
-        sqlStats->mem_used(
-            this
-            , "bva"
-            , my_time
-            , occsimplifier->mem_used_bva()/(1024*1024)
-        );
     }
 
     sqlStats->mem_used(

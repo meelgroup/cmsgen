@@ -55,7 +55,6 @@ class SolutionExtender;
 class Solver;
 class TopLevelGaussAbst;
 class SubsumeStrengthen;
-class BVA;
 
 struct BlockedClauses {
     BlockedClauses()
@@ -217,7 +216,6 @@ public:
     bool uneliminate(const uint32_t var);
     size_t mem_used() const;
     size_t mem_used_xor() const;
-    size_t mem_used_bva() const;
     void print_gatefinder_stats() const;
     uint32_t dump_blocked_clauses(std::ostream* outfile) const;
 
@@ -288,8 +286,6 @@ public:
 private:
     friend class SubsumeStrengthen;
     SubsumeStrengthen* sub_str;
-    friend class BVA;
-    BVA* bva;
     bool startup = false;
     bool backward_sub_str();
     bool execute_simplifier_strategy(const string& strategy);

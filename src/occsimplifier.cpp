@@ -53,7 +53,6 @@ THE SOFTWARE.
 #include "sqlstats.h"
 #include "datasync.h"
 #include "xorfinder.h"
-#include "bva.h"
 #include "trim.h"
 
 #ifdef USE_M4RI
@@ -97,7 +96,6 @@ OccSimplifier::OccSimplifier(Solver* _solver):
     , anythingHasBeenBlocked(false)
     , blockedMapBuilt(false)
 {
-    bva = new BVA(solver, this);
     topLevelGauss = new TopLevelGaussAbst;
     #ifdef USE_M4RI
     delete topLevelGauss;
@@ -113,7 +111,6 @@ OccSimplifier::OccSimplifier(Solver* _solver):
 
 OccSimplifier::~OccSimplifier()
 {
-    delete bva;
     delete topLevelGauss;
     delete sub_str;
     //delete gateFinder;
@@ -1395,24 +1392,7 @@ bool OccSimplifier::execute_simplifier_strategy(const string& strategy)
                 eliminate_empty_resolvent_vars();
                 eliminate_vars();
             }
-        } else if (token == "occ-bva") {
-            if (solver->conf.verbosity) {
-                cout << "c [occ-bva] global numcalls: " << globalStats.numCalls << endl;
-            }
-            if ((globalStats.numCalls % solver->conf.bva_every_n) == (solver->conf.bva_every_n-1)) {
-                bva->bounded_var_addition();
-                added_bin_cl.clear();
-                added_cl_to_var.clear();
-                added_long_cl.clear();
-                solver->clean_occur_from_removed_clauses_only_smudged();
-            }
-        } /*else if (token == "occ-gates") {
-            if (solver->conf.doCache
-                && solver->conf.doGateFind
-            ) {
-                gateFinder->doAll();
-            }
-        }*/ else if (token == "") {
+        } else if (token == "") {
             //nothing, ignore empty token
         } else {
              cout << "ERROR: occur strategy '" << token << "' not recognised!" << endl;
@@ -3152,14 +3132,6 @@ size_t OccSimplifier::mem_used_xor() const
         return 0;
 }
 
-size_t OccSimplifier::mem_used_bva() const
-{
-    if (bva)
-        return bva->mem_used();
-    else
-        return 0;
-}
-
 void OccSimplifier::linkInClause(Clause& cl)
 {
     assert(cl.size() > 2);
@@ -3196,7 +3168,6 @@ double OccSimplifier::Stats::total_time(OccSimplifier* occs) const
         + occs->sub_str->get_stats().subsumeTime
         + occs->sub_str->get_stats().strengthenTime
         + occs->bvestats_global.timeUsed
-        + occs->bva->get_stats().time_used;
         ;
 }
 
