@@ -152,12 +152,8 @@ inline void Searcher::add_lit_to_learnt(
     seen[var] = 1;
 
     if (!update_bogoprops) {
-        if (VSIDS) {
-            bump_vsids_var_act<update_bogoprops>(var, 0.5);
-            implied_by_learnts.push_back(var);
-        } else {
-            varData[var].conflicted++;
-        }
+        bump_vsids_var_act<update_bogoprops>(var, 0.5);
+        implied_by_learnts.push_back(var);
 
         if (conf.doOTFSubsume) {
             tmp_learnt_clause_size++;
@@ -869,46 +865,7 @@ Clause* Searcher::analyze_conflict(
 
     out_btlevel = find_backtrack_level_of_learnt();
     if (!update_bogoprops) {
-        if (VSIDS) {
-            bump_var_activities_based_on_implied_by_learnts<update_bogoprops>(out_btlevel);
-        } else {
-            uint32_t bump_by = 2;
-            assert(toClear.empty());
-            const Lit p = learnt_clause[0];
-            seen[p.var()] = true;
-            toClear.push_back(p);
-            for (int i = learnt_clause.size() - 1; i >= 0; i--) {
-                const uint32_t v = learnt_clause[i].var();
-                if (varData[v].reason.isClause()) {
-                    ClOffset offs = varData[v].reason.get_offset();
-                    Clause* cl = cl_alloc.ptr(offs);
-                    for (const Lit l: *cl) {
-                        if (!seen[l.var()]) {
-                            seen[l.var()] = true;
-                            toClear.push_back(l);
-                            varData[l.var()].conflicted+=bump_by;
-                        }
-                    }
-                } else if (varData[v].reason.getType() == binary_t) {
-                    Lit l = varData[v].reason.lit2();
-                    if (!seen[l.var()]) {
-                        seen[l.var()] = true;
-                        toClear.push_back(l);
-                        varData[l.var()].conflicted+=bump_by;
-                    }
-                    l = Lit(v, false);
-                    if (!seen[l.var()]) {
-                        seen[l.var()] = true;
-                        toClear.push_back(l);
-                        varData[l.var()].conflicted+=bump_by;
-                    }
-                }
-            }
-            for (Lit l: toClear) {
-                seen[l.var()] = 0;
-            }
-            toClear.clear();
-        }
+        bump_var_activities_based_on_implied_by_learnts<update_bogoprops>(out_btlevel);
     }
     sumConflictClauseLits += learnt_clause.size();
 
@@ -1183,14 +1140,11 @@ lbool Searcher::search()
 
         if (!confl.isNULL()) {
             //manipulate startup parameters
-            if (VSIDS &&
+            if (
                 ((stats.conflStats.numConflicts & 0xfff) == 0xfff) &&
                 var_decay_vsids < conf.var_decay_vsids_max
             ) {
                 var_decay_vsids += 0.01;
-            }
-            if (!VSIDS && step_size > solver->conf.min_step_size) {
-                step_size -= solver->conf.step_size_dec;
             }
 
             #ifdef STATS_NEEDED
@@ -1967,9 +1921,7 @@ bool Searcher::handle_conflict(const PropBy confl)
     }
 
     if (!update_bogoprops) {
-        if (VSIDS) {
-            varDecayActivity();
-        }
+        varDecayActivity();
         decayClauseAct<update_bogoprops>();
     }
 
@@ -1991,19 +1943,6 @@ void Searcher::resetStats()
     #endif
 
     lastCleanZeroDepthAssigns = trail.size();
-}
-
-void Searcher::check_calc_satzilla_features()
-{
-    if (last_satzilla_feature_calc_confl == 0 || (last_satzilla_feature_calc_confl + 100000) < sumConflicts) {
-        last_satzilla_feature_calc_confl = sumConflicts+1;
-        if (nVars() > 2
-            && longIrredCls.size() > 1
-            && (binTri.irredBins + binTri.redBins) > 1
-        ) {
-            solver->last_solve_satzilla_feature = solver->calculate_satzilla_features();
-        }
-    }
 }
 
 void Searcher::print_restart_header()
@@ -2054,7 +1993,6 @@ void Searcher::print_restart_stats_base() const
 {
     cout << "c"
          << " " << std::setw(6) << restart_type_to_short_string(params.rest_type);
-    cout << " " << std::setw(5) << (int)VSIDS;
     cout << " " << std::setw(5) << sumRestarts();
 
     if (sumConflicts >  20000) {
@@ -2224,7 +2162,6 @@ void Searcher::rebuildOrderHeap()
         }
     }
     order_heap_vsids.build(vs);
-    order_heap_maple.build(vs);
 }
 
 inline void Searcher::dump_search_loop_stats(double myTime)
@@ -2307,34 +2244,29 @@ lbool Searcher::solve(
 
     resetStats();
     lbool status = l_Undef;
-    if (VSIDS) {
-        if (conf.restartType == Restart::geom) {
-            max_confl_phase = conf.restart_first;
-            max_confl_this_phase = conf.restart_first;
-            params.rest_type = Restart::geom;
-        }
+    if (conf.restartType == Restart::geom) {
+        max_confl_phase = conf.restart_first;
+        max_confl_this_phase = conf.restart_first;
+        params.rest_type = Restart::geom;
+    }
 
-        if (conf.restartType == Restart::glue_geom) {
-            max_confl_phase = conf.restart_first;
-            max_confl_this_phase = conf.restart_first;
-            params.rest_type = Restart::glue;
-        }
+    if (conf.restartType == Restart::glue_geom) {
+        max_confl_phase = conf.restart_first;
+        max_confl_this_phase = conf.restart_first;
+        params.rest_type = Restart::glue;
+    }
 
-        if (conf.restartType == Restart::luby) {
-            max_confl_this_phase = conf.restart_first;
-            params.rest_type = Restart::luby;
-        }
-
-        if (conf.restartType == Restart::glue) {
-            params.rest_type = Restart::glue;
-        }
-        if (conf.restartType == Restart::fixed) {
-            params.rest_type = Restart::fixed;
-            max_confl_this_phase = conf.fixed_restart_num_confl;
-        }
-    } else {
+    if (conf.restartType == Restart::luby) {
         max_confl_this_phase = conf.restart_first;
         params.rest_type = Restart::luby;
+    }
+
+    if (conf.restartType == Restart::glue) {
+        params.rest_type = Restart::glue;
+    }
+    if (conf.restartType == Restart::fixed) {
+        params.rest_type = Restart::fixed;
+        max_confl_this_phase = conf.fixed_restart_num_confl;
     }
 
     #ifdef USE_GAUSS
@@ -2410,67 +2342,61 @@ void Searcher::adjust_phases_restarts()
         return;
 
     //Note that all of this will be overridden by params.max_confl_to_do
-    if (!VSIDS) {
-        assert(params.rest_type == Restart::luby);
-        max_confl_this_phase = luby(2, luby_loop_num) * (double)conf.restart_first;
+    if (conf.verbosity >= 3) {
+        cout << "c doing VSIDS" << endl;
+    }
+    switch(conf.restartType) {
+    case Restart::never:
+    case Restart::glue:
+        assert(params.rest_type == Restart::glue);
+        //nothing special
+        break;
+    case Restart::geom:
+        assert(params.rest_type == Restart::geom);
+        max_confl_phase *= conf.restart_inc;
+        max_confl_this_phase = max_confl_phase;
+        break;
+
+    case Restart::fixed:
+        assert(params.rest_type == Restart::fixed);
+        max_confl_this_phase = conf.fixed_restart_num_confl;
+        break;
+
+    case Restart::luby:
+        max_confl_this_phase = luby(conf.restart_inc*1.5, luby_loop_num)
+            * (double)conf.restart_first/2.0;
+
         luby_loop_num++;
-    } else {
+        //cout << "luby_loop_num: " << luby_loop_num << endl;
+        //cout << "max_confl_this_phase:" << max_confl_this_phase << endl;
+        break;
+
+    case Restart::glue_geom:
+        if (params.rest_type == Restart::geom) {
+            params.rest_type = Restart::glue;
+        } else {
+            params.rest_type = Restart::geom;
+        }
+        switch (params.rest_type) {
+            case Restart::geom:
+                max_confl_phase = (double)max_confl_phase * conf.restart_inc;
+                max_confl_this_phase = max_confl_phase;
+                break;
+
+            case Restart::glue:
+                max_confl_this_phase = conf.ratio_glue_geom *max_confl_phase;
+                break;
+
+            default:
+                release_assert(false);
+        }
         if (conf.verbosity >= 3) {
-            cout << "c doing VSIDS" << endl;
+            cout << "Phase is now "
+            << std::setw(10) << getNameOfRestartType(params.rest_type)
+            << " this phase size: " << max_confl_this_phase
+            << " global phase size: " << max_confl_phase << endl;
         }
-        switch(conf.restartType) {
-        case Restart::never:
-        case Restart::glue:
-            assert(params.rest_type == Restart::glue);
-            //nothing special
-            break;
-        case Restart::geom:
-            assert(params.rest_type == Restart::geom);
-            max_confl_phase *= conf.restart_inc;
-            max_confl_this_phase = max_confl_phase;
-            break;
-
-        case Restart::fixed:
-            assert(params.rest_type == Restart::fixed);
-            max_confl_this_phase = conf.fixed_restart_num_confl;
-            break;
-
-        case Restart::luby:
-            max_confl_this_phase = luby(conf.restart_inc*1.5, luby_loop_num)
-                * (double)conf.restart_first/2.0;
-
-            luby_loop_num++;
-            //cout << "luby_loop_num: " << luby_loop_num << endl;
-            //cout << "max_confl_this_phase:" << max_confl_this_phase << endl;
-            break;
-
-        case Restart::glue_geom:
-            if (params.rest_type == Restart::geom) {
-                params.rest_type = Restart::glue;
-            } else {
-                params.rest_type = Restart::geom;
-            }
-            switch (params.rest_type) {
-                case Restart::geom:
-                    max_confl_phase = (double)max_confl_phase * conf.restart_inc;
-                    max_confl_this_phase = max_confl_phase;
-                    break;
-
-                case Restart::glue:
-                    max_confl_this_phase = conf.ratio_glue_geom *max_confl_phase;
-                    break;
-
-                default:
-                    release_assert(false);
-            }
-            if (conf.verbosity >= 3) {
-                cout << "Phase is now "
-                << std::setw(10) << getNameOfRestartType(params.rest_type)
-                << " this phase size: " << max_confl_this_phase
-                << " global phase size: " << max_confl_phase << endl;
-            }
-            break;
-        }
+        break;
     }
 }
 
@@ -2589,8 +2515,8 @@ Lit Searcher::pickBranchLit()
     Lit next = lit_Undef;
 
     // Random decision:
-    Heap<VarOrderLt> &order_heap = VSIDS ? order_heap_vsids : order_heap_maple;
-    vector<double>& var_act = VSIDS ? var_act_vsids : var_act_maple;
+    Heap<VarOrderLt> &order_heap = order_heap_vsids;
+    vector<double>& var_act = var_act_vsids;
 
     if (conf.random_var_freq > 0) {
         double rand = mtrand.randDblExc();
@@ -2629,22 +2555,6 @@ Lit Searcher::pickBranchLit()
             //There is no more to branch on. Satisfying assignment found.
             if (order_heap.empty()) {
                 return lit_Undef;
-            }
-
-            if (!VSIDS) {
-                uint32_t v2 = order_heap_maple[0];
-                uint32_t age = sumConflicts - varData[v2].cancelled;
-                while (age > 0) {
-                    double decay = pow(0.95, age);
-                    var_act_maple[v2] *= decay;
-                    if (order_heap_maple.inHeap(v2)) {
-                        order_heap_maple.increase(v2);
-                    }
-
-                    varData[v2].cancelled = sumConflicts;
-                    v2 = order_heap_maple[0];
-                    age = sumConflicts - varData[v2].cancelled;
-                }
             }
             v = order_heap.removeMin();
         }
@@ -3138,7 +3048,6 @@ size_t Searcher::mem_used() const
     mem += var_act_vsids.capacity()*sizeof(uint32_t);
     mem += var_act_maple.capacity()*sizeof(uint32_t);
     mem += order_heap_vsids.mem_used();
-    mem += order_heap_maple.mem_used();
     mem += learnt_clause.capacity()*sizeof(Lit);
     mem += hist.mem_used();
     mem += conflict.capacity()*sizeof(Lit);
@@ -3175,11 +3084,6 @@ size_t Searcher::mem_used() const
         cout
         << "c order_heap_vsids bytes: "
         << order_heap_vsids.mem_used()
-        << endl;
-
-        cout
-        << "c order_heap_maple bytes: "
-        << order_heap_maple.mem_used()
         << endl;
 
         cout
@@ -3236,7 +3140,6 @@ void Searcher::unfill_assumptions_set()
 
 inline void Searcher::varDecayActivity()
 {
-    assert(VSIDS);
     var_inc_vsids *= (1.0 / var_decay_vsids);
 }
 
@@ -3275,164 +3178,6 @@ void Searcher::consolidate_watches(const bool full)
         );
     }
 }
-
-void Searcher::write_long_cls(
-    const vector<ClOffset>& clauses
-    , SimpleOutFile& f
-    , const bool red
-) const {
-    f.put_uint64_t(clauses.size());
-    for(ClOffset c: clauses)
-    {
-        Clause& cl = *cl_alloc.ptr(c);
-        assert(cl.size() > 2);
-        f.put_uint32_t(cl.size());
-        for(const Lit l: cl)
-        {
-            f.put_lit(l);
-        }
-        if (red) {
-            assert(cl.red());
-            f.put_struct(cl.stats);
-        }
-    }
-}
-
-void Searcher::read_long_cls(
-    SimpleInFile& f
-    , const bool red
-) {
-    uint64_t num_cls = f.get_uint64_t();
-
-    vector<Lit> tmp_cl;
-    for(size_t i = 0; i < num_cls; i++)
-    {
-        tmp_cl.clear();
-
-        uint32_t sz = f.get_uint32_t();
-        for(size_t j = 0; j < sz; j++)
-        {
-            tmp_cl.push_back(f.get_lit());
-        }
-        ClauseStats cl_stats;
-        if (red) {
-            f.get_struct(cl_stats);
-        }
-
-        Clause* cl = cl_alloc.Clause_new(tmp_cl
-        , cl_stats.last_touched
-        #ifdef STATS_NEEDED
-        , cl_stats.ID
-        #endif
-        );
-        if (red) {
-            cl->makeRed(cl_stats.glue);
-        }
-        cl->stats = cl_stats;
-        attachClause(*cl);
-        const ClOffset offs = cl_alloc.get_offset(cl);
-        if (red) {
-            assert(cl->stats.which_red_array < longRedCls.size());
-            longRedCls[cl->stats.which_red_array].push_back(offs);
-            litStats.redLits += cl->size();
-        } else {
-            longIrredCls.push_back(offs);
-            litStats.irredLits += cl->size();
-        }
-    }
-}
-
-void Searcher::write_binary_cls(
-    SimpleOutFile& f
-    , bool red
-) const {
-    if (red) {
-        f.put_uint64_t(binTri.redBins);
-    } else {
-        f.put_uint64_t(binTri.irredBins);
-    }
-
-    size_t at = 0;
-    for(watch_subarray_const ws: watches)
-    {
-        Lit lit1 = Lit::toLit(at);
-        at++;
-        for(Watched w: ws)
-        {
-            if (w.isBin() && w.red() == red) {
-                assert(lit1 != w.lit2());
-                if (lit1 < w.lit2()) {
-                    f.put_lit(lit1);
-                    f.put_lit(w.lit2());
-                }
-            }
-        }
-    }
-}
-
-uint64_t Searcher::read_binary_cls(
-    SimpleInFile& f
-    , bool red
-) {
-    uint64_t num = f.get_uint64_t();
-    for(uint64_t i = 0; i < num; i++)
-    {
-        const Lit lit1 = f.get_lit();
-        const Lit lit2 = f.get_lit();
-        attach_bin_clause(lit1, lit2, red);
-    }
-    return num;
-}
-
-void Searcher::save_state(SimpleOutFile& f, const lbool status) const
-{
-    assert(decisionLevel() == 0);
-    PropEngine::save_state(f);
-
-    f.put_vector(var_act_vsids);
-    f.put_vector(var_act_maple);
-    f.put_vector(model);
-    f.put_vector(conflict);
-
-    //Clauses
-    if (status == l_Undef) {
-        write_binary_cls(f, false);
-        write_binary_cls(f, true);
-        write_long_cls(longIrredCls, f, false);
-        for(auto& lredcls: longRedCls) {
-            write_long_cls(lredcls, f, true);
-        }
-    }
-}
-
-void Searcher::load_state(SimpleInFile& f, const lbool status)
-{
-    assert(decisionLevel() == 0);
-    PropEngine::load_state(f);
-
-    f.get_vector(var_act_vsids);
-    f.get_vector(var_act_maple);
-    for(size_t i = 0; i < nVars(); i++) {
-        if (varData[i].removed == Removed::none
-            && value(i) == l_Undef
-        ) {
-            insert_var_order_all(i);
-        }
-    }
-    f.get_vector(model);
-    f.get_vector(conflict);
-
-    //Clauses
-    if (status == l_Undef) {
-        binTri.irredBins = read_binary_cls(f, false);
-        binTri.redBins =read_binary_cls(f, true);
-        read_long_cls(f, false);
-        for(size_t i = 0; i < longRedCls.size(); i++) {
-            read_long_cls(f, true);
-        }
-    }
-}
-
 
 //Normal running
 template
@@ -3544,31 +3289,6 @@ void Searcher::cancelUntil(uint32_t level
             }
             #endif
 
-
-            if (!update_bogoprops && !VSIDS) {
-                assert(sumConflicts >= varData[var].last_picked);
-                uint32_t age = sumConflicts - varData[var].last_picked;
-                if (age > 0) {
-                    //adjusted reward -> higher if conflicted more or quicker
-
-                    //Original MAPLE reward
-                    #ifndef FINAL_PREDICTOR_BRANCH
-                    reward += (double)varData[var].conflicted;
-                    #endif
-                    double adjusted_reward = reward / ((double)age);
-
-                    double old_activity = var_act_maple[var];
-                    var_act_maple[var] = step_size * adjusted_reward + ((1.0 - step_size) * old_activity);
-                    if (order_heap_maple.inHeap(var)) {
-                        if (var_act_maple[var] > old_activity)
-                            order_heap_maple.decrease(var);
-                        else
-                            order_heap_maple.increase(var);
-                    }
-                }
-                varData[var].cancelled = sumConflicts;
-            }
-
             assigns[var] = l_Undef;
             if (do_insert_var_order) {
                 insert_var_order(var);
@@ -3594,16 +3314,13 @@ inline bool Searcher::check_order_heap_sanity() const
             uint32_t outer_var = map_to_with_bva(outside_var);
             outer_var = solver->varReplacer->get_var_replaced_with_outer(outer_var);
             uint32_t int_var = map_outer_to_inter(outer_var);
-
-            assert(varData[int_var].removed == Removed::none ||
-                varData[int_var].removed == Removed::decomposed);
+            assert(varData[int_var].removed == Removed::none);
 
             if (int_var < nVars() &&
                 varData[int_var].removed == Removed::none &&
                 value(int_var) == l_Undef
             ) {
                 assert(order_heap_vsids.inHeap(int_var));
-                assert(order_heap_maple.inHeap(int_var));
             }
         }
     }
@@ -3620,17 +3337,9 @@ inline bool Searcher::check_order_heap_sanity() const
                 << endl;
                 return false;
             }
-            if (!order_heap_maple.inHeap(i)) {
-                cout << "ERROR var " << i+1 << " not in !VSIDS heap."
-                << " value: " << value(i)
-                << " removed: " << removed_type_to_string(varData[i].removed)
-                << endl;
-                return false;
-            }
         }
     }
     assert(order_heap_vsids.heap_property());
-    assert(order_heap_maple.heap_property());
 
     return true;
 }

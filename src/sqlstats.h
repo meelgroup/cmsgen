@@ -24,7 +24,6 @@ THE SOFTWARE.
 #define __SQLSTATS_H__
 
 #include "clauseusagestats.h"
-#include "satzilla_features.h"
 #include "searchstats.h"
 #include "vardata.h"
 
@@ -63,12 +62,6 @@ public:
         , const string& name
         , const double given_time
         , uint64_t mem_used_mb
-    ) = 0;
-
-    virtual void satzilla_features(
-        const Solver* solver
-        , const Searcher* search
-        , const SatZillaFeatures& satzilla_feat
     ) = 0;
 
     #ifdef STATS_NEEDED

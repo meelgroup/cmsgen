@@ -416,6 +416,7 @@ if (HAVE__FPU_SETCW)
     message(STATUS "Found FPU code for yalsat: fpu_control.h, _FPU_SINGLE, _FPU_DOUBLE")
 endif()
 
+
 # -----------------------------------------------------------------------------
 # Provide an export name to be used by targets that wish to export themselves.
 # -----------------------------------------------------------------------------

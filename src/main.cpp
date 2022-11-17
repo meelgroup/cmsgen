@@ -55,16 +55,11 @@ THE SOFTWARE.
 #include "cmsgen/cryptominisat.h"
 #include "signalcode.h"
 
-#include <boost/lexical_cast.hpp>
 using namespace CMSat;
-using boost::lexical_cast;
 
 using std::cout;
 using std::cerr;
 using std::endl;
-using boost::lexical_cast;
-using std::list;
-using std::map;
 
 struct WrongParam
 {
@@ -128,7 +123,7 @@ void Main::readInAFile(SATSolver* solver2, const string& filename)
         std::exit(1);
     }
 
-    bool strict_header = conf.preprocess;
+    bool strict_header = true;
     if (!parser.parse_DIMACS(in, strict_header)) {
         exit(-1);
     }
@@ -422,16 +417,6 @@ void Main::check_options_correctness()
     }
 }
 
-void Main::parse_restart_type()
-{
-    conf.restartType = Restart::fixed;
-}
-
-void Main::parse_polarity_type()
-{
-    conf.polarity_mode = PolarityMode::polarmode_rnd;
-}
-
 void Main::manually_parse_some_options()
 {
     if (conf.yalsat_max_mems < 1) {
@@ -462,10 +447,6 @@ void Main::manually_parse_some_options()
         conf.need_decisions_reaching = true;
     }
 
-    if (conf.random_var_freq < 0 || conf.random_var_freq > 1) {
-        throw WrongParam(lexical_cast<string>(conf.random_var_freq), "Illegal random var frequency ");
-    }
-
     resultfile = new std::ofstream;
     resultfile->open(resultFilename.c_str());
     if (!(*resultfile)) {
@@ -476,12 +457,9 @@ void Main::manually_parse_some_options()
         << endl;
         std::exit(-1);
     }
+    conf.polarity_mode = PolarityMode::polarmode_weighted;
+    conf.restartType = Restart::fixed;
 
-    parse_polarity_type();
-
-    parse_restart_type();
-
-    assert(conf.preprocess == 0);
     if (vm.count("input")) {
         filesToRead = vm["input"].as<vector<string> >();
         fileNamePresent = true;

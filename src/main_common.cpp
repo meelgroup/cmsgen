@@ -69,15 +69,6 @@ void MainCommon::handle_drat_option()
         }
         conf.doFindXors = false;
     }
-
-    if (conf.doCompHandler) {
-        if (conf.verbosity) {
-            cout
-            << "c Component finding & solving is not supported during DRAT, turning it off"
-            << endl;
-        }
-        conf.doCompHandler = false;
-    }
 }
 
 uint32_t MainCommon::print_model(CMSat::SATSolver* solver, std::ostream* os)

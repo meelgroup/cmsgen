@@ -105,9 +105,6 @@ class VarReplacer
         vector<uint32_t> get_vars_replacing_others() const;
         bool get_scc_depth_warning_triggered() const;
 
-        void save_state(SimpleOutFile& f) const;
-        void load_state(SimpleInFile& f);
-
     private:
         Solver* solver;
         SCCFinder* scc_finder;

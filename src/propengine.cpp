@@ -56,7 +56,6 @@ PropEngine::PropEngine(
 ) :
         CNF(_conf, _must_interrupt_inter)
         , order_heap_vsids(VarOrderLt(var_act_vsids))
-        , order_heap_maple(VarOrderLt(var_act_maple))
         , qhead(0)
         , solver(_solver)
 {

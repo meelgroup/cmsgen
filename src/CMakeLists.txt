@@ -74,21 +74,14 @@ set(cryptoms_lib_files
     solver.cpp
     implcache.cpp
     stamp.cpp
-    compfinder.cpp
-    comphandler.cpp
     hyperengine.cpp
     subsumeimplicit.cpp
     datasync.cpp
     reducedb.cpp
-    clausedumper.cpp
     bva.cpp
     intree.cpp
-    satzilla_features_calc.cpp
-    satzilla_features_to_reconf.cpp
-    satzilla_features.cpp
     searchstats.cpp
     xorfinder.cpp
-    cardfinder.cpp
     cryptominisat_c.cpp
     yalsat.cpp
     yals.c

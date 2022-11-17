@@ -33,7 +33,7 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , var_decay_vsids_start(0.8) // 1/0.8 = 1.2 -- large is better for frequent restarts
         , var_decay_vsids_max(0.95) // 1/0.95 = 1.05 -- smaller is better for hard instances
         , random_var_freq(0.9999)
-        , polarity_mode(PolarityMode::polarmode_automatic)
+        , polarity_mode(PolarityMode::polarmode_weighted)
 
         //Clause cleaning
         , every_lev1_reduce(10000) // kept for a while then moved to lev2
@@ -61,14 +61,10 @@ DLL_PUBLIC SolverConf::SolverConf() :
         //NOTE: The "Scavel" system's "usedt" does NOT speed up the solver
         //test conducted: out-drat-check-8359337.wlm01-1-drat0
 
-        //maple
-        , maple(false)
-        , modulo_maple_iter(3)
-
         //Restarting
         , restart_first(100)
         , restart_inc(1.1)
-        , restartType(Restart::glue_geom)
+        , restartType(Restart::fixed)
         , do_blocking_restart(1)
         , blocking_restart_trail_hist_length(5000)
         , blocking_restart_multip(1.4)
@@ -150,17 +146,6 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , ternary_keep_mult(4)
         , ternary_max_create(0.5)
 
-        //BreakID
-        , doBreakid(false)
-        , breakid_use_assump(true)
-        , breakid_every_n(1)
-        , breakid_vars_limit_K(300)
-        , breakid_cls_limit_K(600)
-        , breakid_lits_limit_K(3500)
-        , breakid_time_limit_K(2000)
-        , breakid_max_constr_per_permut(50)
-        , breakid_matrix_detect(true)
-
         //Bounded variable addition
         , do_bva(true)
         #ifdef USE_GAUSS
@@ -204,9 +189,6 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , allow_elim_xor_vars(1)
         , xor_var_per_cut(2)
 
-        //Cardinality
-        , doFindCard(0)
-
         #ifdef FINAL_PREDICTOR
         //Predict system
         , pred_conf_short(2)
@@ -230,7 +212,6 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , max_num_simplify_per_solve_call(25)
         , simplify_schedule_startup(
             "sub-impl,"
-            "breakid, "
             "occ-backw-sub-str, occ-clean-implicit, occ-bve,"
             "occ-ternary-res, occ-backw-sub-str, occ-xor, "
             "card-find,"
@@ -249,7 +230,6 @@ DLL_PUBLIC SolverConf::SolverConf() :
             "intree-probe,probe,"
             "sub-str-cls-with-bin,distill-cls,"
             "scc-vrepl,sub-impl,str-impl,sub-impl,"
-            "breakid,"
             //occurrence based
             "occ-backw-sub-str,occ-clean-implicit,occ-bve,"//occ-gates,"
             "occ-bva,occ-ternary-res,occ-xor,card-find,"
@@ -266,7 +246,6 @@ DLL_PUBLIC SolverConf::SolverConf() :
             "scc-vrepl, cache-clean, cache-tryboth,"
             "sub-impl,"
             "sub-str-cls-with-bin, distill-cls, scc-vrepl, sub-impl,"
-            "breakid, "
             "occ-backw-sub-str, occ-clean-implicit, occ-bve, occ-bva,"
             "occ-ternary-res, occ-xor,"
             //"occ-gates,"
@@ -307,12 +286,6 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , full_watch_consolidate_every_n_confl (4ULL*1000ULL*1000ULL) //validated in run 8113323.wlm01
         , static_mem_consolidate_order(true)
 
-        //Component finding
-        , doCompHandler    (false)
-        , handlerFromSimpNum (0)
-        , compVarLimit      (1ULL*1000ULL*1000ULL)
-        , comp_find_time_limitM (500)
-
         //Misc optimisations
         , doStrSubImplicit (true)
         , subsume_implicit_time_limitM(100LL)
@@ -346,7 +319,6 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , sync_every_confl(20000)
         , reconfigure_val(0)
         , reconfigure_at(2)
-        , preprocess(0)
         , simulate_drat(false)
         , need_decisions_reaching(false)
         , saved_state_file("savedstate.dat")

@@ -107,7 +107,6 @@ enum class Removed : unsigned char {
     none
     , elimed
     , replaced
-    , decomposed
 };
 
 inline std::string removed_type_to_string(const Removed removed) {
@@ -120,9 +119,6 @@ inline std::string removed_type_to_string(const Removed removed) {
 
         case Removed::replaced:
             return "variable replacement";
-
-        case Removed::decomposed:
-            return "decomposed into another component";
     }
 
     assert(false && "oops, one of the elim types has no string name");

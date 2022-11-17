@@ -57,6 +57,7 @@ enum class PolarityMode {
     polarmode_pos
     , polarmode_neg
     , polarmode_rnd
+    , polarmode_weighted
     , polarmode_automatic
 };
 
@@ -186,10 +187,6 @@ class DLL_PUBLIC SolverConf
         double   adjust_glue_if_too_many_low;
         uint64_t min_num_confl_adjust_glue_cutoff;
 
-        //maple
-        int      maple;
-        unsigned modulo_maple_iter;
-
         //For restarting
         unsigned    restart_first;      ///<The initial restart limit.                                                                (default 100)
         double    restart_inc;        ///<The factor with which the restart limit is multiplied in each restart.                    (default 1.5)
@@ -278,17 +275,6 @@ class DLL_PUBLIC SolverConf
         double ternary_keep_mult;
         double ternary_max_create;
 
-        //BreakID
-        bool doBreakid;
-        bool breakid_use_assump; ///< If false breaks library use of solver
-        uint32_t breakid_every_n;
-        uint32_t breakid_vars_limit_K;
-        uint64_t breakid_cls_limit_K;
-        uint64_t breakid_lits_limit_K;
-        int64_t breakid_time_limit_K;
-        int breakid_max_constr_per_permut;
-        bool breakid_matrix_detect;
-
         //BVA
         int      do_bva;
         int min_bva_gain;
@@ -323,9 +309,6 @@ class DLL_PUBLIC SolverConf
         uint64_t xor_finder_time_limitM;
         int      allow_elim_xor_vars;
         unsigned xor_var_per_cut;
-
-        //Cardinality
-        int      doFindCard;
 
         #ifdef FINAL_PREDICTOR
         //Predictor system
@@ -382,13 +365,6 @@ class DLL_PUBLIC SolverConf
         uint64_t  full_watch_consolidate_every_n_confl;
         int       static_mem_consolidate_order;
 
-        //Component handling
-        int       doCompHandler;
-        unsigned  handlerFromSimpNum;
-        size_t    compVarLimit;
-        unsigned long long  comp_find_time_limitM;
-
-
         //Misc Optimisations
         int      doStrSubImplicit;
         long long  subsume_implicit_time_limitM;
@@ -423,7 +399,6 @@ class DLL_PUBLIC SolverConf
         unsigned long long sync_every_confl;
         unsigned reconfigure_val;
         unsigned reconfigure_at;
-        unsigned preprocess;
         int      simulate_drat;
         int      need_decisions_reaching;
         std::string simplified_cnf;

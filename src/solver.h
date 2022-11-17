@@ -36,7 +36,6 @@ THE SOFTWARE.
 #include "propengine.h"
 #include "searcher.h"
 #include "clauseusagestats.h"
-#include "satzilla_features.h"
 #include "searchstats.h"
 #ifdef CMS_TESTING_ENABLED
 #include "gtest/gtest_prod.h"
@@ -59,8 +58,6 @@ class StrImplWImplStamp;
 class CalcDefPolars;
 class SolutionExtender;
 class ImplCache;
-class CompFinder;
-class CompHandler;
 class CardFinder;
 class SubsumeStrengthen;
 class SubsumeImplicit;
@@ -68,7 +65,6 @@ class DataSync;
 class SharedData;
 class ReduceDB;
 class InTree;
-class BreakID;
 
 struct SolveStats
 {
@@ -89,6 +85,7 @@ class Solver : public Searcher
         void new_external_vars(size_t n);
         bool add_clause_outer(const vector<Lit>& lits, bool red = false);
         bool add_xor_clause_outer(const vector<uint32_t>& vars, bool rhs);
+        void set_var_weight(Lit lit, double weight);
 
         lbool solve_with_assumptions(const vector<Lit>* _assumptions, bool only_indep_solution);
         lbool simplify_with_assumptions(const vector<Lit>* _assumptions = NULL);
@@ -159,13 +156,10 @@ class Solver : public Searcher
         ReduceDB*              reduceDB = NULL;
         Prober*                prober = NULL;
         InTree*                intree = NULL;
-        BreakID*               breakid = NULL;
         OccSimplifier*         occsimplifier = NULL;
         DistillerLong*         distill_long_cls = NULL;
         DistillerLongWithImpl* dist_long_with_impl = NULL;
         StrImplWImplStamp* dist_impl_with_impl = NULL;
-        CompHandler*           compHandler = NULL;
-        CardFinder*            card_finder = NULL;
 
         SearchStats sumSearchStats;
         PropStats sumPropStats;
@@ -177,8 +171,6 @@ class Solver : public Searcher
         void update_assumptions_after_varreplace();
 
         //State load/unload
-        void save_state(const string& fname, const lbool status) const;
-        lbool load_state(const string& fname);
         template<typename A>
         void parse_v_line(A* in, const size_t lineNum);
         lbool load_solution_from_file(const string& fname);
@@ -250,8 +242,6 @@ class Solver : public Searcher
         void set_sqlite(string filename);
         //Not Private for testing (maybe could be called from outside)
         bool renumber_variables(bool must_renumber = true);
-        SatZillaFeatures calculate_satzilla_features();
-        SatZillaFeatures last_solve_satzilla_feature;
 
         uint32_t undefine(vector<uint32_t>& trail_lim_vars);
         vector<Lit> get_toplevel_units_internal(bool outer_numbering) const;
@@ -290,9 +280,6 @@ class Solver : public Searcher
         vector<Lit> add_clause_int_tmp_cl;
         lbool iterate_until_solved();
         uint64_t mem_used_vardata() const;
-        void check_reconfigure();
-        void reconfigure(int val);
-        bool already_reconfigured = false;
         long calc_num_confl_to_do_this_iter(const size_t iteration_num) const;
 
         vector<Lit> finalCl_tmp;
@@ -387,6 +374,11 @@ class Solver : public Searcher
         /////////////////////
         // Data
         size_t               zeroLevAssignsByCNF = 0;
+        struct GivenW {
+            bool pos = false;
+            bool neg = false;
+        };
+        vector<GivenW> weights_given;
 
         /////////////////////
         // Clauses

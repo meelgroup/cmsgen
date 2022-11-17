@@ -79,7 +79,6 @@ class Searcher : public HyperEngine
         void finish_up_solve(lbool status);
         void reduce_db_if_needed();
         bool clean_clauses_if_needed();
-        void check_calc_satzilla_features();
         void dump_search_loop_stats(double myTime);
         bool must_abort(lbool status);
         uint64_t luby_loop_num = 0;
@@ -170,7 +169,6 @@ class Searcher : public HyperEngine
         void clear_order_heap()
         {
             order_heap_vsids.clear();
-            order_heap_maple.clear();
         }
 
 
@@ -195,27 +193,6 @@ class Searcher : public HyperEngine
             const vector<uint32_t>& outerToInter
             , const vector<uint32_t>& interToOuter
         );
-        void save_state(SimpleOutFile& f, const lbool status) const;
-        void load_state(SimpleInFile& f, const lbool status);
-        void write_long_cls(
-            const vector<ClOffset>& clauses
-            , SimpleOutFile& f
-            , const bool red
-        ) const;
-        void read_long_cls(
-            SimpleInFile& f
-            , const bool red
-        );
-        uint64_t read_binary_cls(
-            SimpleInFile& f
-            , bool red
-        );
-        void write_binary_cls(
-            SimpleOutFile& f
-            , bool red
-        ) const;
-
-        //Misc
         void update_var_decay_vsids();
         void add_in_partial_solving_stats();
 
@@ -499,7 +476,7 @@ inline void Searcher::add_in_partial_solving_stats()
 
 inline void Searcher::insert_var_order(const uint32_t x)
 {
-    Heap<VarOrderLt> &order_heap = VSIDS ? order_heap_vsids : order_heap_maple;
+    Heap<VarOrderLt> &order_heap = order_heap_vsids;
     if (!order_heap.inHeap(x)) {
         #ifdef SLOW_DEUG
         assert(varData[x].removed == Removed::none
@@ -519,14 +496,6 @@ inline void Searcher::insert_var_order_all(const uint32_t x)
         #endif
 
         order_heap_vsids.insert(x);
-    }
-    if (!order_heap_maple.inHeap(x)) {
-        #ifdef SLOW_DEUG
-        assert(varData[x].removed == Removed::none
-            && "All variables should be decision vars unless removed");
-        #endif
-
-        order_heap_maple.insert(x);
     }
 }
 
@@ -587,6 +556,11 @@ inline bool Searcher::pick_polarity(const uint32_t var)
 
         case PolarityMode::polarmode_automatic:
             return varData[var].polarity;
+
+        case PolarityMode::polarmode_weighted: {
+            double rnd = mtrand.randDblExc();
+            return rnd < varData[var].weight;
+        }
 
         default:
             assert(false);

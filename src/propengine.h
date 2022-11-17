@@ -125,7 +125,6 @@ public:
     ///activity-ordered heap of decision variables.
     ///NOT VALID WHILE SIMPLIFYING
     Heap<VarOrderLt> order_heap_vsids;
-    Heap<VarOrderLt> order_heap_maple;
     double max_vsids_act = 0.0;
     double max_cl_act = 0.0;
 
@@ -408,20 +407,6 @@ void PropEngine::enqueue(const Lit p, const PropBy from)
     assert(value(v) == l_Undef);
     if (!watches[~p].empty()) {
         watches.prefetch((~p).toInt());
-    }
-
-    if (!update_bogoprops && !VSIDS) {
-        varData[v].last_picked = sumConflicts;
-        varData[v].conflicted = 0;
-
-        assert(sumConflicts >= varData[v].cancelled);
-        uint32_t age = sumConflicts - varData[v].cancelled;
-        if (age > 0) {
-            double decay = std::pow(0.95, age);
-            var_act_maple[v] *= decay;
-            if (order_heap_maple.inHeap(v))
-                order_heap_maple.increase(v);
-        }
     }
 
     const bool sign = p.sign();

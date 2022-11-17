@@ -102,7 +102,6 @@ public:
     uint32_t gqhead;
     #endif
     vector<VarData> varData;
-    bool VSIDS = true;
     vector<uint32_t> depth;
     Stamp stamp;
     ImplCache implCache;

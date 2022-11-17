@@ -42,6 +42,7 @@ class DimacsParser
         template <class T> bool parse_DIMACS(T input_stream, const bool strict_header);
         uint64_t max_var = std::numeric_limits<uint64_t>::max();
         vector<uint32_t> sampling_vars;
+        vector<double> weights;
         const std::string dimacs_spec = "http://www.satcompetition.org/2009/format-benchmarks2009.html";
         const std::string please_read_dimacs = "\nPlease read DIMACS specification at http://www.satcompetition.org/2009/format-benchmarks2009.html";
 
@@ -54,6 +55,7 @@ class DimacsParser
         bool printHeader(C& in);
         bool parseComments(C& in, const std::string& str);
         std::string stringify(uint32_t x) const;
+        bool parseWeight(C& in);
         bool parse_solve_simp_comment(C& in, const bool solve);
         void write_solution_to_debuglib_file(const lbool ret) const;
         bool parseIndependentSet(C& in);
@@ -347,6 +349,40 @@ void DimacsParser<C>::write_solution_to_debuglib_file(const lbool ret) const
 }
 
 template<class C>
+bool DimacsParser<C>::parseWeight(C& in)
+{
+    if (match(in, "w ")) {
+        int32_t slit;
+        double weight;
+        if (in.parseInt(slit, lineNum)
+            && in.parseDouble(weight, lineNum)
+        ) {
+            if (slit == 0) {
+                cout << "ERROR: Cannot define weight of literal 0!" << endl;
+                exit(-1);
+            }
+            uint32_t var = std::abs(slit)-1;
+            bool sign = slit < 0;
+            Lit lit = Lit(var, sign);
+            solver->set_var_weight(lit, weight);
+            //cout << "lit: " << lit << " weight: " << std::setprecision(12) << weight << endl;
+            if (weight < 0) {
+                cout << "ERROR: while definint weight, variable " << var+1 << " has is negative weight: " << weight << " -- line " << lineNum << endl;
+                exit(-1);
+            }
+            return true;
+        } else {
+            cout << "ERROR: weight is incorrect on line " << lineNum << endl;
+            exit(-1);
+        }
+    } else {
+        cout << "ERROR: weight is not given on line " << lineNum << endl;
+        exit(-1);
+    }
+    return true;
+}
+
+template<class C>
 bool DimacsParser<C>::parseComments(C& in, const std::string& str)
 {
     if (!debugLib.empty() && str.substr(0, 13) == "Solver::solve") {
@@ -453,12 +489,18 @@ bool DimacsParser<C>::parse_DIMACS_main(C& in)
             lineNum++;
             break;
         case 'c':
-        case 'w':
             ++in;
             in.parseString(str);
             if (!parseComments(in, str)) {
                 return false;
             }
+            break;
+        case 'w':
+            if (!parseWeight(in)) {
+                return false;
+            }
+            in.skipLine();
+            lineNum++;
             break;
         case 'x':
             ++in;

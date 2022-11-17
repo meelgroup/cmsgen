@@ -291,7 +291,7 @@ void ClauseAllocator::consolidate(
     assert(sizeof(BASE_DATA_TYPE) % sizeof(Lit) == 0);
 
     vector<bool> visited(solver->watches.size(), 0);
-    Heap<Solver::VarOrderLt> &order_heap = solver->VSIDS ? solver->order_heap_vsids : solver->order_heap_maple;
+    Heap<Solver::VarOrderLt> &order_heap = solver->order_heap_vsids;
     if (solver->conf.static_mem_consolidate_order) {
         for(auto& ws: solver->watches) {
             move_one_watchlist(ws, newDataStart, new_ptr);
