@@ -532,7 +532,7 @@ int Main::solve()
     if (ret == l_True) {
         cout << "c Finished generating all " << max_nr_of_solutions << " samples" << endl;
     }
-    cout << "c Total time: " << (cpuTime()-myTime) << endl;
+    cout << "c Total time: " << std::setprecision(2) << (cpuTime()-myTime) << " s " << endl;
 
     return correctReturnValue(ret);
 }

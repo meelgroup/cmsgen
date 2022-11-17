@@ -15,6 +15,30 @@ Let's take a DIMACS CNF file `input.cnf`. To get 50 uniform-like samples, run:
  Writing samples to file: mysamples.out
 ```
 
+You can add weights for polarities like this:
+```
+p cnf 2 1
+w 1 0.1
+2 0
+```
+
+This will give solutions where variable 2 is TRUE and where variable 1 is TRUE with a probability of 0.1. This is indeed the case:
+
+```
+$ echo "p cnf 2 1
+w 1 0.1
+2 0" | ./cmsgen
+c Writing samples to file: samples.out
+c Finished generating all 100 samples
+c Total time: 0.0016 s
+$ sort -n samples.out | uniq -c
+     92 -1 2 0
+      8 1 2 0
+```
+
+In other words, we got 8% samples where we had variable 1 as TRUE.
+
+
 Compiling in Linux
 -----
 
