@@ -109,9 +109,9 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , decision_based_cl_min_learned_size(50)
 
         //Var-elim
-        , doVarElim        (true)
+        , doVarElim        (false)
         , varelim_cutoff_too_many_clauses(2000)
-        , do_empty_varelim (true)
+        , do_empty_varelim (false)
         , empty_varelim_time_limitM(300LL)
         , varelim_time_limitM(350)
         , varelim_sub_str_limit(600)
@@ -181,7 +181,7 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , max_scc_depth (10000)
 
         //Iterative Alo Scheduling
-        , simplify_at_startup(false)
+        , simplify_at_startup(true)
         , simplify_at_every_startup(false)
         , do_simplify_problem(true)
         , full_simplify_at_startup(false)
@@ -197,7 +197,6 @@ DLL_PUBLIC SolverConf::SolverConf() :
             "cl-consolidate," //consolidate after OCC
             "scc-vrepl,"
             "sub-cls-with-bin,"
-            "sls,"
         )
 
         //validated with run 8114195.wlm01
@@ -217,7 +216,7 @@ DLL_PUBLIC SolverConf::SolverConf() :
             "str-impl,cache-clean,sub-str-cls-with-bin,distill-cls,"
             "scc-vrepl,check-cache-size,"
             //renumber then it's time for SLS
-            "renumber,sls"
+            "renumber"
         )
         , simplify_schedule_preproc(
             "scc-vrepl, cache-clean, cache-tryboth,"
