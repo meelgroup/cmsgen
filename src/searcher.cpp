@@ -1901,17 +1901,24 @@ lbool Searcher::solve(
     }
 
     #ifdef USE_GAUSS
-    clear_gauss_matrices();
-    {
-        MatrixFinder finder(solver);
-        ok = finder.findMatrixes();
-        if (!ok) {
-            status = l_False;
-            goto end;
+    if (!solver->xor_clauses_updated) {
+        if (conf.verbosity >= 3) {
+            cout << "c [find&init matx] XORs not updated, and either (XORs are not detached OR assumps does not contain clash variable) -> or not performing matrix init. Matrices: " << gmatrices.size() << endl;
         }
-    }
-    if (!solver->init_all_matrices()) {
-        return l_False;
+    } else {
+        if (conf.verbosity >= 1) cout << "c [find&init matx] performing matrix init" << endl;
+        clear_gauss_matrices();
+        {
+            MatrixFinder finder(solver);
+            ok = finder.findMatrixes();
+            if (!ok) {
+                status = l_False;
+                goto end;
+            }
+        }
+        if (!solver->init_all_matrices()) {
+            return l_False;
+        }
     }
 
     #ifdef SLOW_DEBUG
@@ -2927,6 +2934,7 @@ void Searcher::clear_gauss_matrices()
     }
     gmatrices.clear();
     gqueuedata.clear();
+    xor_clauses_updated = true;
 }
 #endif
 

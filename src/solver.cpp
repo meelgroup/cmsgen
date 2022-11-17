@@ -151,6 +151,7 @@ bool Solver::add_xor_clause_inter(
 
     if (!ps.empty()) {
         if (ps.size() > 2) {
+            xor_clauses_updated = true;
             xorclauses.push_back(Xor(ps, rhs));
         }
         ps[0] ^= rhs;
@@ -706,6 +707,7 @@ void Solver::renumber_clauses(const vector<uint32_t>& outerToInter)
     }
 
     //Clauses' abstractions have to be re-calculated
+    xor_clauses_updated = true;
     for(Xor& x: xorclauses) {
         updateVarsMap(x, outerToInter);
     }
@@ -1404,9 +1406,6 @@ lbool Solver::iterate_until_solved()
             status = simplify_problem(false);
         }
     }
-    #ifdef USE_GAUSS
-    clear_gauss_matrices();
-    #endif
     return status;
 }
 
@@ -3116,7 +3115,7 @@ bool Solver::init_all_matrices()
     for(auto& gqd: gqueuedata) {
         gqd.reset_stats();
     }
-
+    xor_clauses_updated = false;
     return solver->okay();
 }
 #endif //USE_GAUSS

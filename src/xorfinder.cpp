@@ -153,6 +153,7 @@ void XorFinder::find_xors()
 
     //clean them of equivalent XORs
     clean_equivalent_xors(xors);
+    solver->xor_clauses_updated = true;
 
     //Cleanup
     for(ClOffset offset: occsimplifier->clauses) {
