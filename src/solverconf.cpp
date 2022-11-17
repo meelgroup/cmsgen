@@ -38,21 +38,13 @@ DLL_PUBLIC SolverConf::SolverConf() :
         //Clause cleaning
         , every_lev1_reduce(10000) // kept for a while then moved to lev2
         , every_lev2_reduce(15000) // cleared regularly
-        #if defined(FINAL_PREDICTOR) || defined(STATS_NEEDED)
-        , every_lev3_reduce(10000)
-        #endif
         , must_touch_lev1_within(30000)
 
         , max_temp_lev2_learnt_clauses(30000) //only used if every_lev2_reduce==0
         , inc_max_temp_lev2_red_cls(1.0)      //only used if every_lev2_reduce==0
         , protect_cl_if_improved_glue_below_this_glue_for_one_turn(30)
-        #ifdef FINAL_PREDICTOR
-        , glue_put_lev0_if_below_or_eq(0)
-        , glue_put_lev1_if_below_or_eq(0)
-        #else
         , glue_put_lev0_if_below_or_eq(3) // never removed
         , glue_put_lev1_if_below_or_eq(6) // kept for a while then moved to lev2
-        #endif
         , clause_decay(0.999)
 
         , bump_new_learnt_cls(1)
@@ -115,12 +107,6 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , do_decision_based_cl(1)
         , decision_based_cl_max_levels(9)
         , decision_based_cl_min_learned_size(50)
-
-        //SQL
-        , dump_individual_restarts_and_clauses(true)
-        , dump_individual_cldata_ratio(0.01)
-        , sql_overwrite_file(0)
-        , lock_for_data_gen_ratio(0.5)
 
         //Var-elim
         , doVarElim        (true)
@@ -188,12 +174,6 @@ DLL_PUBLIC SolverConf::SolverConf() :
         #endif
         , allow_elim_xor_vars(1)
         , xor_var_per_cut(2)
-
-        #ifdef FINAL_PREDICTOR
-        //Predict system
-        , pred_conf_short(2)
-        , pred_conf_long(2)
-        #endif
 
         //Var-replacer
         , doFindAndReplaceEqLits(true)

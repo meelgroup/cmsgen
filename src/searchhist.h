@@ -53,16 +53,6 @@ struct SearchHist {
     AvgCalc<uint32_t>   conflSizeHistLT;     ///< Conflict size history (all restarts)
     AvgCalc<uint32_t>   numResolutionsHistLT;
 
-    #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-    bqueue<uint32_t>    backtrackLevelHist;
-    AvgCalc<uint32_t>   overlapHistLT;
-    AvgCalc<uint32_t>   antec_data_sum_sizeHistLT;
-    AvgCalc<uint32_t>   numResolutionsHist;  ///< Number of resolutions during conflict analysis of THIS restart
-    AvgCalc<uint32_t>   decisionLevelHistLT;
-    bqueue<uint32_t>    branchDepthHistQueue;
-    bqueue<uint32_t>    trailDepthHist;
-    #endif
-
     size_t mem_used() const
     {
         uint64_t used = sizeof(SearchHist);
@@ -72,11 +62,6 @@ struct SearchHist {
         used += sizeof(AvgCalc<double, double>)*2;
         used += glueHist.usedMem();
         used += trailDepthHistLonger.usedMem();
-        #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-        used += backtrackLevelHist.usedMem();
-        used += branchDepthHistQueue.usedMem();
-        #endif
-
         return used;
     }
 
@@ -90,33 +75,17 @@ struct SearchHist {
         //conflict generated
         glueHist.clear();
         conflSizeHist.clear();
-
-        #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-        numResolutionsHist.clear();
-        trailDepthHist.clear();
-        branchDepthHistQueue.clear();
-        #endif
     }
 
     void reset_glue_hist_size(size_t shortTermHistorySize)
     {
         glueHist.clearAndResize(shortTermHistorySize);
-        #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-        backtrackLevelHist.clearAndResize(shortTermHistorySize);
-        trailDepthHist.clearAndResize(shortTermHistorySize);
-        branchDepthHistQueue.clearAndResize(shortTermHistorySize);
-        #endif
     }
 
     void setSize(const size_t shortTermHistorySize, const size_t blocking_trail_hist_size)
     {
         glueHist.clearAndResize(shortTermHistorySize);
         trailDepthHistLonger.clearAndResize(blocking_trail_hist_size);
-        #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-        backtrackLevelHist.clearAndResize(shortTermHistorySize);
-        trailDepthHist.clearAndResize(shortTermHistorySize);
-        branchDepthHistQueue.clearAndResize(shortTermHistorySize);
-        #endif
     }
 
     void print() const
@@ -124,9 +93,6 @@ struct SearchHist {
         cout
         << " glue"
         << " "
-        #ifdef STATS_NEEDED
-        << std::right << glueHist.getLongtTerm().avgPrint(1, 5)
-        #endif
         << "/" << std::left << glueHistLT.avgPrint(1, 5)
 
         << " confllen"
@@ -138,11 +104,6 @@ struct SearchHist {
         << " branchdd"
 
         << " " << std::right << branchDepthDeltaHist.avgPrint(1, 4)
-
-        #ifdef STATS_NEEDED
-        << " traild"
-        << " " << std::right << trailDepthHist.getLongtTerm().avgPrint(0, 7)
-        #endif
 
         << " traildd"
         << " " << std::right << trailDepthDeltaHist.avgPrint(0, 5)

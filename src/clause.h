@@ -113,11 +113,7 @@ struct ClauseStats
         glue = 1000;
         is_decision_cl = false;
         is_ternary_resol_cl = false;
-        #ifdef FINAL_PREDICTOR
-        which_red_array = 3;
-        #else
         which_red_array = 2;
-        #endif
         activity = 0.0;
         ttl = 0;
         marked_clause = false;
@@ -139,62 +135,6 @@ struct ClauseStats
         uint32_t hash_val;
     };
     uint32_t last_touched;
-    #ifdef FINAL_PREDICTOR
-    float       glue_hist_long              = 0;
-    float       glue_hist_queue             = 0;
-    float       glue_hist                   = 0;
-    float       size_hist                   = 0;
-    uint32_t    old_glue                    = 0;
-    uint32_t    num_overlap_literals        = 0;
-    float       antec_overlap_hist          = 0;
-    uint32_t    num_total_lits_antecedents  = 0;
-    uint32_t    rdb1_last_touched_diff      = 0;
-    uint32_t    num_antecedents             = 0;
-    float       branch_depth_hist_queue     = 0;
-
-
-    //for locking in for long
-    uint8_t    locked_long = 0;
-    uint8_t    rdb1_act_ranking_top_10;
-    #endif
-
-    #if defined(STATS_NEEDED) || defined (FINAL_PREDICTOR)
-    uint16_t dump_number = 0;
-    uint32_t introduced_at_conflict = 0; ///<At what conflict number the clause  was introduced
-
-    //for average and sum stats
-    uint32_t sum_delta_confl_uip1_used = 0; //Sum of "sumConflicts - cl->stats.introduced_at_conflict" of every time the clause is in UIP
-    uint32_t sum_uip1_used = 0; ///N.o. times claue was used during 1st UIP generation for ALL TIME
-
-    //below resets
-    uint32_t used_for_uip_creation = 0; ///N.o. times claue was used during 1st UIP generation in this RDB
-    uint32_t rdb1_used_for_uip_creation = 0; ///N.o. times claue was used during 1st UIP generation in previous RDB
-    #endif
-
-    #ifdef STATS_NEEDED
-    int32_t ID = 0;
-
-    AtecedentData<uint16_t> antec_data;
-    uint32_t conflicts_made = 0; ///<Number of times caused conflict
-    uint32_t propagations_made = 0; ///<Number of times caused propagation
-    uint32_t clause_looked_at = 0; ///<Number of times the clause has been deferenced during propagation
-    #endif
-
-    #if defined(STATS_NEEDED) || defined (FINAL_PREDICTOR)
-    void reset_rdb_stats()
-    {
-        ttl = 0;
-        used_for_uip_creation = 0;
-        locked_for_data_gen = 0;
-        #if defined(STATS_NEEDED)
-        clause_looked_at = 0;
-        propagations_made = 0;
-        conflicts_made = 0;
-        antec_data.clear();
-        #endif
-    }
-    #endif
-
     static ClauseStats combineStats(const ClauseStats& first, const ClauseStats& second)
     {
         //Create to-be-returned data
@@ -203,19 +143,6 @@ struct ClauseStats
         //Combine stats
         ret.glue = std::min(first.glue, second.glue);
         ret.activity = std::max(first.activity, second.activity);
-
-        #if defined(STATS_NEEDED) || defined (FINAL_PREDICTOR)
-        ret.introduced_at_conflict = std::min(first.introduced_at_conflict, second.introduced_at_conflict);
-        ret.used_for_uip_creation = first.used_for_uip_creation + second.used_for_uip_creation;
-        #endif
-
-        #ifdef STATS_NEEDED
-        ret.ID = 0; //don't track combined clauses
-        ret.conflicts_made = first.conflicts_made + second.conflicts_made;
-        ret.propagations_made = first.propagations_made + second.propagations_made;
-        ret.clause_looked_at = first.clause_looked_at + second.clause_looked_at;
-        #endif
-
         ret.which_red_array = std::min(first.which_red_array, second.which_red_array);
 
         return ret;
@@ -224,18 +151,7 @@ struct ClauseStats
 
 inline std::ostream& operator<<(std::ostream& os, const ClauseStats& stats)
 {
-
     os << "glue " << stats.glue << " ";
-    #if defined(STATS_NEEDED) || defined (FINAL_PREDICTOR)
-    os << "conflIntro " << stats.introduced_at_conflict<< " ";
-    os << "used_for_uip_creation" << stats.used_for_uip_creation << " ";
-    #endif
-    #ifdef STATS_NEEDED
-    os << "numConfl " << stats.conflicts_made<< " ";
-    os << "numProp " << stats.propagations_made<< " ";
-    os << "numLook " << stats.clause_looked_at<< " ";
-    #endif
-
     return os;
 }
 
@@ -278,23 +194,11 @@ public:
     uint32_t mySize;
 
     template<class V>
-    Clause(const V& ps, const uint32_t _introduced_at_conflict
-        #ifdef STATS_NEEDED
-        , const int64_t _ID
-        #endif
-        )
+    Clause(const V& ps, const uint32_t _introduced_at_conflict)
     {
         //assert(ps.size() > 2);
 
         stats.last_touched = _introduced_at_conflict;
-        #if defined(FINAL_PREDICTOR) || defined(STATS_NEEDED)
-        stats.introduced_at_conflict = _introduced_at_conflict;
-        #endif
-
-        #ifdef STATS_NEEDED
-        stats.ID = _ID;
-        assert(_ID >= 0);
-        #endif
         stats.glue = std::min<uint32_t>(stats.glue, ps.size());
         isFreed = false;
         mySize = ps.size();
@@ -399,9 +303,6 @@ public:
     void makeIrred()
     {
         assert(isRed);
-        /*#if STATS_NEEDED
-        stats.ID = 0;
-        #endif*/
         isRed = false;
     }
 
@@ -505,13 +406,6 @@ public:
         if (red()) {
             cout << " glue : " << std::setw(4) << stats.glue;
         }
-        #ifdef STATS_NEEDED
-        cout
-        << " Confls: " << std::setw(10) << stats.conflicts_made
-        << " Props: " << std::setw(10) << stats.propagations_made
-        << " Looked at: " << std::setw(10)<< stats.clause_looked_at
-        << " UIP used: " << std::setw(10)<< stats.used_for_uip_creation;
-        #endif
         cout << endl;
     }
 };

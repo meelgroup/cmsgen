@@ -376,9 +376,6 @@ lbool OccSimplifier::clean_clause(ClOffset offset)
 
     if (i-j > 0) {
         (*solver->drat) << add << cl
-        #ifdef STATS_NEEDED
-        << solver->sumConflicts
-        #endif
         << fin << findelay;
     } else {
         solver->drat->forget_delay();
@@ -392,9 +389,6 @@ lbool OccSimplifier::clean_clause(ClOffset offset)
 
         case 1:
             solver->enqueue(cl[0]);
-            #ifdef STATS_NEEDED
-            solver->propStats.propsUnit++;
-            #endif
             unlink_clause(offset, false);
             return l_True;
 
@@ -453,9 +447,6 @@ bool OccSimplifier::complete_clean_clause(Clause& cl)
     //Drat
     if (i - j > 0) {
         (*solver->drat) << add << cl
-        #ifdef STATS_NEEDED
-        << solver->sumConflicts
-        #endif
         << fin << findelay;
     } else {
         solver->drat->forget_delay();
@@ -468,9 +459,6 @@ bool OccSimplifier::complete_clean_clause(Clause& cl)
 
         case 1:
             solver->enqueue(cl[0]);
-            #ifdef STATS_NEEDED
-            solver->propStats.propsUnit++;
-            #endif
             return false;
 
         case 2:
@@ -543,21 +531,10 @@ OccSimplifier::LinkInData OccSimplifier::link_in_clauses(
         Clause* cl = solver->cl_alloc.ptr(offs);
         cl->recalc_abst_if_needed();
         assert(cl->abst == calcAbstraction(*cl));
-        #ifdef FINAL_PREDICTOR
-        bool locked_long = true;
-        if (cl->red()) {
-            if (!cl->stats.locked_long) {
-                locked_long = false;
-            }
-        }
-        #endif
 
         if (alsoOccur
             && cl->size() < max_size
             && link_in_lit_limit > 0
-            #ifdef FINAL_PREDICTOR
-            && locked_long
-            #endif
         ) {
             linkInClause(*cl);
             link_in_data.cl_linked++;
@@ -641,7 +618,6 @@ void OccSimplifier::add_back_to_solver()
             solver->attachClause(*cl);
             if (cl->red()) {
                 assert(cl->stats.which_red_array < solver->longRedCls.size());
-                #ifndef FINAL_PREDICTOR
                 if (cl->stats.locked_for_data_gen) {
                     assert(cl->stats.which_red_array == 0);
                 } else if (cl->stats.glue <= solver->conf.glue_put_lev0_if_below_or_eq) {
@@ -652,7 +628,6 @@ void OccSimplifier::add_back_to_solver()
                 ) {
                     cl->stats.which_red_array = 1;
                 }
-                #endif
                 solver->longRedCls[cl->stats.which_red_array].push_back(offs);
             } else {
                 solver->longIrredCls.push_back(offs);
@@ -1742,9 +1717,6 @@ bool OccSimplifier::fill_occur()
     }
     //Sort, so we get the shortest ones in at least
     uint32_t arr_to_link = 0;
-    #ifdef FINAL_PREDICTOR
-    arr_to_link = 3;
-    #endif
     std::sort(solver->longRedCls[arr_to_link].begin(), solver->longRedCls[arr_to_link].end()
         , ClauseSizeSorter(solver->cl_alloc));
 
@@ -2381,7 +2353,7 @@ int OccSimplifier::test_elim_and_fill_resolvents(const uint32_t var)
             //Calculate new clause stats
             ClauseStats stats;
             bool is_xor = false;
-            #if defined(USE_GAUSS) || defined(STATS_NEEDED)
+            #if defined(USE_GAUSS)
             if (it->isBin() && it2->isClause()) {
                 Clause* c = solver->cl_alloc.ptr(it2->get_offset());
                 stats = c->stats;

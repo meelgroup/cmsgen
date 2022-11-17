@@ -311,19 +311,6 @@ struct PropStats
         bogoProps += other.bogoProps;
         otfHyperTime += other.otfHyperTime;
         otfHyperPropCalled += other.otfHyperPropCalled;
-        #ifdef STATS_NEEDED
-        propsUnit += other.propsUnit;
-        propsBinIrred += other.propsBinIrred;
-        propsBinRed += other.propsBinRed;
-        propsLongIrred += other.propsLongIrred;
-        propsLongRed += other.propsLongRed;
-
-        //Var settings
-        varSetPos += other.varSetPos;
-        varSetNeg += other.varSetNeg;
-        varFlipped += other.varFlipped;
-        #endif
-
         return *this;
     }
 
@@ -333,19 +320,6 @@ struct PropStats
         bogoProps -= other.bogoProps;
         otfHyperTime -= other.otfHyperTime;
         otfHyperPropCalled -= other.otfHyperPropCalled;
-        #ifdef STATS_NEEDED
-        propsUnit -= other.propsUnit;
-        propsBinIrred -= other.propsBinIrred;
-        propsBinRed -= other.propsBinRed;
-        propsLongIrred -= other.propsLongIrred;
-        propsLongRed -= other.propsLongRed;
-
-        //Var settings
-        varSetPos -= other.varSetPos;
-        varSetNeg -= other.varSetNeg;
-        varFlipped -= other.varFlipped;
-        #endif
-
         return *this;
     }
 
@@ -380,69 +354,12 @@ struct PropStats
             , ratio_for_stat(propagations, cpu_time*1000.0*1000.0)
             , "/ sec"
         );
-
-        #ifdef STATS_NEEDED
-        print_stats_line("c propsUnit", propsUnit
-            , stats_line_percent(propsUnit, propagations)
-            , "% of propagations"
-        );
-
-        print_stats_line("c propsBinIrred", propsBinIrred
-            , stats_line_percent(propsBinIrred, propagations)
-            , "% of propagations"
-        );
-
-        print_stats_line("c propsBinRed", propsBinRed
-            , stats_line_percent(propsBinRed, propagations)
-            , "% of propagations"
-        );
-
-        print_stats_line("c propsLongIrred", propsLongIrred
-            , stats_line_percent(propsLongIrred, propagations)
-            , "% of propagations"
-        );
-
-        print_stats_line("c propsLongRed", propsLongRed
-            , stats_line_percent(propsLongRed, propagations)
-            , "% of propagations"
-        );
-
-        print_stats_line("c varSetPos", varSetPos
-            , stats_line_percent(varSetPos, propagations)
-            , "% of propagations"
-        );
-
-        print_stats_line("c varSetNeg", varSetNeg
-            , stats_line_percent(varSetNeg, propagations)
-            , "% of propagations"
-        );
-
-        print_stats_line("c flipped", varFlipped
-            , stats_line_percent(varFlipped, propagations)
-            , "% of propagations"
-        );
-        #endif
-
     }
 
     uint64_t propagations = 0; ///<Number of propagations made
     uint64_t bogoProps = 0;    ///<An approximation of time
     uint64_t otfHyperTime = 0;
     uint32_t otfHyperPropCalled = 0;
-
-    #ifdef STATS_NEEDED
-    //Stats for propagations
-    uint64_t propsUnit = 0;
-    uint64_t propsBinIrred = 0;
-    uint64_t propsBinRed = 0;
-    uint64_t propsLongIrred = 0;
-    uint64_t propsLongRed = 0;
-
-    //Var settings
-    uint64_t varSetPos = 0;
-    uint64_t varSetNeg = 0;
-    uint64_t varFlipped = 0;
-    #endif
 };
 
 enum class ConflCausedBy {
@@ -462,53 +379,15 @@ struct ConflStats
 
     ConflStats& operator+=(const ConflStats& other)
     {
-        #ifdef STATS_NEEDED
-        conflsBinIrred += other.conflsBinIrred;
-        conflsBinRed += other.conflsBinRed;
-        conflsLongIrred += other.conflsLongIrred;
-        conflsLongRed += other.conflsLongRed;
-        #endif
-
         numConflicts += other.numConflicts;
-
         return *this;
     }
 
     ConflStats& operator-=(const ConflStats& other)
     {
-        #ifdef STATS_NEEDED
-        conflsBinIrred -= other.conflsBinIrred;
-        conflsBinRed -= other.conflsBinRed;
-        conflsLongIrred -= other.conflsLongIrred;
-        conflsLongRed -= other.conflsLongRed;
-        #endif
-
         numConflicts -= other.numConflicts;
-
         return *this;
     }
-
-    #ifdef STATS_NEEDED
-    void update(const ConflCausedBy lastConflictCausedBy)
-    {
-        switch(lastConflictCausedBy) {
-            case ConflCausedBy::binirred :
-                conflsBinIrred++;
-                break;
-            case ConflCausedBy::binred :
-                conflsBinRed++;
-                break;
-            case ConflCausedBy::longirred :
-                conflsLongIrred++;
-                break;
-            case ConflCausedBy::longred :
-                conflsLongRed++;
-                break;
-            default:
-                assert(false);
-        }
-    }
-    #endif
 
     void print_short(double cpu_time, bool do_print_times) const
     {
@@ -528,55 +407,7 @@ struct ConflStats
         //Search stats
         cout << "c CONFLS stats" << endl;
         print_short(cpu_time, do_print_times);
-
-        #ifdef STATS_NEEDED
-        print_stats_line("c conflsBinIrred", conflsBinIrred
-            , stats_line_percent(conflsBinIrred, numConflicts)
-            , "%"
-        );
-
-        print_stats_line("c conflsBinRed", conflsBinRed
-            , stats_line_percent(conflsBinRed, numConflicts)
-            , "%"
-        );
-
-        print_stats_line("c conflsLongIrred" , conflsLongIrred
-            , stats_line_percent(conflsLongIrred, numConflicts)
-            , "%"
-        );
-
-        print_stats_line("c conflsLongRed", conflsLongRed
-            , stats_line_percent(conflsLongRed, numConflicts)
-            , "%"
-        );
-
-        long diff = (long)numConflicts
-            - (long)(conflsBinIrred + (long)conflsBinRed
-                + (long)conflsLongIrred + (long)conflsLongRed
-            );
-
-        if (diff != 0) {
-            cout
-            << "c DEBUG"
-            << "((int)numConflicts - (int)(conflsBinIrred + conflsBinRed"
-            << endl
-            << "c  + conflsLongIrred + conflsLongRed)"
-            << " = "
-            << (((int)numConflicts - (int)(conflsBinIrred + conflsBinRed
-                + conflsLongIrred + conflsLongRed)))
-            << endl;
-
-            //assert(diff == 0);
-        }
-        #endif
     }
-
-    #ifdef STATS_NEEDED
-    uint64_t conflsBinIrred = 0;
-    uint64_t conflsBinRed = 0;
-    uint64_t conflsLongIrred = 0;
-    uint64_t conflsLongRed = 0;
-    #endif
 
     ///Number of conflicts
     uint64_t  numConflicts = 0;

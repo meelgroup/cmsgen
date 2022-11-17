@@ -35,11 +35,6 @@ if (NOT WIN32)
     add_cxx_flag_if_supported("-Wextra-semi")
     add_cxx_flag_if_supported("-pedantic")
     #add_cxx_flag_if_supported("-Wdeprecated")
-
-    if (FINAL_PREDICTOR)
-    add_cxx_flag_if_supported("-Wno-unused-parameter")
-    add_cxx_flag_if_supported("-Wno-unused-but-set-variable")
-    endif()
 endif()
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -86,8 +81,9 @@ set(cryptoms_lib_files
     yals.c
     walksat.cpp
     sls.cpp
-
-#    watcharray.cpp
+    gaussian.cpp
+    matrixfinder.cpp
+    packedrow.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/GitSHA1.cpp
 )
 

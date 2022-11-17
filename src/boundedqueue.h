@@ -45,10 +45,6 @@ class bqueue {
     uint32_t maxsize; //max number of history elements
     uint32_t queuesize; // Number of current elements (must be < maxsize !)
     T2  sumofqueue;
-    #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-    AvgCalc<T, T2> longTermAvg;
-    #endif
-
 public:
     bqueue(void) :
         first(0)
@@ -79,10 +75,6 @@ public:
         }
 
         sumofqueue += x;
-
-        #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-        longTermAvg.push(x);
-        #endif
         elems[first] = x;
 
         first++;
@@ -106,35 +98,6 @@ public:
 
         return (double)sumofqueue/(double)queuesize;
     }
-
-    #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-    const AvgCalc<T,T2>& getLongtTerm() const
-    {
-        return longTermAvg;
-    }
-
-    T prev(int32_t p) const
-    {
-        if (p > (int32_t)queuesize)
-            return 0;
-
-        uint32_t e;
-        if (first > 0) {
-            e = first-1;
-        } else {
-            e = maxsize-1;
-        }
-
-        while(p-- > 0) {
-            if (e == 0) {
-                e = maxsize-1;
-            } else {
-                e--;
-            }
-        }
-        return elems[e];
-    }
-    #endif
 
     std::string getAvgPrint(size_t prec, size_t w) const
     {
@@ -168,10 +131,6 @@ public:
         last = 0;
         queuesize = 0;
         sumofqueue = 0;
-
-        #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-        longTermAvg.clear();
-        #endif
     }
 
     size_t get_size() const

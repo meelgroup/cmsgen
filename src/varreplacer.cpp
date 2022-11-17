@@ -155,9 +155,6 @@ bool VarReplacer::enqueueDelayedEnqueue()
         lit = get_lit_replaced_with(lit);
         if (solver->value(lit) == l_Undef) {
             solver->enqueue(lit);
-            #ifdef STATS_NEEDED
-            solver->propStats.propsUnit++;
-            #endif
         } else if (solver->value(lit) == l_False) {
             solver->ok = false;
             break;
@@ -334,10 +331,6 @@ inline void VarReplacer::updateBin(
     if (lit1 == lit2) {
         delayedEnqueue.push_back(lit2);
         (*solver->drat) << add << lit2
-        #ifdef STATS_NEEDED
-        << 0
-        << solver->sumConflicts
-        #endif
         << fin;
         remove = true;
     }
@@ -366,10 +359,6 @@ inline void VarReplacer::updateBin(
     ) {
         (*solver->drat)
         << add << lit1 << lit2
-        #ifdef STATS_NEEDED
-        << 0
-        << solver->sumConflicts
-        #endif
         << fin
         << del << origLit1 << origLit2 << fin;
     }
@@ -574,9 +563,6 @@ bool VarReplacer::handleUpdatedClause(
         return true;
     }
     (*solver->drat) << add << c
-    #ifdef STATS_NEEDED
-    << solver->sumConflicts
-    #endif
     << fin << findelay;
 
     runStats.bogoprops += 3;
@@ -713,31 +699,15 @@ bool VarReplacer::handleAlreadyReplaced(const Lit lit1, const Lit lit2)
     if (lit1.sign() != lit2.sign()) {
         (*solver->drat)
         << add << ~lit1 << lit2
-        #ifdef STATS_NEEDED
-        << 0
-        << solver->sumConflicts
-        #endif
         << fin
 
         << add << lit1 << ~lit2
-        #ifdef STATS_NEEDED
-        << 0
-        << solver->sumConflicts
-        #endif
         << fin
 
         << add << lit1
-        #ifdef STATS_NEEDED
-        << 0
-        << solver->sumConflicts
-        #endif
         << fin
 
         << add << ~lit1
-        #ifdef STATS_NEEDED
-        << 0
-        << solver->sumConflicts
-        #endif
         << fin;
 
         solver->ok = false;
@@ -757,19 +727,9 @@ bool VarReplacer::replace_vars_already_set(
     if (val1 != val2) {
         (*solver->drat)
         << add << ~lit1
-        #ifdef STATS_NEEDED
-        << 0
-        << solver->sumConflicts
-        #endif
         << fin
-
         << add << lit1
-        #ifdef STATS_NEEDED
-        << 0
-        << solver->sumConflicts
-        #endif
         << fin;
-
         solver->ok = false;
     }
 
@@ -792,15 +752,7 @@ bool VarReplacer::handleOneSet(
         }
         solver->enqueue(toEnqueue);
         (*solver->drat) << add << toEnqueue
-        #ifdef STATS_NEEDED
-        << 0
-        << solver->sumConflicts
-        #endif
         << fin;
-
-        #ifdef STATS_NEEDED
-        solver->propStats.propsUnit++;
-        #endif
 
         solver->ok = (solver->propagate<false>().isNULL());
     }
@@ -842,16 +794,8 @@ bool VarReplacer::replace(
     }
     (*solver->drat)
     << add << ~lit1 << lit2
-    #ifdef STATS_NEEDED
-    << 0
-    << solver->sumConflicts
-    #endif
     << fin
     << add << lit1 << ~lit2
-    #ifdef STATS_NEEDED
-    << 0
-    << solver->sumConflicts
-    #endif
     << fin;
 
     //None should be removed, only maybe queued for replacement

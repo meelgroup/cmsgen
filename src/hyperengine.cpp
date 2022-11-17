@@ -533,10 +533,6 @@ void HyperEngine::add_hyper_bin(const Lit p)
         #endif
         needToAddBinClause.insert(BinaryClause(p, ~deepestAncestor, true));
         *drat << add << p << (~deepestAncestor)
-        #ifdef STATS_NEEDED
-        << 0
-        << sumConflicts
-        #endif
         << fin;
 
         hyperBinNotAdded = false;
@@ -918,13 +914,6 @@ PropResult HyperEngine::prop_bin_with_ancestor_info(
     const Lit lit = k->lit2();
     const lbool val = value(lit);
     if (val == l_Undef) {
-        #ifdef STATS_NEEDED
-        if (k->red())
-            propStats.propsBinRed++;
-        else
-            propStats.propsBinIrred++;
-        #endif
-
         //Never propagated before
         enqueue_with_acestor_info(lit, p, k->red());
         return PROP_SOMETHING;
@@ -999,10 +988,6 @@ PropResult HyperEngine::prop_normal_cl_with_ancestor_info(
     propStats.bogoProps += 4;
     const ClOffset offset = i->get_offset();
     Clause& c = *cl_alloc.ptr(offset);
-    #ifdef STATS_NEEDED
-    c.stats.clause_looked_at++;
-    #endif
-
     PropResult ret = prop_normal_helper(c, offset, j, p);
     if (ret != PROP_TODO)
         return ret;
@@ -1014,14 +999,6 @@ PropResult HyperEngine::prop_normal_cl_with_ancestor_info(
     }
 
     //Update stats
-    #ifdef STATS_NEEDED
-    c.stats.propagations_made++;
-    if (c.red())
-        propStats.propsLongRed++;
-    else
-        propStats.propsLongIrred++;
-    #endif
-
     add_hyper_bin(c[0], c);
 
     return PROP_SOMETHING;

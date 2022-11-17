@@ -45,9 +45,6 @@ THE SOFTWARE.
 #include "gaussian.h"
 #endif
 
-#ifdef FINAL_PREDICTOR_BRANCH
-#include "predict/maple_predictor_conf0_cluster0.h"
-#endif
 //#define DEBUG_RESOLV
 //#define VERBOSE_DEBUG
 
@@ -138,12 +135,6 @@ inline void Searcher::add_lit_to_learnt(
     const uint32_t var = lit.var();
     assert(varData[var].removed == Removed::none);
 
-    #ifdef STATS_NEEDED
-    if (!update_bogoprops) {
-        varData[var].inside_conflict_clause_antecedents++;
-    }
-    #endif
-
     //If var is at level 0, don't do anything with it, just skip
     if (seen[var] || varData[var].level == 0) {
         return;
@@ -217,11 +208,6 @@ void Searcher::create_otf_subsuming_implicit_clause(const Clause& cl)
         for(unsigned  i = 0; i < newCl.size; i++) {
             *drat << newCl.lits[i];
         }
-        #ifdef STATS_NEEDED
-        *drat
-        << 0
-        << sumConflicts;
-        #endif
         *drat << fin;
     }
 
@@ -256,9 +242,6 @@ void Searcher::create_otf_subsuming_long_clause(
         << "New smaller clause OTF:" << cl << endl;
     }
     *drat << add << cl
-    #ifdef STATS_NEEDED
-    << sumConflicts
-    #endif
     << fin << findelay;
     otf_subsuming_long_cls.push_back(offset);
 }
@@ -411,14 +394,8 @@ Clause* Searcher::add_literals_from_confl_to_learnt(
         case binary_t : {
             sumAntecedentsLits += 2;
             if (confl.isRedStep()) {
-                #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-                antec_data.binRed++;
-                #endif
                 stats.resolvs.binRed++;
             } else {
-                #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-                antec_data.binIrred++;
-                #endif
                 stats.resolvs.binIrred++;
             }
             break;
@@ -429,33 +406,13 @@ Clause* Searcher::add_literals_from_confl_to_learnt(
             sumAntecedentsLits += cl->size();
             if (cl->red()) {
                 stats.resolvs.longRed++;
-                #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-                antec_data.longRed++;
-                antec_data.age_long_reds.push(sumConflicts - cl->stats.introduced_at_conflict);
-                antec_data.glue_long_reds.push(cl->stats.glue);
-                #endif
             } else {
                 stats.resolvs.longIrred++;
-                #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-                antec_data.longIrred++;
-                #endif
             }
-            #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-            antec_data.size_longs.push(cl->size());
-            if (!update_bogoprops) {
-                cl->stats.used_for_uip_creation++;
-                cl->stats.sum_uip1_used++;
-                cl->stats.sum_delta_confl_uip1_used += sumConflicts - cl->stats.introduced_at_conflict;
-            }
-            #endif
 
-            //If STATS_NEEDED then bump acitvity of ALL clauses
-            //and set stats on all clauses
             if (!update_bogoprops
                 && cl->red()
-                #if !defined(STATS_NEEDED) && !defined(FINAL_PREDICTOR)
                 && cl->stats.which_red_array != 0
-                #endif
             ) {
                 if (conf.update_glues_on_analyze) {
                     update_clause_glue_from_analysis(cl);
@@ -465,13 +422,9 @@ Clause* Searcher::add_literals_from_confl_to_learnt(
                 //If stats or predictor, bump all because during final
                 //we will need this data and during dump when stats is on
                 //we also need this data.
-                #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-                bump_cl_act<update_bogoprops>(cl);
-                #else
                 if (cl->stats.which_red_array == 2) {
                     bump_cl_act<update_bogoprops>(cl);
                 }
-                #endif
             }
 
             break;
@@ -813,9 +766,6 @@ Clause* Searcher::analyze_conflict(
     , uint32_t& glue
 ) {
     //Set up environment
-    #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-    antec_data.clear();
-    #endif
     learnt_clause.clear();
     assert(toClear.empty());
     implied_by_learnts.clear();
@@ -850,13 +800,6 @@ Clause* Searcher::analyze_conflict(
     ) {
         minimise_redundant_more_more(learnt_clause);
     }
-
-    #ifdef STATS_NEEDED
-    for(const Lit l: learnt_clause) {
-        varData[l.var()].inside_conflict_clause++;
-        varData[l.var()].inside_conflict_clause_glue += glue;
-    }
-    #endif
 
     out_btlevel = find_backtrack_level_of_learnt();
     if (!update_bogoprops) {
@@ -1138,15 +1081,7 @@ lbool Searcher::search()
             ) {
                 var_decay_vsids += 0.01;
             }
-
-            #ifdef STATS_NEEDED
-            stats.conflStats.update(lastConflictCausedBy);
-            #endif
-
             print_restart_stat();
-            #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-            hist.trailDepthHist.push(trail.size());
-            #endif
             hist.trailDepthHistLonger.push(trail.size());
             if (!handle_conflict<false>(confl)) {
                 return l_False;
@@ -1165,8 +1100,6 @@ lbool Searcher::search()
             }
 
             if (ret == gauss_ret::g_false) {
-                //cout << "g_false" << endl;
-                dump_search_loop_stats(myTime);
                 return l_False;
             }
 
@@ -1352,10 +1285,6 @@ void Searcher::add_otf_subsume_long_clauses()
             //Drat
             if (decisionLevel() == 0) {
                 *drat << add << cl[0]
-                #ifdef STATS_NEEDED
-                << cl.stats.ID
-                << sumConflicts
-                #endif
                 << fin;
             }
         } else {
@@ -1423,10 +1352,6 @@ void Searcher::add_otf_subsume_implicit_clause()
             //Drat
             if (decisionLevel() == 0) {
                 *drat << add << it->lits[0]
-                #ifdef STATS_NEEDED
-                << 0
-                << sumConflicts
-                #endif
                 << fin;
             }
         } else {
@@ -1452,23 +1377,11 @@ void Searcher::update_history_stats(size_t backtrack_level, uint32_t glue)
 
     //short-term averages
     hist.branchDepthHist.push(decisionLevel());
-    #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-    hist.backtrackLevelHist.push(backtrack_level);
-    hist.branchDepthHistQueue.push(decisionLevel());
-    hist.numResolutionsHist.push(antec_data.num());
-    #endif
     hist.branchDepthDeltaHist.push(decisionLevel() - backtrack_level);
     hist.conflSizeHist.push(learnt_clause.size());
     hist.trailDepthDeltaHist.push(trail.size() - trail_lim[backtrack_level]);
 
     //long-term averages
-    #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-    hist.numResolutionsHistLT.push(antec_data.num());
-    hist.decisionLevelHistLT.push(decisionLevel());
-    const uint32_t overlap = antec_data.sum_size()-(antec_data.num()-1)-learnt_clause.size();
-    hist.antec_data_sum_sizeHistLT.push(antec_data.sum_size());
-    hist.overlapHistLT.push(overlap);
-    #endif
     hist.backtrackLevelHistLT.push(backtrack_level);
     hist.conflSizeHistLT.push(learnt_clause.size());
     hist.trailDepthHistLT.push(trail.size());
@@ -1494,11 +1407,6 @@ void Searcher::attach_and_enqueue_learnt_clause(Clause* cl, bool enq)
             stats.learntUnits++;
             if (enq) enqueue(learnt_clause[0]);
             assert(decisionLevel() == 0);
-
-            #ifdef STATS_NEEDED
-            propStats.propsUnit++;
-            #endif
-
             break;
         case 2:
             //Binary learnt
@@ -1506,10 +1414,6 @@ void Searcher::attach_and_enqueue_learnt_clause(Clause* cl, bool enq)
             solver->datasync->signalNewBinClause(learnt_clause);
             solver->attach_bin_clause(learnt_clause[0], learnt_clause[1], true, enq);
             if (enq) enqueue(learnt_clause[0], PropBy(learnt_clause[1], true));
-
-            #ifdef STATS_NEEDED
-            propStats.propsBinRed++;
-            #endif
             break;
 
         default:
@@ -1520,11 +1424,6 @@ void Searcher::attach_and_enqueue_learnt_clause(Clause* cl, bool enq)
             for(uint32_t i = 0; i < solver->conf.bump_new_learnt_cls; i++) {
                 bump_cl_act<update_bogoprops>(cl);
             }
-
-            #ifdef STATS_NEEDED
-            cl->stats.antec_data = antec_data;
-            propStats.propsLongRed++;
-            #endif
 
             break;
     }
@@ -1554,112 +1453,11 @@ void Searcher::print_learnt_clause() const
     }
 }
 
-#ifdef STATS_NEEDED
-void Searcher::sql_dump_last_in_solver()
-{
-    if (!sqlStats)
-        return;
-
-    for(auto& red_cls: longRedCls) {
-        for(auto& offs: red_cls) {
-            Clause* cl = cl_alloc.ptr(offs);
-            if (cl->stats.ID != 0) {
-                sqlStats->cl_last_in_solver(solver, cl->stats.ID);
-            }
-        }
-    }
-}
-
-void Searcher::dump_sql_clause_data(
-    const uint32_t glue
-    , const uint32_t old_glue
-    , const uint32_t old_decision_level
-    , const uint64_t clid
-    , const bool decision_cl
-    , const bool ternary_resol_cl
-) {
-    solver->sqlStats->begin_transaction();
-    for(int i = (int)decisionLevel()-1; i >= 0; i--) {
-        uint32_t at = trail_lim[i];
-        if (at < trail.size()) {
-            uint32_t v = trail[at].var();
-            if (varData[v].dump) {
-                uint64_t outer_var = map_inter_to_outer(v);
-                solver->sqlStats->dec_var_clid(
-                    outer_var
-                    , varData[v].sumConflicts_at_picktime
-                    , clid
-                );
-            }
-        }
-    }
-
-    solver->sqlStats->dump_clause_stats(
-        solver
-        , clid
-        , glue
-        , old_glue
-        , decisionLevel()
-        , learnt_clause.size()
-        , antec_data
-        , old_decision_level
-        , trail.size()
-        , params.conflictsDoneThisRestart
-        , restart_type_to_short_string(params.rest_type)
-        , hist
-        , decision_cl
-        , ternary_resol_cl
-    );
-    solver->sqlStats->end_transaction();
-}
-#endif
-
-#ifdef FINAL_PREDICTOR
-void Searcher::set_clause_data(
-    Clause* cl
-    , const uint32_t glue
-    , const uint32_t old_glue
-    , const uint32_t old_decision_level
-) {
-
-
-    //definitely a BUG here I think -- should be 2*antec_data.num(), no?
-    //however, it's the same as how it's dumped in sqlitestats.cpp
-    cl->stats.num_overlap_literals = antec_data.sum_size()-(antec_data.num()-1)-cl->size();
-
-
-    cl->stats.glue_hist = hist.glueHistLT.avg();
-    cl->stats.size_hist = hist.conflSizeHistLT.avg();
-    cl->stats.glue_hist_queue = hist.glueHist.getLongtTerm().avg();
-    cl->stats.glue_hist_long = hist.glueHist.avg_nocheck();
-
-    cl->stats.num_antecedents = antec_data.num();
-    cl->stats.antec_overlap_hist = hist.overlapHistLT.avg();
-    cl->stats.num_total_lits_antecedents = antec_data.sum_size();;
-    cl->stats.branch_depth_hist_queue =  hist.branchDepthHistQueue.avg_nocheck();
-    cl->stats.old_glue = old_glue;
-}
-#endif
-
 Clause* Searcher::handle_last_confl_otf_subsumption(
     Clause* cl
     , const uint32_t glue
     , bool decision_cl
 ) {
-    #ifdef STATS_NEEDED
-    bool to_dump = false;
-    #endif
-
-    #ifdef STATS_NEEDED
-    double myrnd = mtrand.randDblExc();
-    if (myrnd <= conf.dump_individual_cldata_ratio) {
-        to_dump = true;
-        if (sqlStats) {
-            dump_restart_sql(rst_dat_type::cl);
-        }
-    }
-    #endif
-
     if (learnt_clause.size() <= 2 ||
         cl == NULL ||
         cl->gauss_temp_cl() ||
@@ -1668,27 +1466,15 @@ Clause* Searcher::handle_last_confl_otf_subsumption(
         //Cannot make a non-implicit into an implicit
         if (learnt_clause.size() <= 2) {
             *drat << add << learnt_clause
-            #ifdef STATS_NEEDED
-            << (to_dump ? clauseID : 0)
-            << sumConflicts
-            #endif
             << fin;
             cl = NULL;
         } else {
             cl = cl_alloc.Clause_new(learnt_clause
             , sumConflicts
-            #ifdef STATS_NEEDED
-            , to_dump ? clauseID : 0
-            #endif
             );
             cl->makeRed(glue);
             ClOffset offset = cl_alloc.get_offset(cl);
             unsigned which_arr = 2;
-
-            #ifdef STATS_NEEDED
-            cl->stats.locked_for_data_gen = to_dump &&
-                mtrand.randDblExc() < conf.lock_for_data_gen_ratio;
-            #endif
 
             if (cl->stats.locked_for_data_gen) {
                 which_arr = 0;
@@ -1700,11 +1486,7 @@ Clause* Searcher::handle_last_confl_otf_subsumption(
             ) {
                 which_arr = 1;
             } else {
-                #ifdef FINAL_PREDICTOR
-                which_arr = 3;
-                #else
                 which_arr = 2;
-                #endif
             }
 
             if (which_arr == 0) {
@@ -1716,15 +1498,9 @@ Clause* Searcher::handle_last_confl_otf_subsumption(
             solver->longRedCls[cl->stats.which_red_array].push_back(offset);
 
             *drat << add << *cl
-            #ifdef STATS_NEEDED
-            << sumConflicts
-            #endif
             << fin;
         }
     } else {
-        #ifdef STATS_NEEDED
-        assert(false);
-        #endif
         //On-the-fly subsumption
         assert(cl->size() > 2);
         *drat << deldelay << *cl << fin;
@@ -1742,49 +1518,10 @@ Clause* Searcher::handle_last_confl_otf_subsumption(
         if (cl->red() && cl->stats.glue > glue) {
             cl->stats.glue = glue;
         }
-        //it should stay the same clauseID
-        //#ifdef STATS_NEEDED
-        //cl->stats.ID = clauseID;
-        //#endif
 
         *drat << add << *cl
-        #ifdef STATS_NEEDED
-        << solver->sumConflicts
-        #endif
          << fin << findelay;
     }
-
-    #ifdef STATS_NEEDED
-    if (solver->sqlStats
-        && drat
-        && conf.dump_individual_restarts_and_clauses
-        && to_dump
-    ) {
-        if (cl) {
-            cl->stats.dump_number = 0;
-        }
-        dump_this_many_cldata_in_stream--;
-        dump_sql_clause_data(
-            glue
-            , old_glue
-            , old_decision_level
-            , clauseID
-            , decision_cl //decision_clause
-            , false //ternary reslution clause
-        );
-    }
-
-    if (to_dump) {
-        clauseID++;
-    }
-    #endif
-
-    #ifdef FINAL_PREDICTOR
-    if (cl) {
-        set_clause_data(cl, glue, old_glue, old_decision_level);
-        cl->stats.dump_number = 0;
-    }
-    #endif
 
     return cl;
 }
@@ -1812,7 +1549,6 @@ bool Searcher::handle_conflict(const PropBy confl)
 
     uint32_t backtrack_level;
     uint32_t glue;
-    uint32_t old_glue;
     Clause* subsumed_cl = analyze_conflict<update_bogoprops>(
         confl
         , backtrack_level  //return backtrack level here
@@ -1843,7 +1579,6 @@ bool Searcher::handle_conflict(const PropBy confl)
     if (!update_bogoprops) {
         update_history_stats(backtrack_level, glue);
     }
-    uint32_t old_decision_level = decisionLevel();
     uint32_t plus = learnt_clause.size() > 2;
     plus += decision_clause.size() > 2;
     cancelUntil<true, update_bogoprops>(backtrack_level, plus);
@@ -1901,11 +1636,6 @@ void Searcher::resetStats()
     //Rest solving stats
     stats.clear();
     propStats.clear();
-    #ifdef STATS_NEEDED
-    lastSQLPropStats = propStats;
-    lastSQLGlobalStats = stats;
-    #endif
-
     lastCleanZeroDepthAssigns = trail.size();
 }
 
@@ -1993,33 +1723,6 @@ struct MyPolarData
     }
 };
 
-#ifdef STATS_NEEDED
-inline void Searcher::dump_restart_sql(rst_dat_type type)
-{
-    //Propagation stats
-    PropStats thisPropStats = propStats - lastSQLPropStats;
-    SearchStats thisStats = stats - lastSQLGlobalStats;
-    if (type == rst_dat_type::norm) {
-        thisStats.clauseID_at_start_inclusive = stats.clauseID_at_start_inclusive;
-        thisStats.clauseID_at_end_exclusive = clauseID;
-    }
-
-    solver->sqlStats->restart(
-        restart_type_to_short_string(params.rest_type)
-        , thisPropStats
-        , thisStats
-        , solver
-        , this
-        , type
-    );
-
-    if (type == rst_dat_type::norm) {
-        lastSQLPropStats = propStats;
-        lastSQLGlobalStats = stats;
-    }
-}
-#endif
-
 void Searcher::print_restart_stat()
 {
     //Print restart stat
@@ -2040,23 +1743,6 @@ void Searcher::reset_temp_cl_num()
 
 void Searcher::reduce_db_if_needed()
 {
-    #if defined(FINAL_PREDICTOR) || defined(STATS_NEEDED)
-    if (conf.every_lev3_reduce != 0
-        && sumConflicts >= next_lev3_reduce
-    ) {
-        #ifdef STATS_NEEDED
-        if (solver->sqlStats) {
-            solver->reduceDB->dump_sql_cl_data(restart_type_to_short_string(params.rest_type));
-        }
-        #endif
-        #ifdef FINAL_PREDICTOR
-        solver->reduceDB->handle_lev3_final_predictor();
-        cl_alloc.consolidate(solver);
-        #endif
-        next_lev3_reduce = sumConflicts + conf.every_lev3_reduce;
-    }
-    #endif
-
     if (conf.every_lev1_reduce != 0
         && sumConflicts >= next_lev1_reduce
     ) {
@@ -2415,10 +2101,6 @@ void Searcher::finish_up_solve(const lbool status)
         cancelUntil(0);
     }
 
-    #ifdef STATS_NEEDED
-    sql_dump_last_in_solver();
-    #endif
-
     stats.cpu_time = cpuTime() - startTime;
     if (conf.verbosity >= 4) {
         cout << "c Searcher::solve() finished"
@@ -2452,9 +2134,6 @@ Lit Searcher::pickBranchLit()
 {
     #ifdef VERBOSE_DEBUG
     cout << "picking decision variable, dec. level: " << decisionLevel()
-    #ifdef STATS_NEEDED
-    << " clid: " << clauseID;
-    #endif
     #endif
 
     Lit next = lit_Undef;
@@ -2847,9 +2526,6 @@ Searcher::gauss_ret Searcher::gauss_jordan_elim()
                 Clause* conflPtr = solver->cl_alloc.Clause_new(
                     gqd.conflict_clause_gauss,
                     sumConflicts
-                    #ifdef STATS_NEEDED
-                    , 0
-                    #endif
                 );
 
                 conflPtr->set_gauss_temp_cl();
@@ -2964,18 +2640,10 @@ PropBy Searcher::propagate() {
             }
             #endif
             *drat << add << trail[i]
-            #ifdef STATS_NEEDED
-            << 0
-            << sumConflicts
-            #endif
             << fin;
         }
         if (!ret.isNULL()) {
             *drat << add
-            #ifdef STATS_NEEDED
-            << 0
-            << sumConflicts
-            #endif
             << fin;
         }
     }
@@ -3128,9 +2796,6 @@ void Searcher::cancelUntil<false, true>(uint32_t level, uint32_t clid_plus);
 template<bool do_insert_var_order, bool update_bogoprops>
 void Searcher::cancelUntil(uint32_t level
     , uint32_t
-    #ifdef STATS_NEEDED
-    clid_plus
-    #endif
 ) {
     #ifdef VERBOSE_DEBUG
     cout << "Canceling until level " << level;
@@ -3159,72 +2824,8 @@ void Searcher::cancelUntil(uint32_t level
             << endl;
             #endif
 
-            #ifdef ANIMATE3D
-            std:cerr << "u " << var << endl;
-            #endif
-
             const uint32_t var = trail[sublevel].var();
             assert(value(var) != l_Undef);
-
-            #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR_BRANCH)
-            if (!update_bogoprops && varData[var].reason == PropBy()) {
-                //we want to dump & this was a decision var
-                uint64_t sumConflicts_during = sumConflicts - varData[var].sumConflicts_at_picktime;
-                uint64_t sumDecisions_during = sumDecisions - varData[var].sumDecisions_at_picktime;
-                uint64_t sumPropagations_during = sumPropagations - varData[var].sumPropagations_at_picktime;
-                uint64_t sumAntecedents_during = sumAntecedents - varData[var].sumAntecedents_at_picktime;
-                uint64_t sumAntecedentsLits_during = sumAntecedentsLits - varData[var].sumAntecedentsLits_at_picktime;
-                uint64_t sumConflictClauseLits_during = sumConflictClauseLits - varData[var].sumConflictClauseLits_at_picktime;
-                uint64_t sumDecisionBasedCl_during = sumDecisionBasedCl - varData[var].sumDecisionBasedCl_at_picktime;
-                uint64_t sumClLBD_during = sumClLBD - varData[var].sumClLBD_at_picktime;
-                uint64_t sumClSize_during = sumClSize - varData[var].sumClSize_at_picktime;
-                uint64_t cls_below = sumConflicts_during + sumDecisionBasedCl_during;
-                double rel_activity_at_fintime =
-                    std::log2(var_act_vsids[var]+10e-300)/std::log2(max_vsids_act+10e-300);
-
-                uint64_t inside_conflict_clause_during =
-                varData[var].inside_conflict_clause - varData[var].inside_conflict_clause_at_picktime;
-
-                uint64_t inside_conflict_clause_glue_during =
-                varData[var].inside_conflict_clause_glue - varData[var].inside_conflict_clause_glue_at_picktime;
-
-                uint64_t inside_conflict_clause_antecedents_during =
-                varData[var].inside_conflict_clause_antecedents -
-                varData[var].inside_conflict_clause_antecedents_at_picktime;
-
-                if (varData[var].dump) {
-                    uint64_t outer_var = map_inter_to_outer(var);
-
-                    solver->sqlStats->var_data_fintime(
-                        solver
-                        , outer_var
-                        , varData[var]
-                        , cls_below
-                        , clauseID+clid_plus
-                        , rel_activity_at_fintime
-                    );
-                }
-
-                //if STATS_NEEDED we only update for decisions, otherwise, all the time
-                varData[var].sumConflicts_below_during += sumConflicts_during;
-                varData[var].sumDecisions_below_during += sumDecisions_during;
-                varData[var].sumPropagations_below_during += sumPropagations_during;
-                varData[var].sumAntecedents_below_during += sumAntecedents_during;
-                varData[var].sumAntecedentsLits_below_during += sumAntecedentsLits_during;
-                varData[var].sumConflictClauseLits_below_during += sumConflictClauseLits_during;
-                varData[var].sumDecisionBasedCl_below_during += sumDecisionBasedCl_during;
-                varData[var].sumClLBD_below_during += sumClLBD_during;
-                varData[var].sumClSize_below_during += sumClSize_during;
-
-                varData[var].inside_conflict_clause_during +=
-                inside_conflict_clause_during;
-
-                varData[var].inside_conflict_clause_glue_during += inside_conflict_clause_glue_during;
-
-                varData[var].inside_conflict_clause_antecedents_during +=
-                inside_conflict_clause_antecedents_during;
-            }
-            #endif
 
             assigns[var] = l_Undef;
             if (do_insert_var_order) {

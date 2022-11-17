@@ -62,13 +62,6 @@ struct Drat
         return false;
     }
 
-    #ifdef STATS_NEEDED
-    virtual Drat& operator<<(const uint64_t)
-    {
-        return *this;
-    }
-    #endif
-
     virtual Drat& operator<<(const Lit)
     {
         return *this;
@@ -123,19 +116,6 @@ struct DratFile: public Drat
         delete[] drup_buf;
         delete[] del_buf;
     }
-
-    #ifdef STATS_NEEDED
-    virtual Drat& operator<<(const uint64_t clauseID_or_sumConflicts) override
-    {
-        if (!id_set) {
-            ID = clauseID_or_sumConflicts;
-            id_set = true;
-        } else {
-            sumConflicts = clauseID_or_sumConflicts;
-        }
-        return *this;
-    }
-    #endif
 
     void byteDRUPa(const Lit l)
     {
@@ -270,19 +250,6 @@ struct DratFile: public Drat
             cout << endl;
 #endif
 
-            #ifdef STATS_NEEDED
-            id_set = true;
-            if (is_add && add_ID) {
-                ID = cl.stats.ID;
-
-                // actually... for on-the-fly subsumed irred clauses can have an ID.
-                //assert(!(ID != 0 && !cl.red()));
-
-                //redundant clauses MUST have a valid ID
-                //actually, they don't, in case they got merged
-                //assert(!(ID == 0 && cl.red()));
-            }
-            #endif
         }
 
         return *this;
@@ -325,17 +292,6 @@ struct DratFile: public Drat
                 } else {
                     *buf_ptr++ = 0;
                     buf_len++;
-                    #ifdef STATS_NEEDED
-                    if (is_add && add_ID) {
-                        byteDRUPaID(ID);
-                        ID = 0;
-                        id_set = false;
-
-                        assert(sumConflicts != std::numeric_limits<int64_t>::max());
-                        byteDRUPaID(sumConflicts);
-                        sumConflicts = std::numeric_limits<int64_t>::max();
-                    }
-                    #endif
                     if (buf_len > 1048576) {
                         binDRUP_flush();
                     }
@@ -365,22 +321,11 @@ struct DratFile: public Drat
                 break;
 
             case DratFlag::add:
-                #ifdef STATS_NEEDED
-                is_add = true;
-                ID = 0;
-                id_set = false;
-                sumConflicts = std::numeric_limits<int64_t>::max();
-                #endif
                 *buf_ptr++ = 'a';
                 buf_len++;
                 break;
 
             case DratFlag::del:
-                #ifdef STATS_NEEDED
-                is_add = false;
-                ID = 0;
-                id_set = false;
-                #endif
                 forget_delay();
                 *buf_ptr++ = 'd';
                 buf_len++;
@@ -392,12 +337,6 @@ struct DratFile: public Drat
 
     std::ostream* drup_file = NULL;
     vector<uint32_t>& interToOuterMain;
-    #ifdef STATS_NEEDED
-    int64_t ID = 0;
-    int64_t sumConflicts = std::numeric_limits<int64_t>::max();
-    bool is_add = true;
-    bool id_set = false;
-    #endif
 };
 
 }

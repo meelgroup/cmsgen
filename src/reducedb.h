@@ -25,9 +25,6 @@ THE SOFTWARE.
 
 #include "clauseallocator.h"
 #include "clauseusagestats.h"
-#ifdef FINAL_PREDICTOR
-#include "clustering.h"
-#endif
 
 namespace CMSat {
 
@@ -43,19 +40,11 @@ public:
     }
     void handle_lev1();
     void handle_lev2();
-    #ifdef FINAL_PREDICTOR
-    void handle_lev3_final_predictor();
-    #endif
-    void dump_sql_cl_data(const string& cur_rst_type);
-    void check_config();
 
 private:
     Solver* solver;
     vector<ClOffset> delayed_clause_free;
     double total_time = 0.0;
-    #ifdef FINAL_PREDICTOR
-    ClusteringImp* clustering;
-    #endif
 
     unsigned cl_marked;
     unsigned cl_ttl;

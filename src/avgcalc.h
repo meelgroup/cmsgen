@@ -40,9 +40,6 @@ template <class T, class T2 = uint64_t>
 class AvgCalc {
     T2      sum;
     size_t  num;
-    #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-    double  sumSqare;
-    #endif
     #ifdef AVGCALC_NEED_MIN_MAX
     T       min;
     T       max;
@@ -52,9 +49,6 @@ public:
     AvgCalc(void) :
         sum(0)
         , num(0)
-        #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-        , sumSqare(0)
-        #endif
         #ifdef AVGCALC_NEED_MIN_MAX
         , min(std::numeric_limits<T>::max())
         , max(std::numeric_limits<T>::min())
@@ -66,9 +60,6 @@ public:
         sum /= val;
         min /= val;
         max /= val;
-        #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-        sumSqare /= val*val;
-        #endif
 
         return *this;
     }
@@ -79,9 +70,6 @@ public:
         num += other.num;
         min = std::min(min, other.min);
         max = std::min(min, other.max);
-        #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-        sumSqare += other.sumSqare;
-        #endif
 
         return *this;
     }
@@ -92,9 +80,6 @@ public:
         num += other.num;
         min = std::min(min, other.min);
         max = std::min(min, other.max);
-        #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-        sumSqare += other.sumSqare;
-        #endif
 
         return *this;
     }
@@ -108,9 +93,6 @@ public:
         sum += x;
         num++;
 
-        #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-        sumSqare += (double)x*(double)x;
-        #endif
         #ifdef AVGCALC_NEED_MIN_MAX
         max = std::max(max, x);
         min = std::min(min, x);
@@ -132,20 +114,6 @@ public:
             return 0;
 
         return max;
-    }
-    #endif
-    #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-    double var() const
-    {
-        if (num == 0)
-            return 0;
-
-        const double calcAvg = avg();
-        return
-            (((double)sumSqare
-                - 2.0*calcAvg*(double)sum
-            ))/(double)num
-             + calcAvg*calcAvg;
     }
     #endif
 
@@ -181,9 +149,6 @@ public:
         sum += other.sum;
         num += other.num;
 
-        #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-        sumSqare += other.sumSqare;
-        #endif
         #ifdef AVGCALC_NEED_MIN_MAX
         min = std::min(min, other.min);
         max = std::max(max, other.max);

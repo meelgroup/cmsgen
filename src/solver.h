@@ -380,13 +380,6 @@ class Solver : public Searcher
         bool addClauseInt(vector<Lit>& ps, const bool red = false);
 
 
-        ////////////////
-        // stats del
-        #ifdef STATS_NEEDED
-        void stats_del_cl(Clause* cl);
-        void stats_del_cl(ClOffset offs);
-        #endif
-
         /////////////////
         // Debug
 
@@ -610,17 +603,11 @@ inline bool Solver::get_decision_reaching_valid() const
 
 inline void Solver::free_cl(Clause* cl)
 {
-    #ifdef STATS_NEEDED
-    stats_del_cl(cl);
-    #endif
     cl_alloc.clauseFree(cl);
 }
 
 inline void Solver::free_cl(ClOffset offs)
 {
-    #ifdef STATS_NEEDED
-    stats_del_cl(offs);
-    #endif
     cl_alloc.clauseFree(offs);
 }
 

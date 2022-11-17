@@ -60,9 +60,6 @@ bool DistillerLong::distill(const bool red, bool fullstats)
     } else {
         runStats.clear();
         int lev_to_distill = 0;
-        #ifdef FINAL_PREDICTOR
-        lev_to_distill = 3;
-        #endif
         if (!distill_long_cls_all(solver->longRedCls[lev_to_distill], 10.0)) {
             goto end;
         }
@@ -138,12 +135,6 @@ bool DistillerLong::go_through_clauses(
             goto copy;
         }
         #endif
-        #ifdef FINAL_PREDICTOR
-        if (cl.red() && !cl.stats.locked_long) {
-            offset2 = offset;
-            goto copy;
-        }
-        #endif
 
         //Time to dereference
         maxNumProps -= 5;
@@ -175,9 +166,7 @@ bool DistillerLong::go_through_clauses(
             , cl.stats
         );
 
-        #if defined(FINAL_PREDICTOR) || defined(USE_GAUSS)
         copy:
-        #endif
         if (offset2 != CL_OFFSET_MAX) {
             *j++ = offset2;
         }

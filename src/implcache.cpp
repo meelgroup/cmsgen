@@ -129,10 +129,6 @@ bool ImplCache::clean(Solver* solver, bool* setSomething)
                     if (taut) {
                         toEnqueue.push_back(lit);
                         (*solver->drat) << add << lit
-                        #ifdef STATS_NEEDED
-                        << 0
-                        << solver->sumConflicts
-                        #endif
                         << fin;
                     }
                 }

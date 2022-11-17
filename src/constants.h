@@ -57,10 +57,6 @@ THE SOFTWARE.
 //We shift stuff around in Watched, so not all of 32 bits are useable.
 //for STATS we have 64b values in the Clauses, so they must be aligned to 64
 
-#if defined(STATS_NEEDED)
-#define LARGE_OFFSETS
-#endif
-
 #if defined(LARGE_OFFSETS)
 #define BASE_DATA_TYPE uint64_t
 #define EFFECTIVELY_USEABLE_BITS 62

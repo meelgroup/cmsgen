@@ -525,9 +525,6 @@ void SubsumeStrengthen::remove_literal(ClOffset offset, const Lit toRemoveLit)
     simplifier->added_cl_to_var.touch(toRemoveLit.var());
     cl.recalc_abst_if_needed();
     (*solver->drat) << add << cl
-    #ifdef STATS_NEEDED
-    << solver->sumConflicts
-    #endif
     << fin << findelay;
     if (!cl.red()) {
         simplifier->n_occurs[toRemoveLit.toInt()]--;

@@ -145,10 +145,6 @@ void StrImplWImplStamp::strengthen_bin_with_bin(
         if (lits.size() == 1) {
             str_impl_data.toEnqueue.push_back(lits[0]);
             (*solver->drat) << add << lits[0]
-            #ifdef STATS_NEEDED
-            << 0
-            << solver->sumConflicts
-            #endif
             << fin;
 
             str_impl_data.remLitFromBin++;
@@ -189,10 +185,6 @@ void StrImplWImplStamp::strengthen_bin_with_bin(
         str_impl_data.remLitFromBin++;
         str_impl_data.toEnqueue.push_back(lit);
         (*solver->drat) << add << lit
-        #ifdef STATS_NEEDED
-        << 0
-        << solver->sumConflicts
-        #endif
         << fin;
     }
     *j++ = *i;

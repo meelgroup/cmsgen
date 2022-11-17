@@ -241,7 +241,6 @@ private:
     Solver* solver;
     bool propagate_binary_clause_occur(const Watched& ws);
     bool propagate_long_clause_occur(const ClOffset offset);
-    void sql_dump_vardata_picktime(uint32_t v, PropBy from);
     template<bool update_bogoprops = true>
     bool prop_bin_cl(
         const Watched* i
@@ -318,10 +317,6 @@ inline PropResult PropEngine::prop_normal_helper(
     , Watched*& j
     , const Lit p
 ) {
-    #ifdef STATS_NEEDED
-    c.stats.clause_looked_at++;
-    #endif
-
     // Make sure the false literal is data[1]:
     if (c[0] == ~p) {
         std::swap(c[0], c[1]);
@@ -356,9 +351,6 @@ inline PropResult PropEngine::prop_normal_helper(
 
 inline PropResult PropEngine::handle_normal_prop_fail(
     Clause&
-    #ifdef STATS_NEEDED
-    c
-    #endif
     , ClOffset offset
     , PropBy& confl
 ) {
@@ -372,14 +364,6 @@ inline PropResult PropEngine::handle_normal_prop_fail(
     #endif //VERBOSE_DEBUG_FULLPROP
 
     //Update stats
-    #ifdef STATS_NEEDED
-    c.stats.conflicts_made++;
-    if (c.red())
-        lastConflictCausedBy = ConflCausedBy::longred;
-    else
-        lastConflictCausedBy = ConflCausedBy::longirred;
-    #endif
-
     qhead = trail.size();
     return PROP_FAIL;
 }
@@ -412,33 +396,9 @@ void PropEngine::enqueue(const Lit p, const PropBy from)
     const bool sign = p.sign();
     assigns[v] = boolToLBool(!sign);
     varData[v].reason = from;
-    #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR_BRANCH)
-    if (!update_bogoprops) {
-        if (from == PropBy()) {
-            #ifdef STATS_NEEDED
-            sql_dump_vardata_picktime(v, from);
-            varData[v].num_decided++;
-            if (!sign) varData[v].num_decided_pos++;
-            #endif
-        } else {
-            sumPropagations++;
-            #ifdef STATS_NEEDED
-            varData[v].num_propagated++;
-            if (!sign) varData[v].num_propagated_pos++;
-            #endif
-        }
-    }
-    #endif
     varData[v].level = decisionLevel();
     if (!update_bogoprops) {
         varData[v].polarity = !sign;
-        #ifdef STATS_NEEDED
-        if (sign) {
-            propStats.varSetNeg++;
-        } else {
-            propStats.varSetPos++;
-        }
-        #endif
     }
     trail.push_back(p);
 

@@ -491,10 +491,6 @@ void Prober::update_cache(Lit thisLit, Lit lit, size_t numElemsSet)
         ) {
             toEnqueue.push_back(~ancestor);
             (*solver->drat) << add << ~ancestor
-            #ifdef STATS_NEEDED
-            << 0
-            << solver->sumConflicts
-            #endif
             << fin;
             if (solver->conf.verbosity >= 10)
                 cout << "c Tautology from cache indicated we can enqueue " << (~ancestor) << endl;
@@ -529,22 +525,10 @@ void Prober::check_and_set_both_prop(Lit probed_lit, uint32_t var, bool first)
             const Lit litToEnq = Lit(var, !propValue[var]);
             toEnqueue.push_back(litToEnq);
             (*solver->drat) << add << probed_lit << litToEnq
-            #ifdef STATS_NEEDED
-            << 0
-            << solver->sumConflicts
-            #endif
             << fin;
             (*solver->drat) << add << ~probed_lit << litToEnq
-            #ifdef STATS_NEEDED
-            << 0
-            << solver->sumConflicts
-            #endif
             << fin;
             (*solver->drat) << add << litToEnq
-            #ifdef STATS_NEEDED
-            << 0
-            << solver->sumConflicts
-            #endif
             << fin;
 
             if (solver->conf.verbosity >= 10)
@@ -579,10 +563,6 @@ void Prober::add_rest_of_lits_to_cache(Lit lit)
     if (taut) {
         toEnqueue.push_back(~lit);
         (*solver->drat) << add << ~lit
-        #ifdef STATS_NEEDED
-        << 0
-        << solver->sumConflicts
-        #endif
         << fin;
     }
 }
@@ -691,9 +671,6 @@ bool Prober::try_this(const Lit lit, const bool first)
             << " Lit that got propagated to both values: " << failed << endl;
         }
         runStats.numFailed++;
-        #ifdef STATS_NEEDED
-        runStats.conflStats.update(solver->lastConflictCausedBy);
-        #endif
         runStats.conflStats.numConflicts++;
 
         vector<Lit> lits;

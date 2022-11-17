@@ -144,22 +144,8 @@ inline bool PropEngine::prop_bin_cl(
 ) {
     const lbool val = value(i->lit2());
     if (val == l_Undef) {
-        #ifdef STATS_NEEDED
-        if (i->red())
-            propStats.propsBinRed++;
-        else
-            propStats.propsBinIrred++;
-        #endif
-
         enqueue<update_bogoprops>(i->lit2(), PropBy(~p, i->red()));
     } else if (val == l_False) {
-        #ifdef STATS_NEEDED
-        if (i->red())
-            lastConflictCausedBy = ConflCausedBy::binred;
-        else
-            lastConflictCausedBy = ConflCausedBy::binirred;
-        #endif
-
         confl = PropBy(~p, i->red());
         failBinLit = i->lit2();
         qhead = trail.size();
@@ -203,14 +189,6 @@ bool PropEngine::prop_long_cl_any_order(
         handle_normal_prop_fail(c, offset, confl);
         return false;
     } else {
-        #ifdef STATS_NEEDED
-        c.stats.propagations_made++;
-        if (c.red())
-            propStats.propsLongRed++;
-        else
-            propStats.propsLongIrred++;
-        #endif
-
         enqueue<update_bogoprops>(c[0], PropBy(offset));
     }
 
@@ -246,12 +224,6 @@ PropBy PropEngine::propagate_any_order_fast()
                 } else if (val == l_False) {
                     confl = PropBy(~p, i->red());
                     failBinLit = i->lit2();
-                    #ifdef STATS_NEEDED
-                    if (i->red())
-                        lastConflictCausedBy = ConflCausedBy::binred;
-                    else
-                        lastConflictCausedBy = ConflCausedBy::binirred;
-                    #endif
                     i++;
                     while (i < end) {
                         *j++ = *i++;
@@ -314,12 +286,6 @@ PropBy PropEngine::propagate_any_order_fast()
             *j++ = w;
             if (value(c[0]) == l_False) {
                 confl = PropBy(offset);
-                #ifdef STATS_NEEDED
-                if (c.red())
-                    lastConflictCausedBy = ConflCausedBy::longred;
-                else
-                    lastConflictCausedBy = ConflCausedBy::longirred;
-                #endif
                 while (i < end) {
                     *j++ = *i++;
                 }
@@ -519,12 +485,6 @@ bool PropEngine::propagate_binary_clause_occur(const Watched& ws)
 
     if (val == l_Undef) {
         enqueue(ws.lit2());
-        #ifdef STATS_NEEDED
-        if (ws.red())
-            propStats.propsBinRed++;
-        else
-            propStats.propsBinIrred++;
-        #endif
     }
 
     return true;
@@ -564,13 +524,6 @@ bool PropEngine::propagate_long_clause_occur(const ClOffset offset)
         return true;
 
     enqueue(lastUndef);
-    #ifdef STATS_NEEDED
-    if (cl.red())
-        propStats.propsLongRed++;
-    else
-        propStats.propsLongIrred++;
-    #endif
-
     return true;
 }
 
@@ -589,51 +542,3 @@ void PropEngine::load_state(SimpleInFile& f)
 
     CNF::load_state(f);
 }
-
-#ifdef STATS_NEEDED
-void PropEngine::sql_dump_vardata_picktime(uint32_t v, PropBy from)
-{
-    if (!solver->sqlStats)
-        return;
-
-    bool dump = false;
-    double rnd_num = solver->mtrand.randDblExc();
-    if (rnd_num <= conf.dump_individual_cldata_ratio*0.3) {
-        dump = true;
-    }
-    varData[v].dump = dump;
-    if (!dump)
-        return;
-
-    solver->dump_restart_sql(rst_dat_type::var);
-
-    uint64_t outer_var = map_inter_to_outer(v);
-
-    varData[v].sumDecisions_at_picktime = sumDecisions;
-    varData[v].sumConflicts_at_picktime = sumConflicts;
-    varData[v].sumAntecedents_at_picktime = sumAntecedents;
-    varData[v].sumAntecedentsLits_at_picktime = sumAntecedentsLits;
-    varData[v].sumConflictClauseLits_at_picktime = sumConflictClauseLits;
-    varData[v].sumPropagations_at_picktime = sumPropagations;
-    varData[v].sumDecisionBasedCl_at_picktime = sumDecisionBasedCl;
-    varData[v].sumClLBD_at_picktime = sumClLBD;
-    varData[v].sumClSize_at_picktime = sumClSize;
-    double rel_activity_at_picktime =
-        std::log2(var_act_vsids[v]+10e-300)/std::log2(max_vsids_act+10e-300);
-
-    varData[v].last_time_set_was_dec = (from == PropBy());
-
-    //inside data
-    varData[v].inside_conflict_clause_glue_at_picktime = varData[v].inside_conflict_clause_glue;
-    varData[v].inside_conflict_clause_at_picktime = varData[v].inside_conflict_clause;
-    varData[v].inside_conflict_clause_antecedents_at_picktime = varData[v].inside_conflict_clause_antecedents;
-
-    solver->sqlStats->var_data_picktime(
-        solver
-        , outer_var
-        , varData[v]
-        , clauseID
-        , rel_activity_at_picktime
-    );
-}
-#endif

@@ -33,12 +33,6 @@ using namespace CMSat;
 void ClauseUsageStats::print() const
 {
     cout
-    #ifdef STATS_NEEDED
-    << " cls visit: "
-    << std::setw(7) << sumLookedAt/1000UL
-    << "K"
-    #endif
-
     << " prop: "
     << std::setw(5) << sumProp/1000UL
     << "K"

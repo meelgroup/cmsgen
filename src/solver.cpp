@@ -100,9 +100,6 @@ Solver::Solver(const SolverConf *_conf, std::atomic<bool>* _must_interrupt_inter
 
     next_lev1_reduce = conf.every_lev1_reduce;
     next_lev2_reduce =  conf.every_lev2_reduce;
-    #if defined(FINAL_PREDICTOR) || defined(STATS_NEEDED)
-    next_lev3_reduce =  conf.every_lev3_reduce;
-    #endif
 
     check_xor_cut_config_sanity();
 }
@@ -160,10 +157,6 @@ bool Solver::add_xor_clause_inter(
     } else {
         if (rhs) {
             *drat << add
-            #ifdef STATS_NEEDED
-            << 0
-            << sumConflicts
-            #endif
             << fin;
             ok = false;
         }
@@ -340,11 +333,6 @@ Clause* Solver::add_clause_int(
     #endif //VERBOSE_DEBUG
 
     //Make cl_stats sane
-    #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-    uint64_t introduced_at_conflict =
-        std::min<uint64_t>(Searcher::sumConflicts, cl_stats.introduced_at_conflict);
-    #endif
-
     add_clause_int_tmp_cl = lits;
     vector<Lit>& ps = add_clause_int_tmp_cl;
     if (!sort_and_clean_clause(ps, lits, red, sorted)) {
@@ -374,9 +362,6 @@ Clause* Solver::add_clause_int(
         }
         std::swap(ps[0], ps[i]);
         *drat << add << ps
-        #ifdef STATS_NEEDED
-        << cl_stats.ID << sumConflicts
-        #endif
         << fin;
         std::swap(ps[0], ps[i]);
 
@@ -399,9 +384,6 @@ Clause* Solver::add_clause_int(
             return NULL;
         case 1:
             enqueue(ps[0]);
-            #ifdef STATS_NEEDED
-            propStats.propsUnit++;
-            #endif
             if (attach_long) {
                 ok = (propagate<true>().isNULL());
             }
@@ -414,17 +396,11 @@ Clause* Solver::add_clause_int(
         default:
             Clause* c = cl_alloc.Clause_new(ps
             , sumConflicts
-            #ifdef STATS_NEEDED
-            , cl_stats.ID
-            #endif
             );
             if (red) {
                 c->makeRed(cl_stats.glue);
             }
             c->stats = cl_stats;
-            #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-            c->stats.introduced_at_conflict = introduced_at_conflict;
-            #endif
 
             //In class 'OccSimplifier' we don't need to attach normall
             if (attach_long) {
@@ -647,20 +623,12 @@ bool Solver::addClauseInt(vector<Lit>& ps, bool red)
         //Dump only if non-empty (UNSAT handled later)
         if (!finalCl_tmp.empty()) {
             *drat << add << finalCl_tmp
-            #ifdef STATS_NEEDED
-            << 0
-            << sumConflicts
-            #endif
             << fin;
         }
 
         //Empty clause, it's UNSAT
         if (!okay()) {
             *drat << add
-            #ifdef STATS_NEEDED
-            << 0
-            << sumConflicts
-            #endif
             << fin;
         }
         *drat << del << ps << fin;
@@ -671,7 +639,6 @@ bool Solver::addClauseInt(vector<Lit>& ps, bool red)
         if (!red) {
             longIrredCls.push_back(offset);
         } else {
-            #ifndef FINAL_PREDICTOR
             cl->stats.which_red_array = 2;
             if (cl->stats.glue <= conf.glue_put_lev0_if_below_or_eq) {
                 cl->stats.which_red_array = 0;
@@ -680,9 +647,6 @@ bool Solver::addClauseInt(vector<Lit>& ps, bool red)
             ) {
                 cl->stats.which_red_array = 1;
             }
-            #else
-            cl->stats.which_red_array = 3;
-            #endif
             longRedCls[cl->stats.which_red_array].push_back(offset);
         }
     }
@@ -1255,11 +1219,6 @@ void Solver::check_config_parameters() const
         std::cerr << "ERROR: Blocking restart length must be at least 0" << endl;
         exit(-1);
     }
-
-    #ifdef FINAL_PREDICTOR
-    reduceDB->check_config();
-    #endif
-
     check_xor_cut_config_sanity();
 }
 
@@ -1306,15 +1265,6 @@ lbool Solver::solve_with_assumptions(
     const vector<Lit>* _assumptions,
     const bool only_sampling_solution
 ) {
-
-#if defined(FINAL_PREDICTOR) || defined(STATS_NEEDED)
-    conf.update_glues_on_analyze = false;
-    conf.do_decision_based_cl = 0;
-    if (conf.verbosity) {
-        cout << "c [stats] glue update disabled, decision based clause disabled" << endl;
-    }
-#endif
-
     fresh_solver = false;
     decisions_reaching_model.clear();
     decisions_reaching_model_valid = false;
@@ -3295,10 +3245,6 @@ void Solver::learnt_clausee_query_map_without_bva(vector<Lit>& cl)
 void Solver::add_empty_cl_to_drat()
 {
     *drat << add
-    #ifdef STATS_NEEDED
-    << 0
-    << sumConflicts
-    #endif
     << fin;
     drat->flush();
 }
@@ -3371,20 +3317,3 @@ const Lit lit, const double weight
         varData[lit.var()].weight = pos/(pos + neg);
     }
 }
-
-#ifdef STATS_NEEDED
-void Solver::stats_del_cl(Clause* cl)
-{
-    if (cl->stats.ID != 0 && solver->sqlStats) {
-        solver->sqlStats->cl_last_in_solver(this, cl->stats.ID);
-    }
-}
-
-void Solver::stats_del_cl(ClOffset offs)
-{
-    Clause* cl = cl_alloc.ptr(offs);
-    if (cl->stats.ID != 0 && solver->sqlStats) {
-        solver->sqlStats->cl_last_in_solver(this, cl->stats.ID);
-    }
-}
-#endif

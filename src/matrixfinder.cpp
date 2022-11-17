@@ -25,7 +25,6 @@ THE SOFTWARE.
 #include "gaussian.h"
 #include "clausecleaner.h"
 #include "time_mem.h"
-#include "sqlstats.h"
 #include "xorfinder.h"
 #include "varreplacer.h"
 
@@ -218,14 +217,6 @@ bool MatrixFinder::findMatrixes(bool simplify_xors)
         << solver->conf.print_times(time_used, time_out)
         << endl;
     }
-    if (solver->sqlStats) {
-        solver->sqlStats->time_passed_min(
-            solver
-            , "matrix find"
-            , time_used
-        );
-    }
-
     return solver->okay();
 }
 

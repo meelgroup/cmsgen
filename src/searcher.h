@@ -301,9 +301,6 @@ class Searcher : public HyperEngine
         template<bool update_bogoprops>
         Clause* create_learnt_clause(PropBy confl);
         int pathC;
-        #if defined(STATS_NEEDED) || defined(FINAL_PREDICTOR)
-        AtecedentData<uint16_t> antec_data;
-        #endif
 
         vector<uint32_t> implied_by_learnts; //for glue-based extra var activity bumping
 
@@ -483,18 +480,9 @@ inline void Searcher::bump_cl_act(Clause* cl)
 
 
     if (cl->stats.activity > 1e20F ) {
-        // Rescale. For STATS_NEEDED we rescale ALL
-        #if !defined(STATS_NEEDED) && !defined (FINAL_PREDICTOR)
         for(ClOffset offs: longRedCls[2]) {
             cl_alloc.ptr(offs)->stats.activity *= static_cast<float>(1e-20);
         }
-        #else
-        for(auto& lrcs: longRedCls) {
-            for(ClOffset offs: lrcs) {
-                cl_alloc.ptr(offs)->stats.activity *= static_cast<float>(1e-20);
-            }
-        }
-        #endif
         cla_inc *= 1e-20;
         max_cl_act *= 1e-20;
         assert(cla_inc != 0);

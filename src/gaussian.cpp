@@ -607,9 +607,6 @@ bool EGaussian::find_truths2(
                 Clause* cla = solver->cl_alloc.Clause_new(
                     tmp_clause,
                     solver->sumConflicts
-                    #ifdef STATS_NEEDED
-                    , solver->clauseID++
-                    #endif
                 );
                 cla->set_gauss_temp_cl();
                 const ClOffset offs = solver->cl_alloc.get_offset(cla);
@@ -828,9 +825,6 @@ void EGaussian::eliminate_col2(uint32_t p, GaussQData& gqd) {
                             Clause* cla = solver->cl_alloc.Clause_new(
                                 tmp_clause,
                                 solver->sumConflicts
-                                #ifdef STATS_NEEDED
-                                , solver->clauseID++
-                                #endif
                             );
                             cla->set_gauss_temp_cl();
                             const ClOffset offs = solver->cl_alloc.get_offset(cla);
