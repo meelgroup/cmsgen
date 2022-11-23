@@ -64,8 +64,8 @@ First, you must get Homebew from https://brew.sh/ then:
 
 ```
 brew install cmake boost zlib
-tar xzvf cryptominisat-version.tar.gz
-cd cryptominisat-version
+tar xzvf cmsgen-[version].tar.gz
+cd cmsgen-[version]
 mkdir build && cd build
 cmake ..
 make
@@ -79,9 +79,9 @@ You will need python installed, then for Visual Studio 2015:
 
 ```
 C:\> [ download cryptominisat-version.zip ]
-C:\> unzip cryptominisat-version.zip
-C:\> rename cryptominisat-version cms
-C:\> cd cms
+C:\> unzip cmsgen-[version].zip
+C:\> rename cmsgen-[version] cmsgen
+C:\> cd cmsgen
 C:\cms> mkdir build
 C:\cms> cd build
 
@@ -93,22 +93,22 @@ C:\cms\build\boost_1_59_0> bootstrap.bat --with-libraries=program_options
 C:\cms\build\boost_1_59_0> b2 --with-program_options address-model=64 toolset=msvc-14.0 variant=release link=static threading=multi runtime-link=static install --prefix="C:\cms\build\boost_1_59_0_install" > boost_install.out
 C:\cms\build\boost_1_59_0> cd ..
 
-C:\cms\build> git clone https://github.com/madler/zlib
-C:\cms\build> cd zlib
-C:\cms\build\zlib> git checkout v1.2.8
-C:\cms\build\zlib> mkdir build
-C:\cms\build\zlib> mkdir myinstall
-C:\cms\build\zlib> cd build
-C:\cms\build\zlib\build> cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=C:\cms\build\zlib\myinstall ..
-C:\cms\build\zlib\build> msbuild /t:Build /p:Configuration=Release /p:Platform="x64" zlib.sln
-C:\cms\build\zlib\build> msbuild INSTALL.vcxproj
-C:\cms\build> cd ..\..
+C:\cmsgen\build> git clone https://github.com/madler/zlib
+C:\cmsgen\build> cd zlib
+C:\cmsgen\build\zlib> git checkout v1.2.8
+C:\cmsgen\build\zlib> mkdir build
+C:\cmsgen\build\zlib> mkdir myinstall
+C:\cmsgen\build\zlib> cd build
+C:\cmsgen\build\zlib\build> cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=C:\cms\build\zlib\myinstall ..
+C:\cmsgen\build\zlib\build> msbuild /t:Build /p:Configuration=Release /p:Platform="x64" zlib.sln
+C:\cmsgen\build\zlib\build> msbuild INSTALL.vcxproj
+C:\cmsgen\build> cd ..\..
 
-C:\cms\build> cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=Release -DSTATICCOMPILE=ON -DZLIB_ROOT=C:\cms\build\zlib\myinstall -DBOOST_ROOT=C:\cms\build\boost_1_59_0_install ..
-C:\cms\build> cmake --build --config Release .
+C:\cmsgen\build> cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=Release -DSTATICCOMPILE=ON -DZLIB_ROOT=C:\cms\build\zlib\myinstall -DBOOST_ROOT=C:\cms\build\boost_1_59_0_install ..
+C:\cmsgen\build> cmake --build --config Release .
 ```
 
-You now have the static binary under `C:\cms\build\Release\cryptominisat5.exe`
+You now have the static binary under `C:\cmsgen\build\Release\cmsgen.exe`
 
 
 CryptoMiniSat vs CMSGen
