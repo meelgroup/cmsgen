@@ -150,14 +150,12 @@ install(TARGETS cmsgen
     PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/cmsgen"
 )
 
-if (NOT ONLY_SIMPLE)
-    add_executable(cmsgen-bin
-        main.cpp
-        main_common.cpp
-        main_exe.cpp
-        signalcode.cpp
-    )
-endif()
+add_executable(cmsgen-bin
+    main.cpp
+    main_common.cpp
+    main_exe.cpp
+    signalcode.cpp
+)
 
 set(cryptoms_exec_link_libs
     cmsgen
@@ -167,18 +165,16 @@ IF (ZLIB_FOUND)
     SET(cryptoms_exec_link_libs ${cryptoms_exec_link_libs} ${ZLIB_LIBRARY})
 ENDIF()
 
-if (NOT ONLY_SIMPLE)
-    set_target_properties(cmsgen-bin PROPERTIES
-        OUTPUT_NAME cmsgen
-        RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
-        INSTALL_RPATH_USE_LINK_PATH TRUE)
-    target_link_libraries(cmsgen-bin
-        ${cryptoms_exec_link_libs}
-        "${Boost_LIBRARIES}"
-    )
-    install(TARGETS cmsgen-bin
-        # EXPORT ${CRYPTOMINISAT5_EXPORT_NAME}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    )
-    SET(CPACK_PACKAGE_EXECUTABLES "cmsgen")
-endif()
+set_target_properties(cmsgen-bin PROPERTIES
+    OUTPUT_NAME cmsgen
+    RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
+    INSTALL_RPATH_USE_LINK_PATH TRUE)
+target_link_libraries(cmsgen-bin
+    ${cryptoms_exec_link_libs}
+    "${Boost_LIBRARIES}"
+)
+install(TARGETS cmsgen-bin
+    # EXPORT ${CRYPTOMINISAT5_EXPORT_NAME}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+SET(CPACK_PACKAGE_EXECUTABLES "cmsgen")
