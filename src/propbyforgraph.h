@@ -28,7 +28,7 @@ THE SOFTWARE.
 #ifndef __PROPBYFORGRAPH_H__
 #define __PROPBYFORGRAPH_H__
 
-namespace CMSat {
+namespace CMSGen {
 
 class PropByForGraph
 {

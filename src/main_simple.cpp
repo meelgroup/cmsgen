@@ -45,7 +45,7 @@ using std::endl;
                               // -- used in parsing args
 #endif
 
-using namespace CMSat;
+using namespace CMSGen;
 
 SATSolver* solver;
 

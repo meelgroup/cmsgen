@@ -30,14 +30,14 @@ THE SOFTWARE.
 
 #include "main_common.h"
 #include "solverconf.h"
-#include "cmsgen/cryptominisat.h"
+#include "cmsgen.h"
 
 using std::string;
 using std::vector;
 
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
-using namespace CMSat;
+using namespace CMSGen;
 
 class Main: public MainCommon
 {

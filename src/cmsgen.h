@@ -27,7 +27,7 @@ THE SOFTWARE.
 #include <iostream>
 #include <utility>
 #include <string>
-#include "cmsgen/solvertypesmini.h"
+#include "solvertypesmini.h"
 
 namespace CMSGen {
     struct CMSatPrivateData;

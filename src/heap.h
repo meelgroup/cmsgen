@@ -24,7 +24,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include "Vec.h"
 #include "MersenneTwister.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 //=================================================================================================
 // A heap implementation with support for decrease/increase key.

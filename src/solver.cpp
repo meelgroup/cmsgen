@@ -59,7 +59,7 @@ THE SOFTWARE.
 #include "drat.h"
 #include "xorfinder.h"
 
-using namespace CMSat;
+using namespace CMSGen;
 using std::cout;
 using std::endl;
 
@@ -135,7 +135,7 @@ bool Solver::add_xor_clause_inter(
     clean_xor_no_prop(ps, rhs);
 
     if (ps.size() >= (0x01UL << 28)) {
-        throw CMSat::TooLongClauseError();
+        throw CMSGen::TooLongClauseError();
     }
     //cout << "Cleaned ps is: " << ps << endl;
 
@@ -492,7 +492,7 @@ bool Solver::addClauseHelper(vector<Lit>& ps)
     //Check for too long clauses
     if (ps.size() > (0x01UL << 28)) {
         cout << "Too long clause!" << endl;
-        throw CMSat::TooLongClauseError();
+        throw CMSGen::TooLongClauseError();
     }
 
     for (Lit& lit: ps) {
@@ -1701,7 +1701,7 @@ void Solver::print_prop_confl_stats(
     }
 }
 
-void CMSat::Solver::print_stats(const double cpu_time, const double cpu_time_total) const
+void CMSGen::Solver::print_stats(const double cpu_time, const double cpu_time_total) const
 {
     if (conf.verbStats >= 1) {
         cout << "c ------- FINAL TOTAL SEARCH STATS ---------" << endl;
@@ -2426,17 +2426,17 @@ void Solver::print_clause_stats() const
 
 const char* Solver::get_version_sha1()
 {
-    return CMSat::get_version_sha1();
+    return CMSGen::get_version_sha1();
 }
 
 const char* Solver::get_version_tag()
 {
-    return CMSat::get_version_tag();
+    return CMSGen::get_version_tag();
 }
 
 const char* Solver::get_compilation_env()
 {
-    return CMSat::get_compilation_env();
+    return CMSGen::get_compilation_env();
 }
 
 void Solver::print_watch_list(watch_subarray_const ws, const Lit lit) const

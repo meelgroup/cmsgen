@@ -23,7 +23,7 @@ THE SOFTWARE.
 #include "stamp.h"
 #include "varupdatehelper.h"
 
-using namespace CMSat;
+using namespace CMSGen;
 
 void Stamp::save_on_var_memory(const uint32_t newNumVars)
 {

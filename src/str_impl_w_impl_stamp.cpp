@@ -27,7 +27,7 @@ THE SOFTWARE.
 #include "watchalgos.h"
 #include "clauseallocator.h"
 
-using namespace CMSat;
+using namespace CMSGen;
 
 bool StrImplWImplStamp::str_impl_w_impl_stamp()
 {
@@ -110,11 +110,11 @@ void StrImplWImplStamp::distill_implicit_with_implicit_lit(const Lit lit)
         }
 
         switch(i->getType()) {
-            case CMSat::watch_clause_t:
+            case CMSGen::watch_clause_t:
                 *j++ = *i;
                 break;
 
-            case CMSat::watch_binary_t:
+            case CMSGen::watch_binary_t:
                 timeAvailable -= 20;
                 strengthen_bin_with_bin(lit, i, j, end);
                 break;

@@ -22,13 +22,13 @@ THE SOFTWARE.
 */
 
 #include "signalcode.h"
-#include "cmsgen/cryptominisat.h"
+#include "cmsgen.h"
 #if !defined (_MSC_VER)
 #include <unistd.h>
 #endif
 
 
-using namespace CMSat;
+using namespace CMSGen;
 
 SATSolver* solverToInterrupt;
 int need_clean_exit;

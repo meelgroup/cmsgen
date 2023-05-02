@@ -36,7 +36,7 @@ THE SOFTWARE.
 
 //#define DEBUG_MATRIX
 
-namespace CMSat {
+namespace CMSGen {
 
 class PackedMatrix
 {

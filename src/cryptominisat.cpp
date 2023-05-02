@@ -21,7 +21,7 @@ THE SOFTWARE.
 ***********************************************/
 
 #include "constants.h"
-#include "cmsgen/cryptominisat.h"
+#include "cmsgen.h"
 #include "solver.h"
 #include "drat.h"
 #include "shareddata.h"
@@ -39,11 +39,11 @@ using std::thread;
 #define MAX_VARS 3000
 #endif
 
-using namespace CMSat;
+using namespace CMSGen;
 
 static bool print_thread_start_and_finish = false;
 
-namespace CMSat {
+namespace CMSGen {
     struct CMSatPrivateData {
         explicit CMSatPrivateData(std::atomic<bool>* _must_interrupt)
         {
@@ -666,7 +666,7 @@ DLL_PUBLIC void SATSolver::new_vars(const size_t n)
     if (n >= MAX_VARS
         || (data->vars_to_add + n) >= MAX_VARS
     ) {
-        throw CMSat::TooManyVarsError();
+        throw CMSGen::TooManyVarsError();
     }
 
     if (data->log) {

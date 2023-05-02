@@ -31,7 +31,7 @@ THE SOFTWARE.
 
 #include "cloffset.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 enum PropByType {null_clause_t = 0, clause_t = 1, binary_t = 2};
 

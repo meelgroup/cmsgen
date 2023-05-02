@@ -23,14 +23,14 @@ THE SOFTWARE.
 #ifndef SHARED_DATA_H
 #define SHARED_DATA_H
 
-#include "cmsgen/solvertypesmini.h"
+#include "solvertypesmini.h"
 
 #include <vector>
 #include <mutex>
 using std::vector;
 using std::mutex;
 
-namespace CMSat {
+namespace CMSGen {
 
 class SharedData
 {

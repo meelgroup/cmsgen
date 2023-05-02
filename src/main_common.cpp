@@ -29,7 +29,7 @@ THE SOFTWARE.
 using std::cout;
 using std::endl;
 
-using namespace CMSat;
+using namespace CMSGen;
 
 void MainCommon::handle_drat_option()
 {
@@ -71,14 +71,14 @@ void MainCommon::handle_drat_option()
     }
 }
 
-uint32_t MainCommon::print_model(CMSat::SATSolver* solver, std::ostream* os)
+uint32_t MainCommon::print_model(CMSGen::SATSolver* solver, std::ostream* os)
 {
     *os << "v ";
     size_t line_size = 2;
     size_t num_undef = 0;
     for (uint32_t var = 0; var < solver->nVars(); var++) {
-        if (solver->get_model()[var] != CMSat::l_Undef) {
-            const bool value_is_positive = (solver->get_model()[var] == CMSat::l_True);
+        if (solver->get_model()[var] != CMSGen::l_Undef) {
+            const bool value_is_positive = (solver->get_model()[var] == CMSGen::l_True);
             const size_t this_var_size = std::ceil(std::log10(var+1)) + 1 + !value_is_positive;
             line_size += this_var_size;
             if (line_size > 80) {

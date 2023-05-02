@@ -22,7 +22,7 @@ THE SOFTWARE.
 
 #include "solvertypes.h"
 
-namespace CMSat
+namespace CMSGen
 {
 
 // Use 1G extra for clause re-learning bitmap.

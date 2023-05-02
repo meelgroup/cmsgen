@@ -26,7 +26,7 @@ THE SOFTWARE.
 #include "clausecleaner.h"
 #include "clauseallocator.h"
 
-using namespace CMSat;
+using namespace CMSGen;
 
 CompleteDetachReatacher::CompleteDetachReatacher(Solver* _solver) :
     solver(_solver)

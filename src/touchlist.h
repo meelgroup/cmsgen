@@ -26,7 +26,7 @@ THE SOFTWARE.
 #include <vector>
 #include "solvertypes.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 class TouchList
 {

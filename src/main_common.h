@@ -24,7 +24,7 @@ THE SOFTWARE.
 #ifndef __MAIN_COMMON_H__
 #define __MAIN_COMMON_H__
 
-#include "cmsgen/cryptominisat.h"
+#include "cmsgen.h"
 #include "solverconf.h"
 #include <iostream>
 #include <cmath>
@@ -32,14 +32,14 @@ THE SOFTWARE.
 class MainCommon
 {
 public:
-    uint32_t print_model(CMSat::SATSolver* solver, std::ostream* os);
+    uint32_t print_model(CMSGen::SATSolver* solver, std::ostream* os);
     void handle_drat_option();
 
     string dratfilname;
     bool dratDebug = false;
     std::ostream* dratf = NULL;
     bool zero_exit_status = false;
-    CMSat::SolverConf conf;
+    CMSGen::SolverConf conf;
     unsigned num_threads = 1;
 };
 

@@ -30,7 +30,7 @@ THE SOFTWARE.
 using std::vector;
 using std::set;
 
-namespace CMSat {
+namespace CMSGen {
 
 class Solver;
 

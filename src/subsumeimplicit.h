@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include "watcharray.h"
 #include "touchlist.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 using std::vector;
 

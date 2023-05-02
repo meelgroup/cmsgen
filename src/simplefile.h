@@ -31,7 +31,7 @@ using std::ios;
 
 #include "solvertypes.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 class SimpleOutFile
 {

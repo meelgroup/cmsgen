@@ -36,9 +36,9 @@ THE SOFTWARE.
 #include <limits>
 #include <cassert>
 #include "solverconf.h"
-#include "cmsgen/solvertypesmini.h"
+#include "solvertypesmini.h"
 
-namespace CMSgen {
+namespace CMSGen {
 
 using std::vector;
 using std::cout;
@@ -463,9 +463,9 @@ inline double float_div(const double a, const double b)
 namespace std {
 
   template <>
-  struct hash<CMSat::Lit>
+  struct hash<CMSGen::Lit>
   {
-    std::size_t operator()(const CMSat::Lit& k) const
+    std::size_t operator()(const CMSGen::Lit& k) const
     {
       return k.toInt();
     }

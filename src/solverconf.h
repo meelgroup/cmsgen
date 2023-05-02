@@ -28,11 +28,11 @@ THE SOFTWARE.
 #include <cstdlib>
 #include <cassert>
 #include "constants.h"
-#include "cmsgen/solvertypesmini.h"
+#include "solvertypesmini.h"
 
 using std::string;
 
-namespace CMSat {
+namespace CMSGen {
 
 enum class ClauseClean {
     glue = 0

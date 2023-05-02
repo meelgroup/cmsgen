@@ -26,7 +26,7 @@ THE SOFTWARE.
 #include "clauseallocator.h"
 #include "clauseusagestats.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 class Solver;
 

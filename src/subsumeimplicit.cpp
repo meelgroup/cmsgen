@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include <iomanip>
 using std::cout;
 using std::endl;
-using namespace CMSat;
+using namespace CMSGen;
 
 SubsumeImplicit::SubsumeImplicit(Solver* _solver) :
     solver(_solver)
@@ -101,11 +101,11 @@ uint32_t SubsumeImplicit::subsume_at_watch(const uint32_t at,
         }
 
         switch(i->getType()) {
-            case CMSat::watch_clause_t:
+            case CMSGen::watch_clause_t:
                 *j++ = *i;
                 break;
 
-            case CMSat::watch_binary_t:
+            case CMSGen::watch_binary_t:
                 try_subsume_bin(lit, i, j, timeAvail, touched);
                 break;
 

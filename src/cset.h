@@ -28,7 +28,7 @@ THE SOFTWARE.
 
 #include "clause.h"
 
-namespace CMSat {
+namespace CMSGen {
 using std::vector;
 
 /**

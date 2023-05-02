@@ -42,7 +42,7 @@ THE SOFTWARE.
 #include "valgrind/memcheck.h"
 #endif
 
-using namespace CMSat;
+using namespace CMSGen;
 
 using std::pair;
 using std::cout;

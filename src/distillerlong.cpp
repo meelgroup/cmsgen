@@ -28,7 +28,7 @@ THE SOFTWARE.
 #include "clauseallocator.h"
 
 #include <iomanip>
-using namespace CMSat;
+using namespace CMSGen;
 using std::cout;
 using std::endl;
 

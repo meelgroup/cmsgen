@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include "solvertypes.h"
 #include "clause.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 using std::set;
 using std::map;

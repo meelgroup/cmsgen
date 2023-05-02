@@ -33,7 +33,7 @@ THE SOFTWARE.
 #include <sstream>
 #include <iomanip>
 
-namespace CMSat {
+namespace CMSGen {
 using std::vector;
 
 template <class T, class T2 = uint64_t>

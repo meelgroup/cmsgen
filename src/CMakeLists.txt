@@ -114,6 +114,13 @@ else()
     )
 endif()
 
+
+cmsgen_add_public_header(cmsgen ${CMAKE_CURRENT_SOURCE_DIR}/cmsgen_c.h )
+cmsgen_add_public_header(cmsgen ${CMAKE_CURRENT_SOURCE_DIR}/cmsgen.h )
+cmsgen_add_public_header(cmsgen ${CMAKE_CURRENT_SOURCE_DIR}/solvertypesmini.h )
+cmsgen_add_public_header(cmsgen ${CMAKE_CURRENT_SOURCE_DIR}/dimacsparser.h )
+cmsgen_add_public_header(cmsgen ${CMAKE_CURRENT_SOURCE_DIR}/streambuffer.h )
+
 # -----------------------------------------------------------------------------
 # Copy public headers into build directory include directory.
 # The cmsgenConfig.cmake we generate in the build directory depends on
@@ -137,7 +144,7 @@ foreach(public_header ${cmsgen_public_headers})
 endforeach()
 
 install(TARGETS cmsgen
-    EXPORT ${CRYPTOMINISAT5_EXPORT_NAME}
+    EXPORT ${CMSGEN_EXPORT_NAME}
     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
@@ -168,7 +175,6 @@ target_link_libraries(cmsgen-bin
     "${Boost_LIBRARIES}"
 )
 install(TARGETS cmsgen-bin
-    # EXPORT ${CRYPTOMINISAT5_EXPORT_NAME}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 SET(CPACK_PACKAGE_EXECUTABLES "cmsgen")

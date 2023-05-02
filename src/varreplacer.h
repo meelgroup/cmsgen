@@ -33,7 +33,7 @@ THE SOFTWARE.
 #include "watcharray.h"
 #include "simplefile.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 //#define VERBOSE_DEBUG
 

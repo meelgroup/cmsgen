@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include <stdlib.h>
 
 
-namespace CMSat {
+namespace CMSGen {
 
 class BitArray
 {

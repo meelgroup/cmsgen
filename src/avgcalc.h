@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include <sstream>
 #include <iomanip>
 
-namespace CMSat {
+namespace CMSGen {
 using std::vector;
 
 #define AVGCALC_NEED_MIN_MAX

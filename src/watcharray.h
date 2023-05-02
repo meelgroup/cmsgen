@@ -28,7 +28,7 @@ THE SOFTWARE.
 #include "Vec.h"
 #include <vector>
 
-namespace CMSat {
+namespace CMSGen {
 using std::vector;
 
 typedef vec<Watched>& watch_subarray;

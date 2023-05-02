@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 #include "constants.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 #ifndef LARGE_OFFSETS
 typedef uint32_t ClOffset;

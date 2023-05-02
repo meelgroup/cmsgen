@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 //#define VERBOSE_DEBUG_SOLUTIONEXTENDER
 
-using namespace CMSat;
+using namespace CMSGen;
 
 SolutionExtender::SolutionExtender(Solver* _solver, OccSimplifier* _simplifier) :
     solver(_solver)

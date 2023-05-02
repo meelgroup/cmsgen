@@ -29,7 +29,7 @@ THE SOFTWARE.
 using std::vector;
 using std::deque;
 
-namespace CMSat {
+namespace CMSGen {
 
 class Solver;
 

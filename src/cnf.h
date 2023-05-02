@@ -43,7 +43,7 @@ THE SOFTWARE.
 
 using std::numeric_limits;
 
-namespace CMSat {
+namespace CMSGen {
 
 class ClauseAllocator;
 
@@ -325,13 +325,13 @@ void CNF::for_each_lit(
     , int64_t* limit
 ) const {
     switch(cl.ws.getType()) {
-        case CMSat::watch_binary_t:
+        case CMSGen::watch_binary_t:
             *limit -= 2;
             func(cl.lit);
             func(cl.ws.lit2());
             break;
 
-        case CMSat::watch_clause_t: {
+        case CMSGen::watch_clause_t: {
             const Clause& clause = *cl_alloc.ptr(cl.ws.get_offset());
             *limit -= (int64_t)clause.size();
             for(const Lit lit: clause) {
@@ -353,12 +353,12 @@ void CNF::for_each_lit_except_watched(
     , int64_t* limit
 ) const {
     switch(cl.ws.getType()) {
-        case CMSat::watch_binary_t:
+        case CMSGen::watch_binary_t:
             *limit -= 1;
             func(cl.ws.lit2());
             break;
 
-        case CMSat::watch_clause_t: {
+        case CMSGen::watch_clause_t: {
             const Clause& clause = *cl_alloc.ptr(cl.ws.get_offset());
             *limit -= clause.size();
             for(const Lit lit: clause) {
@@ -369,7 +369,7 @@ void CNF::for_each_lit_except_watched(
             break;
         }
 
-        case CMSat::watch_idx_t:
+        case CMSGen::watch_idx_t:
             assert(false);
             break;
     }

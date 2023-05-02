@@ -42,7 +42,7 @@ THE SOFTWARE.
 #include "watcharray.h"
 #include "simplefile.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 using std::vector;
 using std::map;

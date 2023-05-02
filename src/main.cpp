@@ -49,10 +49,10 @@ THE SOFTWARE.
 #include "main_common.h"
 #include "time_mem.h"
 #include "dimacsparser.h"
-#include "cmsgen/cryptominisat.h"
+#include "cmsgen.h"
 #include "signalcode.h"
 
-using namespace CMSat;
+using namespace CMSGen;
 
 using std::cout;
 using std::cerr;

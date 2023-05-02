@@ -27,7 +27,7 @@ THE SOFTWARE.
 #include <vector>
 using std::vector;
 
-namespace CMSat {
+namespace CMSGen {
 
 class OccSimplifier;
 class Solver;

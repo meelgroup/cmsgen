@@ -32,7 +32,7 @@ THE SOFTWARE.
 
 using std::vector;
 
-namespace CMSat {
+namespace CMSGen {
 
 class Xor
 {

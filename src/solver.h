@@ -41,7 +41,7 @@ THE SOFTWARE.
 #include "gtest/gtest_prod.h"
 #endif
 
-namespace CMSat {
+namespace CMSGen {
 
 using std::vector;
 using std::pair;

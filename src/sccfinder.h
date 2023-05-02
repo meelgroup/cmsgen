@@ -27,7 +27,7 @@ THE SOFTWARE.
 #include <stack>
 #include <set>
 
-namespace CMSat {
+namespace CMSGen {
 
 class Solver;
 

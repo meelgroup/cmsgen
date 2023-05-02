@@ -32,7 +32,7 @@ THE SOFTWARE.
 
 #include <limits>
 
-namespace CMSat {
+namespace CMSGen {
 
 enum WatchType {
     watch_clause_t = 0

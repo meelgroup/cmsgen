@@ -43,7 +43,7 @@ THE SOFTWARE.
 #include "cnf.h"
 #include "watchalgos.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 using std::set;
 class Solver;

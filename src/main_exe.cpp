@@ -43,10 +43,10 @@ int main(int argc, char** argv)
 
         signal(SIGINT, SIGINT_handler);
         ret = main.solve();
-    } catch (CMSat::TooManyVarsError& e) {
+    } catch (CMSGen::TooManyVarsError& e) {
         std::cerr << "ERROR! Variable requested is far too large" << std::endl;
         exit(-1);
-    } catch (CMSat::TooLongClauseError& e) {
+    } catch (CMSGen::TooLongClauseError& e) {
         std::cerr << "ERROR! Too long clause inserted" << std::endl;
         exit(-1);
     };

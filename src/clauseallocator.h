@@ -34,7 +34,7 @@ THE SOFTWARE.
 #include <map>
 #include <vector>
 
-namespace CMSat {
+namespace CMSGen {
 
 class Clause;
 class Solver;
@@ -61,7 +61,7 @@ class ClauseAllocator {
         Clause* Clause_new(const T& ps, const uint32_t conflictNum
         ) {
             if (ps.size() > (0x01UL << 28)) {
-                throw CMSat::TooLongClauseError();
+                throw CMSGen::TooLongClauseError();
             }
 
             void* mem = allocEnough(ps.size());

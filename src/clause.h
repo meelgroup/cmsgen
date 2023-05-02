@@ -40,7 +40,7 @@ THE SOFTWARE.
 #include "constants.h"
 #include "searchhist.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 class ClauseAllocator;
 

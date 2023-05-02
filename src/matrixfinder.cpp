@@ -36,7 +36,7 @@ THE SOFTWARE.
 //#define VERBOSE_DEBUG
 //#define PART_FINDING
 
-using namespace CMSat;
+using namespace CMSGen;
 
 using std::set;
 using std::map;

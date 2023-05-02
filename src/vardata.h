@@ -27,7 +27,7 @@ THE SOFTWARE.
 #include "propby.h"
 #include "avgcalc.h"
 
-namespace CMSat
+namespace CMSGen
 {
 
 struct VarData

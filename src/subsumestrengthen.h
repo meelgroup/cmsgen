@@ -24,13 +24,13 @@ THE SOFTWARE.
 #define __SUBSUMESTRENGTHEN_H__
 
 #include "cloffset.h"
-#include "cmsgen/solvertypesmini.h"
+#include "solvertypesmini.h"
 #include "clabstraction.h"
 #include "clause.h"
 #include <vector>
 using std::vector;
 
-namespace CMSat {
+namespace CMSGen {
 
 class OccSimplifier;
 class GateFinder;

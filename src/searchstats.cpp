@@ -22,7 +22,7 @@ THE SOFTWARE.
 
 #include "searchstats.h"
 
-using namespace CMSat;
+using namespace CMSGen;
 
 SearchStats& SearchStats::operator+=(const SearchStats& other)
 {

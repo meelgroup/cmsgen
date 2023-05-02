@@ -30,7 +30,7 @@ THE SOFTWARE.
 #include "constants.h"
 #include "solvertypes.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 class Solver;
 
@@ -256,7 +256,7 @@ private:
 namespace std
 {
     template <>
-    inline void swap (CMSat::TransCache& m1, CMSat::TransCache& m2)
+    inline void swap (CMSGen::TransCache& m1, CMSGen::TransCache& m2)
     #ifdef _MSC_VER
     throw()
     #else

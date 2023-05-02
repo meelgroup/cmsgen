@@ -32,7 +32,7 @@ THE SOFTWARE.
 using std::vector;
 using std::set;
 
-namespace CMSat {
+namespace CMSGen {
 
 class HyperEngine : public PropEngine {
 public:

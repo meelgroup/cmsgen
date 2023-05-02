@@ -27,7 +27,7 @@ THE SOFTWARE.
 #include "watcharray.h"
 #include "clauseallocator.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 //////////////////
 // NORMAL Clause

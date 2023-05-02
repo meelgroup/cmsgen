@@ -28,7 +28,7 @@ THE SOFTWARE.
 #include "xor.h"
 #include "constants.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 class Solver;
 

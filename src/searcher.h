@@ -39,7 +39,7 @@ THE SOFTWARE.
 #endif
 
 
-namespace CMSat {
+namespace CMSGen {
 
 class Solver;
 class SQLStats;

@@ -29,7 +29,7 @@ THE SOFTWARE.
 #include <limits>
 //#define XOR_DEBUG
 
-using namespace CMSat;
+using namespace CMSGen;
 using std::cout;
 using std::endl;
 

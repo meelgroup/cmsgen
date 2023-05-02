@@ -27,7 +27,7 @@ THE SOFTWARE.
 #include <cstdint>
 #include "clause.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 struct ClauseUsageStats
 {

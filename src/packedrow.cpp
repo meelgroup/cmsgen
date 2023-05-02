@@ -29,7 +29,7 @@ THE SOFTWARE.
 
 #include "packedrow.h"
 
-using namespace CMSat;
+using namespace CMSGen;
 
 bool PackedRow::fill(
     vec<Lit>& tmp_clause,

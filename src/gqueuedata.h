@@ -23,7 +23,7 @@ THE SOFTWARE.
 #ifndef GQUEUEDATA_H__
 #define GQUEUEDATA_H__
 
-namespace CMSat {
+namespace CMSGen {
 
 struct GaussQData {
     bool do_eliminate; // we do elimination when basic variable is invoked

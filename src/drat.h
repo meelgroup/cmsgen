@@ -30,7 +30,7 @@ THE SOFTWARE.
 using std::vector;
 //#define DEBUG_DRAT
 
-namespace CMSat {
+namespace CMSGen {
 
 enum DratFlag{fin, deldelay, del, findelay, add};
 

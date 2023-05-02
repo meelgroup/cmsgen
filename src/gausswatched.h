@@ -30,7 +30,7 @@ THE SOFTWARE.
 #ifndef GAUSSWATCHED_H
 #define GAUSSWATCHED_H
 
-namespace CMSat {
+namespace CMSGen {
     struct GaussWatched{
         GaussWatched(uint32_t r ,uint32_t m):
             row_id(r) , matrix_num(m)

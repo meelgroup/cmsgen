@@ -27,7 +27,7 @@ THE SOFTWARE.
 #include <iostream>
 #include <set>
 
-namespace CMSat {
+namespace CMSGen {
 
 uint32_t getUpdatedVar(uint32_t toUpdate, const vector< uint32_t >& mapper);
 Lit getUpdatedLit(Lit toUpdate, const vector< uint32_t >& mapper);

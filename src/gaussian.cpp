@@ -52,7 +52,7 @@ using std::set;
 #include <iterator>
 #endif
 
-using namespace CMSat;
+using namespace CMSGen;
 
 // if variable is not in Gaussian matrix , assiag unknown column
 static const uint32_t unassigned_col = std::numeric_limits<uint32_t>::max();

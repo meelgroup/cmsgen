@@ -26,7 +26,7 @@ THE SOFTWARE.
 #include <vector>
 using std::vector;
 
-namespace CMSat {
+namespace CMSGen {
 
 template<class T>
 class MyStack

@@ -28,7 +28,7 @@ THE SOFTWARE.
 using std::cout;
 using std::endl;
 
-using namespace CMSat;
+using namespace CMSGen;
 
 void ClauseUsageStats::print() const
 {

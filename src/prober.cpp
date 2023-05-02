@@ -35,7 +35,7 @@ THE SOFTWARE.
 #include "clausecleaner.h"
 #include "completedetachreattacher.h"
 
-using namespace CMSat;
+using namespace CMSGen;
 using std::make_pair;
 using std::set;
 using std::cout;

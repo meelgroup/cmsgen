@@ -34,7 +34,7 @@ THE SOFTWARE.
 #include <string.h>
 
 
-namespace CMSat {
+namespace CMSGen {
 
 enum WatchType {
     watch_clause_t = 0

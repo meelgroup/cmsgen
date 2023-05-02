@@ -37,7 +37,7 @@ THE SOFTWARE.
 using std::vector;
 using std::set;
 
-namespace CMSat {
+namespace CMSGen {
 
 //#define VERBOSE_DEBUG_XOR_FINDER
 

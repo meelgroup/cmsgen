@@ -27,7 +27,7 @@ THE SOFTWARE.
 #include "clause.h"
 #include "watcharray.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 #ifdef VERBOSE_DEBUG
 #define VERBOSE_DEBUG_RECONSTRUCT

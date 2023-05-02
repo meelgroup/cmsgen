@@ -30,7 +30,7 @@ THE SOFTWARE.
 using std::cout;
 using std::endl;
 
-namespace CMSat {
+namespace CMSGen {
 
 //History
 struct SearchHist {

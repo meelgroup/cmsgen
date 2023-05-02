@@ -38,7 +38,7 @@ THE SOFTWARE.
 #include "popcnt.h"
 #include "Vec.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 using std::vector;
 

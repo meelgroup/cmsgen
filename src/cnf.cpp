@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include "varupdatehelper.h"
 #include "time_mem.h"
 
-using namespace CMSat;
+using namespace CMSGen;
 
 void CNF::new_var(const bool bva, const uint32_t orig_outer)
 {

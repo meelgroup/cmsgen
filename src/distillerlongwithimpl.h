@@ -30,7 +30,7 @@ THE SOFTWARE.
 #include "cloffset.h"
 #include "watcharray.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 using std::vector;
 

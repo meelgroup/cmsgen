@@ -27,7 +27,7 @@ THE SOFTWARE.
 #include "watched.h"
 #include "watcharray.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 class Solver;
 class Clause;

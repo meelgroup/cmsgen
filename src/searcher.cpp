@@ -47,7 +47,7 @@ THE SOFTWARE.
 //#define DEBUG_RESOLV
 //#define VERBOSE_DEBUG
 
-using namespace CMSat;
+using namespace CMSGen;
 using std::cout;
 using std::endl;
 

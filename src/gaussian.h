@@ -52,7 +52,7 @@ using std::string;
 using std::pair;
 using std::vector;
 
-namespace CMSat {
+namespace CMSGen {
 
 class Solver;
 

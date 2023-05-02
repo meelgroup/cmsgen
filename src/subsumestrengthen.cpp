@@ -32,7 +32,7 @@ THE SOFTWARE.
 
 //#define VERBOSE_DEBUG
 
-using namespace CMSat;
+using namespace CMSGen;
 
 SubsumeStrengthen::SubsumeStrengthen(
     OccSimplifier* _simplifier

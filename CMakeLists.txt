@@ -413,11 +413,29 @@ if (HAVE__FPU_SETCW)
     message(STATUS "Found FPU code for yalsat: fpu_control.h, _FPU_SINGLE, _FPU_DOUBLE")
 endif()
 
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+
+macro(cmsgen_add_public_header LIBTARGET HEADER)
+    get_target_property(EXISTING_PUBLIC_HEADERS ${LIBTARGET} PUBLIC_HEADER)
+    if(EXISTING_PUBLIC_HEADERS)
+        list(APPEND EXISTING_PUBLIC_HEADERS "${HEADER}")
+    else()
+        # Do not append to empty list
+        set(EXISTING_PUBLIC_HEADERS "${HEADER}")
+    endif()
+    set_target_properties(
+        ${LIBTARGET}
+        PROPERTIES
+        PUBLIC_HEADER "${EXISTING_PUBLIC_HEADERS}"
+     )
+endmacro()
+
 
 # -----------------------------------------------------------------------------
 # Provide an export name to be used by targets that wish to export themselves.
 # -----------------------------------------------------------------------------
-set(CRYPTOMINISAT5_EXPORT_NAME "cmsgenTargets")
+set(CMSGEN_EXPORT_NAME "cmsgenTargets")
 
 #query definitions
 get_directory_property( DirDefs DIRECTORY ${CMAKE_SOURCE_DIR} COMPILE_DEFINITIONS )

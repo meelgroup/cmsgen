@@ -68,7 +68,7 @@ THE SOFTWARE.
 #define VERBOSE_DEBUG_VARELIM
 #endif
 
-using namespace CMSat;
+using namespace CMSGen;
 using std::cout;
 using std::endl;
 

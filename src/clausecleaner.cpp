@@ -23,9 +23,9 @@ THE SOFTWARE.
 #include "clausecleaner.h"
 #include "clauseallocator.h"
 #include "solver.h"
-#include "cmsgen/solvertypesmini.h"
+#include "solvertypesmini.h"
 
-using namespace CMSat;
+using namespace CMSGen;
 
 //#define DEBUG_CLEAN
 //#define VERBOSE_DEBUG

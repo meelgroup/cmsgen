@@ -26,11 +26,11 @@ THE SOFTWARE.
 
 #include <string.h>
 #include "streambuffer.h"
-#include "cmsgen/cryptominisat.h"
+#include "cmsgen.h"
 #include <cstdlib>
 #include <cmath>
 
-using namespace CMSat;
+using namespace CMSGen;
 using std::vector;
 
 template <class C>

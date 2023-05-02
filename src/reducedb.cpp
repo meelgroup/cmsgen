@@ -27,7 +27,7 @@ THE SOFTWARE.
 #include <functional>
 #include <cmath>
 
-using namespace CMSat;
+using namespace CMSGen;
 
 struct SortRedClsGlue
 {

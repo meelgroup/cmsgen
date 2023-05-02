@@ -39,7 +39,7 @@ using std::endl;
 #define VERBOSE_DEBUG_BIN_REPLACER
 #endif
 
-using namespace CMSat;
+using namespace CMSGen;
 
 //#define VERBOSE_DEBUG
 //#define REPLACE_STATISTICS

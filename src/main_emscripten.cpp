@@ -36,7 +36,7 @@ using std::endl;
 #include "dimacsparser.h"
 #include "streambuffer.h"
 
-using namespace CMSat;
+using namespace CMSGen;
 
 SATSolver* solver = NULL;
 DLL_PUBLIC void printVersionInfo()

@@ -30,7 +30,7 @@ THE SOFTWARE.
 #include "varupdatehelper.h"
 #include "time_mem.h"
 
-using namespace CMSat;
+using namespace CMSGen;
 using std::cout;
 using std::endl;
 

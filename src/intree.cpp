@@ -29,7 +29,7 @@ THE SOFTWARE.
 #include <cmath>
 #include <cassert>
 
-using namespace CMSat;
+using namespace CMSGen;
 
 InTree::InTree(Solver* _solver) :
     solver(_solver)

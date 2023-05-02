@@ -30,7 +30,7 @@ THE SOFTWARE.
 #include <cstddef>
 #include "sqlstats.h"
 
-using namespace CMSat;
+using namespace CMSGen;
 using std::cout;
 using std::endl;
 

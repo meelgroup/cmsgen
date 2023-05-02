@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include "watcharray.h"
 using std::vector;
 
-namespace CMSat {
+namespace CMSGen {
 
 class Solver;
 class Clause;

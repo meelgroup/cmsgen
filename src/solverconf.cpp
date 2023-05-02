@@ -25,7 +25,7 @@ THE SOFTWARE.
 #include <limits>
 #include <iomanip>
 #include <sstream>
-using namespace CMSat;
+using namespace CMSGen;
 
 DLL_PUBLIC SolverConf::SolverConf() :
         //Variable activities

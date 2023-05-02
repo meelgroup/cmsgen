@@ -26,10 +26,10 @@ THE SOFTWARE.
 
 #include <string>
 
-namespace CMSat {
+namespace CMSGen {
     class SATSolver;
 }
-using namespace CMSat;
+using namespace CMSGen;
 
 extern SATSolver* solverToInterrupt;
 extern int need_clean_exit;

@@ -33,7 +33,7 @@ IN THE SOFTWARE.
 #include "constants.h"
 
 using std::vector;
-using namespace CMSat;
+using namespace CMSGen;
 struct MySolver {
     ~MySolver()
     {

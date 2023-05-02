@@ -23,7 +23,7 @@ THE SOFTWARE.
 #include "hyperengine.h"
 #include "clauseallocator.h"
 
-using namespace CMSat;
+using namespace CMSGen;
 
 HyperEngine::HyperEngine(
     const SolverConf *_conf

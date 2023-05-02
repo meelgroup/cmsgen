@@ -20,13 +20,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ***********************************************/
 
-#include "cmsgen/cryptominisat_c.h"
+#include "cmsgen_c.h"
 #include "constants.h"
-#include "cmsgen/cryptominisat.h"
+#include "cmsgen.h"
 
 
 // C wrappers for SATSolver so that it can be used from other languages (e.g. Rust)
-using namespace CMSat;
+using namespace CMSGen;
 
 // Make sure the types we expose are C compatible and don't change unexpectedly
 static_assert(sizeof(Lit) == sizeof(c_Lit), "Lit layout not c-compatible");

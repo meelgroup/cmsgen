@@ -29,7 +29,7 @@ THE SOFTWARE.
 #include "clause.h"
 #include "constants.h"
 
-namespace CMSat {
+namespace CMSGen {
 
 using std::vector;
 

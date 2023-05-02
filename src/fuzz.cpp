@@ -33,7 +33,7 @@ struct MyText {
 
 typedef size_t(*fread_op_text)(void*, size_t, size_t, MyText&);
 
-using namespace CMSat;
+using namespace CMSGen;
 
 static size_t text_read(void* buf, size_t num, size_t count, MyText& f)
 {
