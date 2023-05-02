@@ -78,7 +78,6 @@ public:
         cout << "  --verb          = [0...]  Sets verbosity level. Anything higher\n";
         cout << "                            than 2 will give debug log\n";
         cout << "  --drat          = {fname} DRAT dumped to file\n";
-        cout << "  --sls           = {walksat,yalsat} Which SLS solver to use\n";
         cout << "  --threads       = [1...]  Sets number of threads\n";
         cout << "\n";
     }
@@ -115,21 +114,6 @@ public:
                 if (num_threads > 16) {
                     conf.var_and_mem_out_mult *= 0.4;
                 }
-            }else if ((value = hasPrefix(argv[i], "--bva="))){
-                conf.do_bva = (int)strtol(value, NULL, 10);
-            }else if ((value = hasPrefix(argv[i], "--sls="))){
-                std::string sls;
-                sls = argv[i];
-                sls = sls.substr(6, 100);
-                conf.which_sls = sls;
-                cout << "c using SLS: '" << sls << "'" << endl;
-            }else if ((value = hasPrefix(argv[i], "--reconf="))){
-                long int reconf  = (int)strtol(value, NULL, 10);
-                if (reconf == 0 && errno == EINVAL){
-                    cout << "ERROR! illegal threads " << value << endl;
-                    exit(0);
-                }
-                conf.reconfigure_val = reconf;
             }else if (strcmp(argv[i], "--zero-exit-status") == 0){
                 zero_exit_status = true;
             } else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "-help") == 0 || strcmp(argv[i], "--help") == 0){

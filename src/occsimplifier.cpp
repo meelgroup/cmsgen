@@ -50,7 +50,6 @@ THE SOFTWARE.
 #include "clauseallocator.h"
 #include "toplevelgaussabst.h"
 #include "subsumeimplicit.h"
-#include "datasync.h"
 #include "xorfinder.h"
 #include "trim.h"
 

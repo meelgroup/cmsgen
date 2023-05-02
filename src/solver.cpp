@@ -49,7 +49,6 @@ THE SOFTWARE.
 #include "subsumeimplicit.h"
 #include "distillerlongwithimpl.h"
 #include "str_impl_w_impl_stamp.h"
-#include "datasync.h"
 #include "reducedb.h"
 #include "sccfinder.h"
 #include "intree.h"
@@ -59,7 +58,6 @@ THE SOFTWARE.
 #include "gaussian.h"
 #include "drat.h"
 #include "xorfinder.h"
-#include "sls.h"
 
 using namespace CMSat;
 using std::cout;
@@ -94,7 +92,6 @@ Solver::Solver(const SolverConf *_conf, std::atomic<bool>* _must_interrupt_inter
     if (conf.doStrSubImplicit) {
         subsumeImplicit = new SubsumeImplicit(this);
     }
-    datasync = new DataSync(this, NULL);
     Searcher::solver = this;
     reduceDB = new ReduceDB(this);
 
@@ -115,14 +112,7 @@ Solver::~Solver()
     delete clauseCleaner;
     delete varReplacer;
     delete subsumeImplicit;
-    delete datasync;
     delete reduceDB;
-}
-
-void Solver::set_shared_data(SharedData* shared_data)
-{
-    delete datasync;
-    datasync = new DataSync(this, shared_data);
 }
 
 bool Solver::add_xor_clause_inter(
@@ -366,9 +356,6 @@ Clause* Solver::add_clause_int(
         << fin;
         std::swap(ps[0], ps[i]);
 
-        if (ps.size() == 2) {
-            datasync->signalNewBinClause(ps);
-        }
     }
 
     //Handle special cases
@@ -850,7 +837,6 @@ bool Solver::renumber_variables(bool must_renumber)
     if (conf.doCache) {
         implCache.updateVars(seen, outerToInter, interToOuter2, numEffectiveVars);
     }
-    datasync->updateVars(outerToInter, interToOuter);
 
     //Tests
     test_renumbering();
@@ -918,8 +904,6 @@ void Solver::new_vars(size_t n)
     if (conf.perform_occur_based_simp) {
         occsimplifier->new_vars(n);
     }
-
-    datasync->new_vars(n);
 }
 
 void Solver::new_var(const bool bva, const uint32_t orig_outer)
@@ -931,10 +915,6 @@ void Solver::new_var(const bool bva, const uint32_t orig_outer)
 
     if (conf.perform_occur_based_simp) {
         occsimplifier->new_var(orig_outer);
-    }
-
-    if (orig_outer == std::numeric_limits<uint32_t>::max()) {
-        datasync->new_var(bva);
     }
 
     //Too expensive
@@ -951,7 +931,6 @@ void Solver::save_on_var_memory(const uint32_t newNumVars)
     if (occsimplifier) {
         occsimplifier->save_on_var_memory();
     }
-    datasync->save_on_var_memory();
     //print_mem_stats();
 }
 
@@ -1248,13 +1227,9 @@ lbool Solver::simplify_problem_outside()
         goto end;
     }
     check_config_parameters();
-    datasync->rebuild_bva_map();
 
     if (nVars() > 0 && conf.do_simplify_problem) {
-        bool backup_sls = conf.doSLS;
-        conf.doSLS = false;
         status = simplify_problem(false);
-        conf.doSLS = backup_sls;
     }
 
     end:
@@ -1312,9 +1287,6 @@ lbool Solver::solve_with_assumptions(
     }
     assert(prop_at_head());
     assert(okay());
-
-    //Clean up as a startup
-    datasync->rebuild_bva_map();
 
     //If still unknown, simplify
     if (status == l_Undef
@@ -1535,17 +1507,6 @@ lbool Solver::execute_inprocess_strategy(
             //subsume BIN with BIN
             if (conf.doStrSubImplicit) {
                 subsumeImplicit->subsume_implicit();
-            }
-        } else if (token == "sls") {
-            assert(conf.sls_every_n > 0);
-            if (conf.doSLS
-                && solveStats.num_simplify % conf.sls_every_n == (conf.sls_every_n-1)
-            ) {
-                SLS sls(this);
-                const lbool ret = sls.run();
-                if (ret == l_True) {
-                    return l_True;
-                }
             }
         } else if (token == "intree-probe") {
             if (conf.doIntreeProbe) {
@@ -2681,11 +2642,6 @@ void Solver::check_too_large_variable_number(const vector<Lit>& lits) const
             std::exit(-1);
         }
     }
-}
-
-void Solver::bva_changed()
-{
-    datasync->rebuild_bva_map();
 }
 
 vector<pair<Lit, Lit> > Solver::get_all_binary_xors() const

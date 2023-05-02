@@ -119,6 +119,7 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , skip_some_bve_resolvents(true) //based on gates
         , velim_resolvent_too_large(20)
         , var_linkin_limit_MB(1000)
+        , min_bva_gain(2)
 
         //Subs, str limits for simplifier
         , subsumption_time_limitM(300)
@@ -131,19 +132,6 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , ternary_res_time_limitM(100)
         , ternary_keep_mult(4)
         , ternary_max_create(0.5)
-
-        //Bounded variable addition
-        , do_bva(false)
-        #ifdef USE_GAUSS
-        , min_bva_gain(2)
-        #else
-        , min_bva_gain(32)
-        #endif
-        , bva_limit_per_call(150000)
-        , bva_also_twolit_diff(false)
-        , bva_extra_lit_and_red_start(0)
-        , bva_time_limitM(50)
-        , bva_every_n(20)
 
         //Probing
         , doProbe          (false)
@@ -241,14 +229,6 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , maxOccurRedLitLinkedM(50)
         , subsume_gothrough_multip(2.0)
 
-        //WalkSAT
-        , doSLS(false)
-        , sls_every_n(4)
-        , yalsat_max_mems(150)
-        , sls_memoutMB(500)
-        , walksat_max_runs(50)
-        , which_sls("yalsat")
-
         //Distillation
         , do_distill_clauses(true)
         , distill_long_cls_time_limitM(20ULL)
@@ -293,8 +273,6 @@ DLL_PUBLIC SolverConf::SolverConf() :
         //misc
         , origSeed(0)
         , sync_every_confl(20000)
-        , reconfigure_val(0)
-        , reconfigure_at(2)
         , simulate_drat(false)
         , need_decisions_reaching(false)
         , saved_state_file("savedstate.dat")

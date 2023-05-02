@@ -35,7 +35,6 @@ THE SOFTWARE.
 #include "gaussian.h"
 #include "clause.h"
 #include "clausecleaner.h"
-#include "datasync.h"
 #include "propby.h"
 #include "solver.h"
 #include "time_mem.h"
@@ -441,12 +440,10 @@ inline void EGaussian::propagation_twoclause() {
     Lit lit1 = tmp_clause[0];
     Lit lit2 = tmp_clause[1];
     solver->attach_bin_clause(lit1, lit2, true, false);
-    // solver->dataSync->signalNewBinClause(lit1, lit2);
 
     lit1 = ~lit1;
     lit2 = ~lit2;
     solver->attach_bin_clause(lit1, lit2, true, false);
-    // solver->dataSync->signalNewBinClause(lit1, lit2);
 
     lit1 = ~lit1;
     lit2 = ~lit2;
@@ -468,12 +465,10 @@ inline void EGaussian::conflict_twoclause(PropBy& confl) {
 #endif
 
     solver->attach_bin_clause(lit1, lit2, true, false);
-    // solver->dataSync->signalNewBinClause(lit1, lit2);
 
     lit1 = ~lit1;
     lit2 = ~lit2;
     solver->attach_bin_clause(lit1, lit2, true, false);
-    // solver->dataSync->signalNewBinClause(lit1, lit2);
 
     lit1 = ~lit1;
     lit2 = ~lit2;

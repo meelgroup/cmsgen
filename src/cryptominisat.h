@@ -20,12 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ***********************************************/
 
-#ifndef __CRYPTOMINISAT5_H__
-#define __CRYPTOMINISAT5_H__
-
-#define CRYPTOMINISAT_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
-#define CRYPTOMINISAT_VERSION_MINOR @PROJECT_VERSION_MINOR@
-#define CRYPTOMINISAT_VERSION_PATCH @PROJECT_VERSION_PATCH@
+#pragma once
 
 #include <atomic>
 #include <vector>
@@ -34,7 +29,7 @@ THE SOFTWARE.
 #include <string>
 #include "cmsgen/solvertypesmini.h"
 
-namespace CMSat {
+namespace CMSGen {
     struct CMSatPrivateData;
     #ifdef _WIN32
     class __declspec(dllexport) SATSolver
@@ -164,5 +159,3 @@ namespace CMSat {
         CMSatPrivateData *data;
     };
 }
-
-#endif //__CRYPTOMINISAT5_H__

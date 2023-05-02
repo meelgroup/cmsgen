@@ -189,7 +189,6 @@ DLL_PUBLIC void SATSolver::set_num_threads(unsigned num)
             conf.doFindXors = 0;
         }
         data->solvers[i]->setConf(conf);
-        data->solvers[i]->set_shared_data((SharedData*)data->shared_data);
     }
 }
 
@@ -352,14 +351,6 @@ DLL_PUBLIC void SATSolver::set_no_equivalent_lit_replacement()
     for (size_t i = 0; i < data->solvers.size(); ++i) {
         Solver& s = *data->solvers[i];
         s.conf.doFindAndReplaceEqLits = false;
-    }
-}
-
-DLL_PUBLIC void SATSolver::set_no_bva()
-{
-    for (size_t i = 0; i < data->solvers.size(); ++i) {
-        Solver& s = *data->solvers[i];
-        s.conf.do_bva = false;
     }
 }
 

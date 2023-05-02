@@ -33,7 +33,6 @@ THE SOFTWARE.
 #include <cstddef>
 #include <cmath>
 #include <ratio>
-#include "datasync.h"
 #include "reducedb.h"
 #include "watchalgos.h"
 #include "hasher.h"
@@ -1128,9 +1127,6 @@ lbool Searcher::search()
         return l_False;
     }
     assert(solver->prop_at_head());
-    if (!solver->datasync->syncData()) {
-        return l_False;
-    }
     return l_Undef;
 }
 
@@ -1363,7 +1359,6 @@ void Searcher::add_otf_subsume_implicit_clause()
 
             //Attach new binary/tertiary clause
             if (it->size == 2) {
-                solver->datasync->signalNewBinClause(it->lits);
                 solver->attach_bin_clause(it->lits[0], it->lits[1], true);
             }
         }
@@ -1411,7 +1406,6 @@ void Searcher::attach_and_enqueue_learnt_clause(Clause* cl, bool enq)
         case 2:
             //Binary learnt
             stats.learntBins++;
-            solver->datasync->signalNewBinClause(learnt_clause);
             solver->attach_bin_clause(learnt_clause[0], learnt_clause[1], true, enq);
             if (enq) enqueue(learnt_clause[0], PropBy(learnt_clause[1], true));
             break;

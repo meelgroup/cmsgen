@@ -38,7 +38,7 @@ THE SOFTWARE.
 #include "solverconf.h"
 #include "cmsgen/solvertypesmini.h"
 
-namespace CMSat {
+namespace CMSgen {
 
 using std::vector;
 using std::cout;

@@ -414,16 +414,6 @@ void Main::check_options_correctness()
 
 void Main::manually_parse_some_options()
 {
-    if (conf.yalsat_max_mems < 1) {
-        cout << "ERROR: '--walkmems' must be at least 1" << endl;
-        exit(-1);
-    }
-
-    if (conf.sls_every_n < 1) {
-        cout << "ERROR: '--walkeveryn' must be at least 1" << endl;
-        exit(-1);
-    }
-
     if (conf.maxXorToFind > MAX_XOR_RECOVER_SIZE) {
         cout << "ERROR: The '--maxxorsize' parameter cannot be larger than " << MAX_XOR_RECOVER_SIZE << endl;
         exit(-1);

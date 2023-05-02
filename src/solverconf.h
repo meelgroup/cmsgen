@@ -253,6 +253,7 @@ class DLL_PUBLIC SolverConf
         int      skip_some_bve_resolvents;
         int velim_resolvent_too_large; //-1 == no limit
         int var_linkin_limit_MB;
+        int min_bva_gain;
 
         //Subs, str limits for simplifier
         long long subsumption_time_limitM;
@@ -264,15 +265,6 @@ class DLL_PUBLIC SolverConf
         long long ternary_res_time_limitM;
         double ternary_keep_mult;
         double ternary_max_create;
-
-        //BVA
-        int      do_bva;
-        int min_bva_gain;
-        unsigned bva_limit_per_call;
-        int      bva_also_twolit_diff;
-        long     bva_extra_lit_and_red_start;
-        long long bva_time_limitM;
-        uint32_t  bva_every_n;
 
         //Probing
         int      doProbe;
@@ -328,14 +320,6 @@ class DLL_PUBLIC SolverConf
         double maxOccurRedLitLinkedM;
         double   subsume_gothrough_multip;
 
-        //Walksat
-        int doSLS;
-        uint32_t sls_every_n;
-        uint32_t yalsat_max_mems;
-        uint32_t sls_memoutMB;
-        uint32_t walksat_max_runs;
-        string   which_sls;
-
         //Distillation
         int      do_distill_clauses;
         unsigned long long distill_long_cls_time_limitM;
@@ -381,8 +365,6 @@ class DLL_PUBLIC SolverConf
         //Misc
         unsigned origSeed;
         unsigned long long sync_every_confl;
-        unsigned reconfigure_val;
-        unsigned reconfigure_at;
         int      simulate_drat;
         int      need_decisions_reaching;
         std::string simplified_cnf;

@@ -87,7 +87,6 @@ class Solver : public Searcher
 
         lbool solve_with_assumptions(const vector<Lit>* _assumptions, bool only_indep_solution);
         lbool simplify_with_assumptions(const vector<Lit>* _assumptions = NULL);
-        void  set_shared_data(SharedData* shared_data);
 
         //drat for SAT problems
         void add_empty_cl_to_drat();
@@ -183,7 +182,6 @@ class Solver : public Searcher
         );
         void new_var(const bool bva = false, const uint32_t orig_outer = std::numeric_limits<uint32_t>::max()) override;
         void new_vars(const size_t n) override;
-        void bva_changed();
 
         //Attaching-detaching clauses
         void attachClause(

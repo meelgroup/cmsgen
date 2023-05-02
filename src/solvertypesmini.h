@@ -20,15 +20,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ***********************************************/
 
-#ifndef __SOLVERTYPESMINI_H__
-#define __SOLVERTYPESMINI_H__
+#pragma once
 
 #include <cstdint>
 #include <iostream>
 #include <cassert>
 #include <vector>
 
-namespace CMSat {
+namespace CMSGen {
 
 #define var_Undef (0xffffffffU >> 4)
 
@@ -176,5 +175,3 @@ inline std::ostream& operator<<(std::ostream& cout, const lbool val)
 enum class rst_dat_type {norm, var, cl};
 
 }
-
-#endif //__SOLVERTYPESMINI_H__

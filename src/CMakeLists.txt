@@ -44,9 +44,6 @@ include_directories(${Boost_INCLUDE_DIRS})
 link_directories(Boost_LIBRARY_DIRS)
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/GitSHA1.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/GitSHA1.cpp" @ONLY)
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cryptominisat.h.in" "${CMAKE_CURRENT_BINARY_DIR}/cmsgen/cryptominisat.h" @ONLY)
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/solvertypesmini.h.in" "${CMAKE_CURRENT_BINARY_DIR}/cmsgen/solvertypesmini.h" @ONLY)
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cryptominisat_c.h.in" "${CMAKE_CURRENT_BINARY_DIR}/cmsgen/cryptominisat_c.h" @ONLY)
 
 set(cryptoms_lib_files
     cnf.cpp
@@ -71,14 +68,11 @@ set(cryptoms_lib_files
     stamp.cpp
     hyperengine.cpp
     subsumeimplicit.cpp
-    datasync.cpp
     reducedb.cpp
     intree.cpp
     searchstats.cpp
     xorfinder.cpp
     cryptominisat_c.cpp
-    walksat.cpp
-    sls.cpp
     gaussian.cpp
     matrixfinder.cpp
     packedrow.cpp
