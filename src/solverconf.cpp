@@ -32,7 +32,7 @@ DLL_PUBLIC SolverConf::SolverConf() :
         var_inc_vsids_start(1)
         , var_decay_vsids_start(0.8) // 1/0.8 = 1.2 -- large is better for frequent restarts
         , var_decay_vsids_max(0.95) // 1/0.95 = 1.05 -- smaller is better for hard instances
-        , random_var_freq(0.9999)
+        , random_var_freq(0.999999)
         , polarity_mode(PolarityMode::polarmode_weighted)
 
         //Clause cleaning
@@ -72,7 +72,7 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , doAlwaysFMinim(false)
 
         //Clause minimisation
-        , doRecursiveMinim (true)
+        , doRecursiveMinim (false)
         , doMinimRedMore(true)
         , doMinimRedMoreMore(false)
         , max_glue_more_minim(6)
@@ -98,7 +98,7 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , update_glues_on_analyze(true)
 
         //OTF
-        , otfHyperbin      (true)
+        , otfHyperbin      (false)
         , doOTFSubsume     (false)
         , doOTFSubsumeOnlyAtOrBelowGlue(5)
 
@@ -127,13 +127,13 @@ DLL_PUBLIC SolverConf::SolverConf() :
 
 
         //Ternary resolution
-        , doTernary(true)
+        , doTernary(false)
         , ternary_res_time_limitM(100)
         , ternary_keep_mult(4)
         , ternary_max_create(0.5)
 
         //Bounded variable addition
-        , do_bva(true)
+        , do_bva(false)
         #ifdef USE_GAUSS
         , min_bva_gain(2)
         #else
@@ -162,7 +162,7 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , single_probe_time_limit_perc(0.5)
 
         //XOR
-        , doFindXors       (true)
+        , doFindXors       (false)
         , maxXorToFind     (7)
         , maxXorToFindSlow (5)
         , useCacheWhenFindingXors(false)
@@ -176,7 +176,7 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , xor_var_per_cut(2)
 
         //Var-replacer
-        , doFindAndReplaceEqLits(true)
+        , doFindAndReplaceEqLits(false)
         , doExtendedSCC         (true)
         , max_scc_depth (10000)
 
@@ -256,7 +256,7 @@ DLL_PUBLIC SolverConf::SolverConf() :
         , distill_time_limitM(120LL)
 
         //Memory savings
-        , doRenumberVars   (true)
+        , doRenumberVars   (false)
         , must_renumber    (false)
         , doSaveMem        (true)
         , full_watch_consolidate_every_n_confl (4ULL*1000ULL*1000ULL) //validated in run 8113323.wlm01
