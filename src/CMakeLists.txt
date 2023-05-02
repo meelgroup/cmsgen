@@ -45,7 +45,7 @@ link_directories(Boost_LIBRARY_DIRS)
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/GitSHA1.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/GitSHA1.cpp" @ONLY)
 
-set(cryptoms_lib_files
+set(cmsgen_lib_files
     cnf.cpp
     propengine.cpp
     varreplacer.cpp
@@ -78,11 +78,11 @@ set(cryptoms_lib_files
     ${CMAKE_CURRENT_BINARY_DIR}/GitSHA1.cpp
 )
 
-set(cryptoms_lib_link_libs "")
+set(cmsgen_lib_link_libs "")
 
 add_library(cmsgen
-    ${cryptoms_lib_files}
-    cryptominisat.cpp
+    ${cmsgen_lib_files}
+    cmsgen.cpp
 )
 
 GENERATE_EXPORT_HEADER(cmsgen
@@ -94,7 +94,7 @@ GENERATE_EXPORT_HEADER(cmsgen
 
 # indicate that we depend on pthread, and compile in the actual library
 target_link_libraries(cmsgen
-    LINK_PUBLIC ${cryptoms_lib_link_libs}
+    LINK_PUBLIC ${cmsgen_lib_link_libs}
     LINK_PUBLIC ${CMAKE_THREAD_LIBS_INIT}
 )
 
@@ -157,12 +157,12 @@ add_executable(cmsgen-bin
     signalcode.cpp
 )
 
-set(cryptoms_exec_link_libs
+set(cmsgen_exec_link_libs
     cmsgen
 )
 
 IF (ZLIB_FOUND)
-    SET(cryptoms_exec_link_libs ${cryptoms_exec_link_libs} ${ZLIB_LIBRARY})
+    SET(cmsgen_exec_link_libs ${cmsgen_exec_link_libs} ${ZLIB_LIBRARY})
 ENDIF()
 
 set_target_properties(cmsgen-bin PROPERTIES
@@ -170,7 +170,7 @@ set_target_properties(cmsgen-bin PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
     INSTALL_RPATH_USE_LINK_PATH TRUE)
 target_link_libraries(cmsgen-bin
-    ${cryptoms_exec_link_libs}
+    ${cmsgen_exec_link_libs}
     "${Boost_LIBRARIES}"
 )
 install(TARGETS cmsgen-bin
