@@ -72,7 +72,6 @@ set(cryptoms_lib_files
     intree.cpp
     searchstats.cpp
     xorfinder.cpp
-    cryptominisat_c.cpp
     gaussian.cpp
     matrixfinder.cpp
     packedrow.cpp
