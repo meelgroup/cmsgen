@@ -236,13 +236,13 @@ static PyObject* set_var_weight(Solver *self, PyObject *args, PyObject *kwds)
         return 0;
     }
 
-    if (weight < 0 || weigth > 1.0) {
+    if (weight < 0 || weight > 1.0) {
         PyErr_SetString(PyExc_ValueError, "invalid weight, it must be a non-negative value between 0 and 1, inclusive");
         return 0;
     }
     var--;
 
-    if (self->cmsat->nVars() <= var) self->cmsat->new_vars(v-cmsat->nVars()+1);
+    if (self->cmsat->nVars() <= var) self->cmsat->new_vars(var-(self->cmsat->nVars())+1);
     self->cmsat->set_var_weight(Lit(var, false), weight);
 
     Py_INCREF(Py_None);
