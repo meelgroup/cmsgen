@@ -53,7 +53,6 @@ using std::priority_queue;
 class ClauseCleaner;
 class SolutionExtender;
 class Solver;
-class TopLevelGaussAbst;
 class SubsumeStrengthen;
 
 struct BlockedClauses {
@@ -523,9 +522,7 @@ private:
 
     /////////////////////
     //Helpers
-    friend class TopLevelGaussAbst;
     //friend class GateFinder;
-    TopLevelGaussAbst *topLevelGauss;
     //GateFinder *gateFinder;
 
     /////////////////////

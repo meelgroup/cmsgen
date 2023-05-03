@@ -67,7 +67,6 @@ def gen_modules(version):
                    "src/str_impl_w_impl_stamp.cpp",
                    "src/subsumeimplicit.cpp",
                    "src/subsumestrengthen.cpp",
-                   "src/toplevelgauss.cpp",
                    "src/varreplacer.cpp",
                    "src/xorfinder.cpp"
                ],

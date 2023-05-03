@@ -48,14 +48,9 @@ THE SOFTWARE.
 #include "subsumestrengthen.h"
 #include "watchalgos.h"
 #include "clauseallocator.h"
-#include "toplevelgaussabst.h"
 #include "subsumeimplicit.h"
 #include "xorfinder.h"
 #include "trim.h"
-
-#ifdef USE_M4RI
-#include "toplevelgauss.h"
-#endif
 
 //#define VERBOSE_DEBUG
 #ifdef VERBOSE_DEBUG
@@ -89,16 +84,10 @@ OccSimplifier::OccSimplifier(Solver* _solver):
     , seen2(solver->seen2)
     , toClear(solver->toClear)
     , velim_order(VarOrderLt(varElimComplexity))
-    , topLevelGauss(NULL)
     //, gateFinder(NULL)
     , anythingHasBeenBlocked(false)
     , blockedMapBuilt(false)
 {
-    topLevelGauss = new TopLevelGaussAbst;
-    #ifdef USE_M4RI
-    delete topLevelGauss;
-    topLevelGauss = new TopLevelGauss(solver);
-    #endif
     sub_str = new SubsumeStrengthen(this, solver);
 
     if (solver->conf.doGateFind) {
@@ -109,7 +98,6 @@ OccSimplifier::OccSimplifier(Solver* _solver):
 
 OccSimplifier::~OccSimplifier()
 {
-    delete topLevelGauss;
     delete sub_str;
     //delete gateFinder;
 }
@@ -1299,14 +1287,6 @@ bool OccSimplifier::execute_simplifier_strategy(const string& strategy)
                 if (!solver->ok)
                     return false;
 
-                #ifdef USE_M4RI
-                if (topLevelGauss != NULL
-                    && solver->conf.doM4RI
-                ) {
-                    xors = finder.remove_xors_without_connecting_vars(xors);
-                    topLevelGauss->toplevelgauss(xors, &out_changed_occur);
-                }
-                #endif
                 finder.add_xors_to_solver();
 
                 //these may have changed, recalculating occur
@@ -3055,10 +3035,7 @@ size_t OccSimplifier::mem_used() const
 
 size_t OccSimplifier::mem_used_xor() const
 {
-    if (topLevelGauss)
-        return topLevelGauss->mem_used();
-    else
-        return 0;
+    return 0;
 }
 
 void OccSimplifier::linkInClause(Clause& cl)
