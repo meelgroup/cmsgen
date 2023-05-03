@@ -33,8 +33,6 @@ using namespace CMSGen;
 
 extern SATSolver* solverToInterrupt;
 extern int need_clean_exit;
-extern std::string redDumpFname;
-extern std::string irredDumpFname;
 void SIGINT_handler(int);
 
 #endif //SIGNALCODE_H_

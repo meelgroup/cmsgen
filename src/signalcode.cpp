@@ -32,8 +32,6 @@ using namespace CMSGen;
 
 SATSolver* solverToInterrupt;
 int need_clean_exit;
-std::string redDumpFname;
-std::string irredDumpFname;
 
 using std::cout;
 using std::endl;
@@ -43,27 +41,19 @@ void SIGINT_handler(int)
     SATSolver* solver = solverToInterrupt;
     cout << "c " << endl;
     std::cerr << "*** INTERRUPTED ***" << endl;
-    if (!redDumpFname.empty() || !irredDumpFname.empty() || need_clean_exit) {
-        solver->interrupt_asap();
-        std::cerr
-        << "*** Please wait. We need to interrupt cleanly" << endl
-        << "*** This means we might need to finish some calculations"
-        << endl;
+    if (solver->nVars() > 0) {
+        //if (conf.verbosity) {
+            solver->add_in_partial_solving_stats();
+            solver->print_stats();
+        //}
     } else {
-        if (solver->nVars() > 0) {
-            //if (conf.verbosity) {
-                solver->add_in_partial_solving_stats();
-                solver->print_stats();
-            //}
-        } else {
-            cout
-            << "No clauses or variables were put into the solver, exiting without stats"
-            << endl;
-        }
-        #if defined (_MSC_VER)
-        exit(1);
-        #else
-        _exit(1);
-        #endif
+        cout
+        << "No clauses or variables were put into the solver, exiting without stats"
+        << endl;
     }
+    #if defined (_MSC_VER)
+    exit(1);
+    #else
+    _exit(1);
+    #endif
 }

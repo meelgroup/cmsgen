@@ -28,5 +28,9 @@ print("num vars: ", solver.nb_vars())
 
 for _ in range(10):
     ret = solver.solve()
-    print("ret: ", ret)
-    m = solver.get_model()
+    if ret == True:
+        print("ret: ", ret)
+        m = solver.get_model()
+    else:
+        print("interrupted")
+        exit(0)

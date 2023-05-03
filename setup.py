@@ -59,7 +59,6 @@ def gen_modules(version):
                    "src/sccfinder.cpp",
                    "src/searcher.cpp",
                    "src/searchstats.cpp",
-                   "src/signalcode.cpp",
                    "src/solutionextender.cpp",
                    "src/solverconf.cpp",
                    "src/solver.cpp",

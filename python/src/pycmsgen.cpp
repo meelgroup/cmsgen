@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include <limits>
 #include <cassert>
 #include <algorithm>
+#include <signal.h>
 #include "../../src/cmsgen.h"
 #include "solvertypesmini.h"
 using namespace CMSGen;
@@ -51,6 +52,8 @@ typedef struct {
     double time_limit;
     long confl_limit;
 } Solver;
+
+typedef void (*sighandler_t)(int);
 
 static const char solver_create_docstring[] = \
 "Solver(verbose=0, time_limit=max_numeric_limits, confl_limit=max_numeric_limits)\n\
@@ -635,9 +638,20 @@ Solve the system of equations that have been added with add_clause();\n\
 :rtype: <Bool>"
 );
 
+static SATSolver* solverToInterrupt = NULL;
+void SIGINT_handler(int)
+{
+    SATSolver* solver = solverToInterrupt;
+    if (solverToInterrupt == NULL) { exit(-1); }
+    solver->interrupt_asap();
+}
+
 static PyObject* solve(Solver *self, PyObject *args, PyObject *kwds)
 {
     PyObject* assumptions = NULL;
+    solverToInterrupt = self->cmsat;
+    sighandler_t old_sig_int_handler = signal(SIGINT, SIGINT_handler);
+    sighandler_t old_sig_term_handler = signal(SIGTERM, SIGINT_handler);
 
     int verbose = self->verbose;
     double time_limit = self->time_limit;
@@ -672,10 +686,9 @@ static PyObject* solve(Solver *self, PyObject *args, PyObject *kwds)
     self->cmsat->set_max_confl(confl_limit);
 
     lbool res;
-    Py_BEGIN_ALLOW_THREADS      /* release GIL */
     res = self->cmsat->solve(&assumption_lits);
-    Py_END_ALLOW_THREADS
-
+    signal(SIGINT, old_sig_int_handler);
+    signal(SIGTERM, old_sig_term_handler);
     self->cmsat->set_verbosity(self->verbose);
     self->cmsat->set_max_time(self->time_limit);
     self->cmsat->set_max_confl(self->confl_limit);
@@ -709,9 +722,7 @@ Return satisfiability of the system.\n\
 static PyObject* is_satisfiable(Solver *self)
 {
     lbool res;
-    Py_BEGIN_ALLOW_THREADS      /* release GIL */
     res = self->cmsat->solve();
-    Py_END_ALLOW_THREADS
 
     if (res == l_True) {
         Py_INCREF(Py_True);
