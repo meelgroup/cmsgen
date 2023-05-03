@@ -299,14 +299,6 @@ DLL_PUBLIC void SATSolver::set_no_equivalent_lit_replacement()
     }
 }
 
-DLL_PUBLIC void SATSolver::set_no_bve()
-{
-    for (size_t i = 0; i < data->solvers.size(); ++i) {
-        Solver& s = *data->solvers[i];
-        s.conf.doVarElim = false;
-    }
-}
-
 DLL_PUBLIC void SATSolver::set_sampling_vars(vector<uint32_t>* sampl_vars)
 {
     for (size_t i = 0; i < data->solvers.size(); ++i) {
@@ -314,7 +306,6 @@ DLL_PUBLIC void SATSolver::set_sampling_vars(vector<uint32_t>* sampl_vars)
         s.conf.sampling_vars = sampl_vars;
     }
 }
-
 
 DLL_PUBLIC void SATSolver::set_verbosity(unsigned verbosity)
 {

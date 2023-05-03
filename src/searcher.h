@@ -276,7 +276,7 @@ class Searcher : public HyperEngine
             bool needToStopSearch;
             uint64_t conflictsDoneThisRestart;
             uint64_t max_confl_to_do;
-            Restart rest_type = Restart::never;
+            Restart rest_type = Restart::fixed;
         };
         SearchParams params;
         vector<Lit> learnt_clause;
@@ -501,18 +501,6 @@ inline void Searcher::decayClauseAct()
 inline bool Searcher::pick_polarity(const uint32_t var)
 {
     switch(conf.polarity_mode) {
-        case PolarityMode::polarmode_neg:
-            return false;
-
-        case PolarityMode::polarmode_pos:
-            return true;
-
-        case PolarityMode::polarmode_rnd:
-            return mtrand.randInt(1);
-
-        case PolarityMode::polarmode_automatic:
-            return varData[var].polarity;
-
         case PolarityMode::polarmode_weighted: {
             double rnd = mtrand.randDblExc();
             return rnd < varData[var].weight;

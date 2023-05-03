@@ -53,40 +53,14 @@ inline unsigned clean_to_int(ClauseClean t)
     assert(false);
 }
 
-enum class PolarityMode {
-    polarmode_pos
-    , polarmode_neg
-    , polarmode_rnd
-    , polarmode_weighted
-    , polarmode_automatic
-};
-
-enum class Restart {
-    glue
-    , geom
-    , glue_geom
-    , luby
-    , fixed
-    , never
-};
+enum class PolarityMode { polarmode_weighted };
+enum class Restart { fixed };
 
 inline std::string getNameOfRestartType(Restart rest_type)
 {
     switch(rest_type) {
-        case Restart::glue :
-            return "glue";
-
-        case Restart::geom:
-            return "geometric";
-
-        case Restart::glue_geom:
-            return "regularly switch between glue and geometric";
-
-        case Restart::luby:
-            return "luby";
-
-        case Restart::never:
-            return "never";
+        case Restart::fixed:
+            return "fixed";
 
         default:
             assert(false && "Unknown clause cleaning type?");

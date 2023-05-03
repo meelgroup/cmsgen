@@ -86,16 +86,11 @@ void SolutionExtender::extend()
 
 lbool SolutionExtender::get_var_setting()
 {
+    assert(false && "not possible in CMSGen!!");
     switch(solver->conf.polarity_mode) {
-        case PolarityMode::polarmode_automatic:
-        case PolarityMode::polarmode_neg:
+        case PolarityMode::polarmode_weighted:
+            assert(false && "not possible in CMSGen!!");
             return l_False;
-
-        case PolarityMode::polarmode_pos:
-            return l_True;
-
-        case PolarityMode::polarmode_rnd:
-            return (solver->mtrand.randInt(1) ? l_True: l_False);
 
         default:
             assert(false);

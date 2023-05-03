@@ -1268,9 +1268,6 @@ lbool Solver::solve_with_assumptions(
     conf.global_timeout_multiplier = conf.orig_global_timeout_multiplier;
     solveStats.num_simplify_this_solve_call = 0;
     params.rest_type = conf.restartType;
-    if (params.rest_type == Restart::glue_geom) {
-        params.rest_type = Restart::geom;
-    }
     if (conf.verbosity >= 6) {
         cout << "c " << __func__ << " called" << endl;
     }

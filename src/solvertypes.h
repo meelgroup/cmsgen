@@ -51,23 +51,8 @@ enum class gauss_res {none, long_confl, bin_confl, prop};
 inline std::string restart_type_to_string(const Restart type)
 {
     switch(type) {
-        case Restart::glue:
-            return "glue-based";
-
-        case Restart::geom:
-            return "geometric";
-
-        case Restart::luby:
-            return "luby";
-
-        case Restart::glue_geom:
-            return "switch-glue-geom";
-
         case Restart::fixed:
             return "fixed";
-
-        case Restart::never:
-            return "never restart";
     }
 
     assert(false && "oops, one of the restart types has no string name");
@@ -78,23 +63,8 @@ inline std::string restart_type_to_string(const Restart type)
 inline std::string restart_type_to_short_string(const Restart type)
 {
     switch(type) {
-        case Restart::glue:
-            return "glue";
-
-        case Restart::geom:
-            return "geom";
-
-        case Restart::luby:
-            return "luby";
-
         case Restart::fixed:
             return "fixed";
-
-        case Restart::glue_geom:
-            return "gl/geo";
-
-        case Restart::never:
-            return "never";
     }
 
         assert(false && "oops, one of the restart types has no string name");

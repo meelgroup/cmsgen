@@ -86,8 +86,6 @@ namespace CMSGen {
         void set_no_simplify(); //never simplify
         void set_no_simplify_at_startup(); //doesn't simplify at start, faster startup time
         void set_no_equivalent_lit_replacement(); //don't replace equivalent literals
-        void set_no_bva(); //No bounded variable addition
-        void set_no_bve(); //No bounded variable elimination
         void set_sampling_vars(std::vector<uint32_t>* sampl_vars);
         void set_timeout_all_calls(double secs); //max timeout on all subsequent solve() or simplify
         void set_need_decisions_reaching(); //set it before calling solve()

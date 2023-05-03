@@ -1215,19 +1215,7 @@ void Searcher::check_need_restart()
         }
     }
 
-    assert(params.rest_type != Restart::glue_geom);
-    if (params.rest_type == Restart::glue) {
-        check_blocking_restart();
-        if (hist.glueHist.isvalid()
-            && conf.local_glue_multiplier * hist.glueHist.avg() > hist.glueHistLTLimited.avg()
-        ) {
-            params.needToStopSearch = true;
-        }
-    }
-    if ((params.rest_type == Restart::geom ||
-        params.rest_type == Restart::luby ||
-        params.rest_type == Restart::fixed ||
-        (conf.broken_glue_restart && conf.restartType == Restart::glue_geom))
+    if ((params.rest_type == Restart::fixed)
         && (int64_t)params.conflictsDoneThisRestart > max_confl_this_phase
     ) {
         params.needToStopSearch = true;
@@ -1380,9 +1368,6 @@ void Searcher::update_history_stats(size_t backtrack_level, uint32_t glue)
     hist.backtrackLevelHistLT.push(backtrack_level);
     hist.conflSizeHistLT.push(learnt_clause.size());
     hist.trailDepthHistLT.push(trail.size());
-    if (params.rest_type == Restart::glue) {
-        hist.glueHistLTLimited.push(std::min<size_t>(glue, 50));
-    }
     hist.glueHistLT.push(glue);
     hist.glueHist.push(glue);
 
@@ -1869,26 +1854,6 @@ lbool Searcher::solve(
 
     resetStats();
     lbool status = l_Undef;
-    if (conf.restartType == Restart::geom) {
-        max_confl_phase = conf.restart_first;
-        max_confl_this_phase = conf.restart_first;
-        params.rest_type = Restart::geom;
-    }
-
-    if (conf.restartType == Restart::glue_geom) {
-        max_confl_phase = conf.restart_first;
-        max_confl_this_phase = conf.restart_first;
-        params.rest_type = Restart::glue;
-    }
-
-    if (conf.restartType == Restart::luby) {
-        max_confl_this_phase = conf.restart_first;
-        params.rest_type = Restart::luby;
-    }
-
-    if (conf.restartType == Restart::glue) {
-        params.rest_type = Restart::glue;
-    }
     if (conf.restartType == Restart::fixed) {
         params.rest_type = Restart::fixed;
         max_confl_this_phase = conf.fixed_restart_num_confl;
@@ -1974,56 +1939,9 @@ void Searcher::adjust_phases_restarts()
         return;
 
     switch(conf.restartType) {
-    case Restart::never:
-    case Restart::glue:
-        assert(params.rest_type == Restart::glue);
-        //nothing special
-        break;
-    case Restart::geom:
-        assert(params.rest_type == Restart::geom);
-        max_confl_phase *= conf.restart_inc;
-        max_confl_this_phase = max_confl_phase;
-        break;
-
     case Restart::fixed:
         assert(params.rest_type == Restart::fixed);
         max_confl_this_phase = conf.fixed_restart_num_confl;
-        break;
-
-    case Restart::luby:
-        max_confl_this_phase = luby(conf.restart_inc*1.5, luby_loop_num)
-            * (double)conf.restart_first/2.0;
-
-        luby_loop_num++;
-        //cout << "luby_loop_num: " << luby_loop_num << endl;
-        //cout << "max_confl_this_phase:" << max_confl_this_phase << endl;
-        break;
-
-    case Restart::glue_geom:
-        if (params.rest_type == Restart::geom) {
-            params.rest_type = Restart::glue;
-        } else {
-            params.rest_type = Restart::geom;
-        }
-        switch (params.rest_type) {
-            case Restart::geom:
-                max_confl_phase = (double)max_confl_phase * conf.restart_inc;
-                max_confl_this_phase = max_confl_phase;
-                break;
-
-            case Restart::glue:
-                max_confl_this_phase = conf.ratio_glue_geom *max_confl_phase;
-                break;
-
-            default:
-                release_assert(false);
-        }
-        if (conf.verbosity >= 3) {
-            cout << "Phase is now "
-            << std::setw(10) << getNameOfRestartType(params.rest_type)
-            << " this phase size: " << max_confl_this_phase
-            << " global phase size: " << max_confl_phase << endl;
-        }
         break;
     }
 }

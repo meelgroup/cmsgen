@@ -207,6 +207,48 @@ static int parse_xor_clause(
     return 1;
 }
 
+PyDoc_STRVAR(set_var_weight_doc,
+"set_var_weight(var, weight)\n\
+Set the weight of a variable.\n\
+\n\
+:param var: Variable for which to set the weight\n\
+:param weight: Weight\n\
+:type var: int\n\
+:type weight: double\n\
+:return: None\n\
+:rtype: <None>"
+);
+
+static PyObject* set_var_weight(Solver *self, PyObject *args, PyObject *kwds)
+{
+    static char const* kwlist[] = {"var", "weight", NULL};
+    int var;
+    double weight;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "id",  const_cast<char**>(kwlist),
+        &var, &weight))
+    {
+        PyErr_SetString(PyExc_ValueError, "invalid parameters to set_var_weight");
+        return 0;
+    }
+
+    if (var <= 0) {
+        PyErr_SetString(PyExc_ValueError, "invalid variable number, it must be a positive integer");
+        return 0;
+    }
+
+    if (weight < 0 || weigth > 1.0) {
+        PyErr_SetString(PyExc_ValueError, "invalid weight, it must be a non-negative value between 0 and 1, inclusive");
+        return 0;
+    }
+    var--;
+
+    if (self->cmsat->nVars() <= var) self->cmsat->new_vars(v-cmsat->nVars()+1);
+    self->cmsat->set_var_weight(Lit(var, false), weight);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static int _add_clause(Solver *self, PyObject *clause)
 {
     self->tmp_cl_lits.clear();
@@ -746,6 +788,7 @@ static PyObject* is_satisfiable(Solver *self)
 // TODO weights
 static PyMethodDef Solver_methods[] = {
     {"solve",     (PyCFunction) solve,       METH_VARARGS | METH_KEYWORDS, solve_doc},
+    {"set_var_weight",(PyCFunction) set_var_weight,  METH_VARARGS | METH_KEYWORDS, set_var_weight_doc},
     {"add_clause",(PyCFunction) add_clause,  METH_VARARGS | METH_KEYWORDS, add_clause_doc},
     {"add_clauses", (PyCFunction) add_clauses,  METH_VARARGS | METH_KEYWORDS, add_clauses_doc},
     {"add_xor_clause",(PyCFunction) add_xor_clause,  METH_VARARGS | METH_KEYWORDS, "adds an XOR clause to the system"},
