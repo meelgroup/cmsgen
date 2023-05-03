@@ -498,10 +498,6 @@ int Main::solve()
     double myTime = cpuTime();
     solver = new SATSolver((void*)&conf);
     solverToInterrupt = solver;
-    if (dratf) {
-        solver->set_drat(dratf, clause_ID_needed);
-    }
-    solver->set_num_threads(num_threads);
 
     //Print command line used to execute the solver: for options and inputs
     if (conf.verbosity) {
@@ -536,7 +532,6 @@ lbool Main::multi_solutions()
         ret = solver->solve(&assumps, only_sampling_solution);
         current_nr_of_solutions++;
         if (ret == l_True && !decisions_for_model_fname.empty()) {
-            solver->add_empty_cl_to_drat();
             assert(max_nr_of_solutions == 1);
         }
 

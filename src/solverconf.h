@@ -365,8 +365,8 @@ class DLL_PUBLIC SolverConf
         //Misc
         unsigned origSeed;
         unsigned long long sync_every_confl;
-        int      simulate_drat;
         int      need_decisions_reaching;
+        int      simulate_drat = false;
         std::string simplified_cnf;
         std::string solution_file;
         std::string saved_state_file;

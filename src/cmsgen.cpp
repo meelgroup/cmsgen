@@ -62,7 +62,6 @@ namespace CMSGen {
                 delete must_interrupt;
             }
 
-            delete log; //this will also close the file
             delete shared_data;
         }
         CMSatPrivateData(const CMSatPrivateData&) = delete;
@@ -74,7 +73,6 @@ namespace CMSGen {
         std::atomic<bool>* must_interrupt;
         bool must_interrupt_needs_delete = false;
         bool okay = true;
-        std::ofstream* log = NULL;
         int sql = 0;
         double timeout = std::numeric_limits<double>::max();
         bool interrupted = false;
@@ -86,7 +84,6 @@ namespace CMSGen {
 
         //For single call setup
         uint32_t num_solve_simplify_calls = 0;
-        bool promised_single_call = false;
 
         //stats
         uint64_t previous_sum_conflicts = 0;
@@ -146,50 +143,6 @@ DLL_PUBLIC SATSolver::SATSolver(
 DLL_PUBLIC SATSolver::~SATSolver()
 {
     delete data;
-}
-
-DLL_PUBLIC void SATSolver::set_num_threads(unsigned num)
-{
-    if (num <= 0) {
-        const char err[] = "ERROR: Number of threads must be at least 1";
-        std::cerr << err << endl;
-        throw std::runtime_error(err);
-    }
-    if (num == 1) {
-        return;
-    }
-
-    if (data->solvers[0]->drat->enabled() ||
-        data->solvers[0]->conf.simulate_drat
-    ) {
-        const char err[] = "ERROR: DRAT cannot be used in multi-threaded mode";
-        std::cerr << err << endl;
-        throw std::runtime_error(err);
-    }
-
-    if (data->cls > 0 || nVars() > 0) {
-        const char err[] = "ERROR: You must first call set_num_threads() and only then add clauses and variables";
-        std::cerr << err << endl;
-        throw std::runtime_error(err);
-    }
-
-    data->cls_lits.reserve(CACHE_SIZE);
-    for(unsigned i = 1; i < num; i++) {
-        SolverConf conf = data->solvers[0]->getConf();
-        data->solvers.push_back(new Solver(&conf, data->must_interrupt));
-        data->cpu_times.push_back(0.0);
-    }
-
-    //set shared data
-    data->shared_data = new SharedData(data->solvers.size());
-    for(unsigned i = 0; i < num; i++) {
-        SolverConf conf = data->solvers[i]->getConf();
-        if (i >= 1) {
-            conf.verbosity = 0;
-            conf.doFindXors = 0;
-        }
-        data->solvers[i]->setConf(conf);
-    }
 }
 
 struct OneThreadAddCls
@@ -300,14 +253,6 @@ DLL_PUBLIC void SATSolver::set_max_confl(int64_t max_confl)
   }
 }
 
-DLL_PUBLIC void SATSolver::set_default_polarity(bool polarity)
-{
-    for (size_t i = 0; i < data->solvers.size(); ++i) {
-        Solver& s = *data->solvers[i];
-        s.conf.polarity_mode = polarity ? PolarityMode::polarmode_pos : PolarityMode::polarmode_neg;
-    }
-}
-
 DLL_PUBLIC void SATSolver::set_no_simplify()
 {
     for (size_t i = 0; i < data->solvers.size(); ++i) {
@@ -362,13 +307,6 @@ DLL_PUBLIC void SATSolver::set_no_bve()
     }
 }
 
-DLL_PUBLIC void SATSolver::set_greedy_undef()
-{
-    assert(false && "ERROR: Unfortunately, greedy undef is broken, please don't use it");
-    std::cerr << "ERROR: Unfortunately, greedy undef is broken, please don't use it" << endl;
-    exit(-1);
-}
-
 DLL_PUBLIC void SATSolver::set_sampling_vars(vector<uint32_t>* sampl_vars)
 {
     for (size_t i = 0; i < data->solvers.size(); ++i) {
@@ -394,10 +332,6 @@ DLL_PUBLIC void SATSolver::set_timeout_all_calls(double timeout)
 
 DLL_PUBLIC bool SATSolver::add_clause(const vector< Lit >& lits)
 {
-    if (data->log) {
-        (*data->log) << lits << " 0" << endl;
-    }
-
     bool ret = true;
     if (data->solvers.size() > 1) {
         if (data->cls_lits.size() + lits.size() + 1 > CACHE_SIZE) {
@@ -419,29 +353,8 @@ DLL_PUBLIC bool SATSolver::add_clause(const vector< Lit >& lits)
     return ret;
 }
 
-void add_xor_clause_to_log(const std::vector<unsigned>& vars, bool rhs, std::ofstream* file)
-{
-    if (vars.size() == 0) {
-        if (rhs) {
-            (*file) << "0" << endl;;
-        }
-    } else {
-        if (!rhs) {
-            (*file) << "-";
-        }
-        for(unsigned var: vars) {
-            (*file) << (var+1) << " ";
-        }
-        (*file) << " 0" << endl;;
-    }
-}
-
 DLL_PUBLIC bool SATSolver::add_xor_clause(const std::vector<unsigned>& vars, bool rhs)
 {
-    if (data->log) {
-       add_xor_clause_to_log(vars, rhs, data->log);
-    }
-
     bool ret = true;
     if (data->solvers.size() > 1) {
         if (data->cls_lits.size() + vars.size() + 1 > CACHE_SIZE) {
@@ -542,16 +455,6 @@ lbool calc(
         }
     }
 
-    if (data->log) {
-        (*data->log) << "c Solver::"
-        << (solve ? "solve" : "simplify")
-        << "( ";
-        if (assumptions) {
-            (*data->log) << *assumptions;
-        }
-        (*data->log) << " )" << endl;
-    }
-
     if (data->solvers.size() > 1 && data->sql > 0) {
         std::cerr
         << "Multithreaded solving and SQL cannot be specified at the same time"
@@ -600,15 +503,6 @@ lbool calc(
 
 DLL_PUBLIC lbool SATSolver::solve(const vector< Lit >* assumptions, bool only_sampling_solution)
 {
-    if (data->promised_single_call
-        && data->num_solve_simplify_calls > 0
-    ) {
-        cout
-        << "ERROR: You promised to only call solve/simplify() once"
-        << "       by calling set_single_run(), but you violated it. Exiting."
-        << endl;
-        exit(-1);
-    }
     data->num_solve_simplify_calls++;
 
     //set information data (props, confl, dec)
@@ -621,15 +515,6 @@ DLL_PUBLIC lbool SATSolver::solve(const vector< Lit >* assumptions, bool only_sa
 
 DLL_PUBLIC lbool SATSolver::simplify(const vector< Lit >* assumptions)
 {
-    if (data->promised_single_call
-        && data->num_solve_simplify_calls > 0
-    ) {
-        cout
-        << "ERROR: You promised to only call solve/simplify() once"
-        << "       by calling set_single_run(), but you violated it. Exiting."
-        << endl;
-        exit(-1);
-    }
     data->num_solve_simplify_calls++;
 
     //set information data (props, confl, dec)
@@ -667,10 +552,6 @@ DLL_PUBLIC void SATSolver::new_vars(const size_t n)
         || (data->vars_to_add + n) >= MAX_VARS
     ) {
         throw CMSGen::TooManyVarsError();
-    }
-
-    if (data->log) {
-        (*data->log) << "c Solver::new_vars( " << n << " )" << endl;
     }
 
     data->vars_to_add += n;
@@ -729,20 +610,6 @@ DLL_PUBLIC void SATSolver::print_stats() const
     data->solvers[data->which_solved]->print_stats(cpu_time, cpu_time_total);
 }
 
-DLL_PUBLIC void SATSolver::set_drat(std::ostream* os, bool add_ID)
-{
-    if (data->solvers.size() > 1) {
-        std::cerr << "ERROR: DRAT cannot be used in multi-threaded mode" << endl;
-        exit(-1);
-    }
-    if (nVars() > 0) {
-        std::cerr << "ERROR: DRAT cannot be set after variables have been added" << endl;
-        exit(-1);
-    }
-
-    data->solvers[0]->add_drat(os, add_ID);
-}
-
 DLL_PUBLIC void SATSolver::interrupt_asap()
 {
     data->must_interrupt->store(true, std::memory_order_relaxed);
@@ -762,27 +629,6 @@ DLL_PUBLIC std::vector<Lit> SATSolver::get_zero_assigned_lits() const
 DLL_PUBLIC bool SATSolver::okay() const
 {
     return data->okay;
-}
-
-DLL_PUBLIC void SATSolver::log_to_file(std::string filename)
-{
-    if (data->log) {
-        std::cerr
-        << "ERROR: A file has already been designated for logging!"
-        << endl;
-        exit(-1);
-    }
-
-    data->log = new std::ofstream();
-    data->log->exceptions( std::ofstream::failbit | std::ofstream::badbit );
-    data->log->open(filename.c_str(), std::ios::out);
-    if (!data->log->is_open()) {
-        std::cerr
-        << "ERROR: Cannot open record file '" << filename << "'"
-        << " for writing."
-        << endl;
-        exit(-1);
-    }
 }
 
 DLL_PUBLIC std::vector<std::pair<Lit, Lit> > SATSolver::get_all_binary_xors() const
@@ -851,24 +697,6 @@ DLL_PUBLIC uint64_t SATSolver::get_last_decisions()
     return get_sum_decisions() - data->previous_sum_decisions;
 }
 
-void DLL_PUBLIC SATSolver::start_getting_small_clauses(uint32_t max_len, uint32_t max_glue)
-{
-    assert(data->solvers.size() >= 1);
-    data->solvers[0]->start_getting_small_clauses(max_len, max_glue);
-}
-
-bool DLL_PUBLIC SATSolver::get_next_small_clause(std::vector<Lit>& out)
-{
-    assert(data->solvers.size() >= 1);
-    return data->solvers[0]->get_next_small_clause(out);
-}
-
-void DLL_PUBLIC SATSolver::end_getting_small_clauses()
-{
-    assert(data->solvers.size() >= 1);
-    data->solvers[0]->end_getting_small_clauses();
-}
-
 DLL_PUBLIC const std::vector<Lit>& SATSolver::get_decisions_reaching_model() const
 {
     if (!get_decision_reaching_valid()) {
@@ -889,20 +717,6 @@ DLL_PUBLIC void SATSolver::set_need_decisions_reaching()
 DLL_PUBLIC bool SATSolver::get_decision_reaching_valid() const
 {
     return data->solvers[data->which_solved]->get_decision_reaching_valid();
-}
-
-DLL_PUBLIC void SATSolver::add_empty_cl_to_drat()
-{
-    data->solvers[data->which_solved]->add_empty_cl_to_drat();
-}
-
-DLL_PUBLIC void SATSolver::set_single_run()
-{
-    if (data->num_solve_simplify_calls > 0) {
-        cout << "ERROR: You must call set_single_run() before solving" << endl;
-        exit(-1);
-    }
-    data->promised_single_call = true;
 }
 
 DLL_PUBLIC void SATSolver::set_var_weight(Lit lit, double weight)

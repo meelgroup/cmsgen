@@ -26,50 +26,7 @@ THE SOFTWARE.
 #include <iostream>
 #include <fstream>
 
-using std::cout;
-using std::endl;
-
 using namespace CMSGen;
-
-void MainCommon::handle_drat_option()
-{
-    if (!conf.simulate_drat) {
-        if (dratDebug) {
-            dratf = &cout;
-        } else {
-            std::ofstream* dratfTmp = new std::ofstream;
-            dratfTmp->open(dratfilname.c_str(), std::ofstream::out | std::ofstream::binary);
-            if (!*dratfTmp) {
-                std::cerr
-                << "ERROR: Could not open DRAT file "
-                << dratfilname
-                << " for writing"
-                << endl;
-
-                std::exit(-1);
-            }
-            dratf = dratfTmp;
-        }
-    }
-
-    if (!conf.otfHyperbin) {
-        if (conf.verbosity) {
-            cout
-            << "c OTF hyper-bin is needed for BProp in DRAT, turning it back"
-            << endl;
-        }
-        conf.otfHyperbin = true;
-    }
-
-    if (conf.doFindXors) {
-        if (conf.verbosity) {
-            cout
-            << "c XOR manipulation is not supported in DRAT, turning it off"
-            << endl;
-        }
-        conf.doFindXors = false;
-    }
-}
 
 uint32_t MainCommon::print_model(CMSGen::SATSolver* solver, std::ostream* os)
 {

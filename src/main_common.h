@@ -33,11 +33,9 @@ class MainCommon
 {
 public:
     uint32_t print_model(CMSGen::SATSolver* solver, std::ostream* os);
-    void handle_drat_option();
 
     string dratfilname;
     bool dratDebug = false;
-    std::ostream* dratf = NULL;
     bool zero_exit_status = false;
     CMSGen::SolverConf conf;
     unsigned num_threads = 1;

@@ -114,7 +114,6 @@ else()
 endif()
 
 
-cmsgen_add_public_header(cmsgen ${CMAKE_CURRENT_SOURCE_DIR}/cmsgen_c.h )
 cmsgen_add_public_header(cmsgen ${CMAKE_CURRENT_SOURCE_DIR}/cmsgen.h )
 cmsgen_add_public_header(cmsgen ${CMAKE_CURRENT_SOURCE_DIR}/solvertypesmini.h )
 cmsgen_add_public_header(cmsgen ${CMAKE_CURRENT_SOURCE_DIR}/dimacsparser.h )

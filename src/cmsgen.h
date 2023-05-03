@@ -79,23 +79,19 @@ namespace CMSGen {
         // -- be very brittle.
         ////////////////////////////
 
-        void set_num_threads(unsigned n); //Number of threads to use. Must be set before any vars/clauses are added
         void set_allow_otf_gauss(); //allow on-the-fly gaussian elimination
         void set_max_time(double max_time); //max time to run to on next solve() call
         void set_max_confl(int64_t max_confl); //max conflict to run to on next solve() call
         void set_verbosity(unsigned verbosity = 0); //default is 0, silent
-        void set_default_polarity(bool polarity); //default polarity when branching for all vars
         void set_no_simplify(); //never simplify
         void set_no_simplify_at_startup(); //doesn't simplify at start, faster startup time
         void set_no_equivalent_lit_replacement(); //don't replace equivalent literals
         void set_no_bva(); //No bounded variable addition
         void set_no_bve(); //No bounded variable elimination
-        void set_greedy_undef(); //Try to set variables to l_Undef in solution
         void set_sampling_vars(std::vector<uint32_t>* sampl_vars);
         void set_timeout_all_calls(double secs); //max timeout on all subsequent solve() or simplify
         void set_need_decisions_reaching(); //set it before calling solve()
         bool get_decision_reaching_valid() const; //the get_decisions_reaching_model will work -- it may NOT be
-        void set_single_run(); //we promise to call solve() EXACTLY once
 
 
         ////////////////////////////
@@ -125,8 +121,6 @@ namespace CMSGen {
         uint64_t get_sum_decisions(); //get total number of decisions of all time made by all threads
 
         void print_stats() const; //print solving stats. Call after solve()/simplify()
-        void set_drat(std::ostream* os, bool set_ID); //set drat to ostream, e.g. stdout or a file
-        void add_empty_cl_to_drat(); // allows to treat SAT as UNSAT and perform learning
         void interrupt_asap(); //call this asynchronously, and the solver will try to cleanly abort asap
         void add_in_partial_solving_stats(); //used only by Ctrl+C handler. Ignore.
 
@@ -141,14 +135,6 @@ namespace CMSGen {
         //////////////////////
         // EXPERIMENTAL
         std::vector<std::pair<std::vector<uint32_t>, bool> > get_recovered_xors(bool elongate) const; //get XORs recovered. If "elongate" is TRUE, then variables shared ONLY by two XORs will be XORed together
-
-        //////////////////////
-        //Below must be done in-order. Multi-threading not allowed.
-        // EXPERIMENTAL!!!
-
-        void start_getting_small_clauses(uint32_t max_len, uint32_t max_glue);
-        bool get_next_small_clause(std::vector<Lit>& ret); //returns FALSE if no more
-        void end_getting_small_clauses();
 
     private:
 

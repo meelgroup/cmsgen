@@ -43,15 +43,7 @@ class Main: public MainCommon
 {
     public:
         Main(int argc, char** argv);
-        ~Main()
-        {
-            if (dratf) {
-                *dratf << std::flush;
-                if (dratf != &std::cout) {
-                    delete dratf;
-                }
-            }
-
+        ~Main() {
             delete solver;
         }
 
