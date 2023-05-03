@@ -30,6 +30,7 @@ THE SOFTWARE.
 #include <cassert>
 #include <algorithm>
 #include "../../src/cmsgen.h"
+#include "solvertypesmini.h"
 using namespace CMSGen;
 
 #define MODULE_NAME "pycmsgen"
@@ -505,65 +506,6 @@ static PyObject* add_xor_clause(Solver *self, PyObject *args, PyObject *kwds)
     return Py_None;
 }
 
-static PyObject* get_solution(SATSolver *cmsat)
-{
-    // Create tuple with the size of number of variables in model
-    unsigned max_idx = cmsat->nVars();
-    PyObject *tuple = PyTuple_New((Py_ssize_t) max_idx+1);
-    if (tuple == NULL) {
-        PyErr_SetString(PyExc_SystemError, "failed to create a tuple");
-        return NULL;
-    }
-
-    Py_INCREF(Py_None);
-    PyTuple_SET_ITEM(tuple, (Py_ssize_t)0, Py_None);
-
-    PyObject *py_value = NULL;
-    lbool v;
-    for (unsigned i = 0; i < max_idx; i++) {
-        v = cmsat->get_model()[i];
-
-        if (v == l_True) {
-            py_value = Py_True;
-        } else if (v == l_False) {
-            py_value = Py_False;
-        } else if (v == l_Undef) {
-            py_value = Py_None;
-        } else {
-            // v can only be l_False, l_True, l_Undef
-            assert((v == l_False) || (v == l_True) || (v == l_Undef));
-        }
-        Py_INCREF(py_value);
-        PyTuple_SET_ITEM(tuple, (Py_ssize_t)i+1, py_value);
-    }
-    return tuple;
-}
-
-static PyObject* get_raw_solution(SATSolver *cmsat) {
-
-    // Create tuple with the size of number of variables in model
-    unsigned max_idx = cmsat->nVars();
-    PyObject *tuple = PyTuple_New((Py_ssize_t) max_idx);
-    if (tuple == NULL) {
-        PyErr_SetString(PyExc_SystemError, "failed to create a tuple");
-        return NULL;
-    }
-
-    // Add each variable in model to the tuple
-    PyObject *py_value = NULL;
-    int sign;
-    for (long var = 0; var != (long)max_idx; var++) {
-
-        if (cmsat->get_model()[var] != l_Undef) {
-
-            sign = (cmsat->get_model()[var] == l_True) ? 1 : -1;
-
-            py_value = PyLong_FromLong((var + 1) * sign);
-            PyTuple_SET_ITEM(tuple, (Py_ssize_t)var, py_value);
-        }
-    }
-    return tuple;
-}
 
 PyDoc_STRVAR(nb_vars_doc,
 "nb_vars()\n\
@@ -579,12 +521,41 @@ static PyObject* nb_vars(Solver *self)
 
 }
 
-/*
-static PyObject* nb_clauses(Solver *self)
-{
-    // Private attribute => need to make a public method
-    return PyInt_FromLong(self->cmsat->data->solvers.size());
-}*/
+PyDoc_STRVAR(get_model_doc,
+"get_model()\n\
+Return the model.\n\
+\n\
+:return: List of integers for the values\n\
+:rtype: <list>"
+);
+
+static PyObject* get_model(Solver *self) {
+    SATSolver* cmsat = self->cmsat;
+    if (!cmsat->okay()) {
+        PyErr_SetString(PyExc_SystemError, "called get_model on an UNSAT solver");
+        return NULL;
+    }
+
+    // Create tuple with the size of number of variables in model
+    unsigned max_idx = cmsat->nVars();
+    PyObject *tuple = PyTuple_New((Py_ssize_t)max_idx);
+    if (tuple == NULL) {
+        PyErr_SetString(PyExc_SystemError, "failed to create a list");
+        return NULL;
+    }
+
+    // Add each variable in model to the tuple
+    PyObject *py_value;
+    int sign;
+    for (long var = 0; var != (long)max_idx; var++) {
+        if (cmsat->get_model()[var] != l_Undef) {
+            sign = (cmsat->get_model()[var] == l_True) ? 1 : -1;
+            py_value = PyLong_FromLong((var + 1) * sign);
+            PyTuple_SET_ITEM(tuple, (Py_ssize_t)var, py_value);
+        }
+    }
+    return tuple;
+}
 
 static int parse_assumption_lits(PyObject* assumptions, SATSolver* cmsat, std::vector<Lit>& assumption_lits)
 {
@@ -661,11 +632,8 @@ Solve the system of equations that have been added with add_clause();\n\
 :param confl_limit: (Optional) Allows the user to set a conflict limit for just\n\
     this solve.\n\
 :type confl_limit: <long>\n\
-:return: A tuple. First part of the tuple indicates whether the problem\n\
-    is satisfiable. The second part is a tuple contains the solution,\n\
-    preceded by None, so you can index into it with the variable number.\n\
-    E.g. solution[1] returns the value for variable 1.\n\
-:rtype: <tuple <tuple>>"
+:return: Whether we succeeded\n\
+:rtype: <Bool>"
 );
 
 static PyObject* solve(Solver *self, PyObject *args, PyObject *kwds)
@@ -704,12 +672,6 @@ static PyObject* solve(Solver *self, PyObject *args, PyObject *kwds)
     self->cmsat->set_max_time(time_limit);
     self->cmsat->set_max_confl(confl_limit);
 
-    PyObject *result = PyTuple_New((Py_ssize_t) 2);
-    if (result == NULL) {
-        PyErr_SetString(PyExc_SystemError, "failed to create a tuple");
-        return NULL;
-    }
-
     lbool res;
     Py_BEGIN_ALLOW_THREADS      /* release GIL */
     res = self->cmsat->solve(&assumption_lits);
@@ -719,34 +681,18 @@ static PyObject* solve(Solver *self, PyObject *args, PyObject *kwds)
     self->cmsat->set_max_time(self->time_limit);
     self->cmsat->set_max_confl(self->confl_limit);
 
+    PyObject *result;
     if (res == l_True) {
-        PyObject* solution = get_solution(self->cmsat);
-        if (!solution) {
-            Py_DECREF(result);
-            return NULL;
-        }
+        result = Py_True;
         Py_INCREF(Py_True);
-
-        PyTuple_SET_ITEM(result, 0, Py_True);
-        PyTuple_SET_ITEM(result, 1, solution);
-
     } else if (res == l_False) {
+        result = Py_False;
         Py_INCREF(Py_False);
-        Py_INCREF(Py_None);
-
-        PyTuple_SET_ITEM(result, 0, Py_False);
-        PyTuple_SET_ITEM(result, 1, Py_None);
-
     } else if (res == l_Undef) {
+        result = Py_None;
         Py_INCREF(Py_None);
-        Py_INCREF(Py_None);
-
-        PyTuple_SET_ITEM(result, 0, Py_None);
-        PyTuple_SET_ITEM(result, 1, Py_None);
     } else {
-        // res can only be l_False, l_True, l_Undef
         assert((res == l_False) || (res == l_True) || (res == l_Undef));
-        Py_DECREF(result);
         return PyErr_NewExceptionWithDoc("pycmsgen.IllegalState", "Error Occurred in CyrptoMiniSat", NULL, NULL);
     }
 
@@ -793,6 +739,7 @@ static PyMethodDef Solver_methods[] = {
     {"add_clauses", (PyCFunction) add_clauses,  METH_VARARGS | METH_KEYWORDS, add_clauses_doc},
     {"add_xor_clause",(PyCFunction) add_xor_clause,  METH_VARARGS | METH_KEYWORDS, "adds an XOR clause to the system"},
     {"nb_vars", (PyCFunction) nb_vars, METH_VARARGS | METH_KEYWORDS, nb_vars_doc},
+    {"get_model", (PyCFunction) get_model, METH_VARARGS | METH_KEYWORDS, get_model_doc},
     {"is_satisfiable", (PyCFunction) is_satisfiable, METH_VARARGS | METH_KEYWORDS, is_satisfiable_doc},
 
     {NULL,        NULL}  /* sentinel - marks the end of this structure */
