@@ -366,11 +366,6 @@ class Solver : public Searcher
         /////////////////////
         // Data
         size_t               zeroLevAssignsByCNF = 0;
-        struct GivenW {
-            bool pos = false;
-            bool neg = false;
-        };
-        vector<GivenW> weights_given;
 
         /////////////////////
         // Clauses

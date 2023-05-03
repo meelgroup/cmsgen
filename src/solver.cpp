@@ -3221,43 +3221,17 @@ bool Solver::check_assumptions_contradict_foced_assignement() const
 void Solver::set_var_weight(
 const Lit lit, const double weight
 ) {
-    //cout << "set weight called lit: " << lit << " w: " << weight << endl;
-    assert(lit.var() < nVars());
-    if (weights_given.size() < nVars()) {
-        weights_given.resize(nVars(), GivenW());
-    }
-
-    if ((weights_given[lit.var()].pos && !lit.sign())
-        || (weights_given[lit.var()].neg && lit.sign())
-    ) {
-        cout << "ERROR: Giving weights twice for literal: " << lit << endl;
+    if (lit.sign()) {
+        cout << "ERROR: only positive literals can have weights."
+            << " You gave weight '" << weight << " to literal: '" << (lit) << "'"
+            << "NOTE: A weight of 0.7 for '-2' is the same as the weight of 0.3 for '2'" << endl;
         exit(-1);
-        return;
     }
-
-    if (!weights_given[lit.var()].neg && !lit.sign()) {
-        weights_given[lit.var()].pos = true;
-        varData[lit.var()].weight = weight;
-        return;
+    if (weight < 0.0 || weight > 1.0) {
+        cout << "ERROR: Weight must be between 0 and 1"
+            << " You gave weight '" << weight << " to literal: '" << (lit) << "'"
+            << endl;
+        exit(-1);
     }
-
-    if (!weights_given[lit.var()].pos && lit.sign()) {
-        weights_given[lit.var()].neg = true;
-        varData[lit.var()].weight = weight;
-        return;
-    }
-
-    if (!lit.sign()) {
-        //this is the pos
-        weights_given[lit.var()].pos = true;
-        double neg = varData[lit.var()].weight;
-        double pos = weight;
-        varData[lit.var()].weight = pos/(pos + neg);
-    } else {
-        //this is the neg
-        weights_given[lit.var()].neg = true;
-        double neg = weight;
-        double pos = varData[lit.var()].weight;
-        varData[lit.var()].weight = pos/(pos + neg);
-    }
+    varData[lit.var()].weight = weight;
 }
