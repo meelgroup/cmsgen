@@ -68,7 +68,6 @@ static void setup_solver(Solver *self, PyObject *args, PyObject *kwds)
 {
     static char const* kwlist[] = {"verbose", "time_limit", "confl_limit", NULL};
 
-    int num_threads = 1;
     self->cmsat = NULL;
     self->verbose = 0;
     self->time_limit = std::numeric_limits<double>::max();
@@ -538,23 +537,23 @@ static PyObject* get_model(Solver *self) {
 
     // Create tuple with the size of number of variables in model
     unsigned max_idx = cmsat->nVars();
-    PyObject *tuple = PyTuple_New((Py_ssize_t)max_idx);
-    if (tuple == NULL) {
+    PyObject *list = PyList_New((Py_ssize_t)max_idx);
+    if (list == NULL) {
         PyErr_SetString(PyExc_SystemError, "failed to create a list");
         return NULL;
     }
 
-    // Add each variable in model to the tuple
+    // Add each variable in model to the list
     PyObject *py_value;
     int sign;
     for (long var = 0; var != (long)max_idx; var++) {
         if (cmsat->get_model()[var] != l_Undef) {
             sign = (cmsat->get_model()[var] == l_True) ? 1 : -1;
             py_value = PyLong_FromLong((var + 1) * sign);
-            PyTuple_SET_ITEM(tuple, (Py_ssize_t)var, py_value);
+            PyList_SET_ITEM(list, (Py_ssize_t)var, py_value);
         }
     }
-    return tuple;
+    return list;
 }
 
 static int parse_assumption_lits(PyObject* assumptions, SATSolver* cmsat, std::vector<Lit>& assumption_lits)
