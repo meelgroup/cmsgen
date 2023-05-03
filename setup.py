@@ -46,8 +46,6 @@ def gen_modules(version):
                    "src/cmsgen.cpp",
                    "src/distillerlong.cpp",
                    "src/distillerlongwithimpl.cpp",
-                   "src/fuzz.cpp",
-                   "src/gaussian.cpp",
                    "src/hyperengine.cpp",
                    "src/implcache.cpp",
                    "src/intree.cpp",
