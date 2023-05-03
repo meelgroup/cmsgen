@@ -514,7 +514,6 @@ inline bool Searcher::pick_polarity(const uint32_t var)
             return varData[var].polarity;
 
         case PolarityMode::polarmode_weighted: {
-            return mtrand.randInt(1);
             double rnd = mtrand.randDblExc();
             return rnd < varData[var].weight;
         }
