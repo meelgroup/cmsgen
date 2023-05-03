@@ -74,7 +74,7 @@ def gen_modules(version):
                    "src/xorfinder.cpp"
                ],
         extra_compile_args = ['-I../', '-Isrc/', '-std=c++17'],
-        define_macros=[("TRACE", ""), ("CMS_FULL_VERSION", "\""+version+"\"")],
+        define_macros=[("TRACE", ""), ("CMSGEN_FULL_VERSION", "\""+version+"\"")],
         language = "c++",
     )
     return modules
