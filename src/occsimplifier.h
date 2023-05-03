@@ -45,10 +45,7 @@ THE SOFTWARE.
 namespace CMSGen {
 
 using std::vector;
-using std::map;
-using std::set;
 using std::pair;
-using std::priority_queue;
 
 class ClauseCleaner;
 class SolutionExtender;
@@ -556,13 +553,6 @@ inline bool OccSimplifier::getAnythingHasBeenBlocked() const
 {
     return anythingHasBeenBlocked;
 }
-
-/*inline std::ostream& operator<<(std::ostream& os, const BlockedClauses& bl)
-{
-    os << bl.lits << " to remove: " << bl.toRemove;
-
-    return os;
-}*/
 
 inline bool OccSimplifier::subsetReverse(const Clause& B) const
 {

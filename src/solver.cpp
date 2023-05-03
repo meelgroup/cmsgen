@@ -168,7 +168,6 @@ void Solver::add_every_combination_xor(
     //cout << "add_every_combination got: " << lits << endl;
 
     size_t at = 0;
-    size_t num = 0;
     vector<Lit> xorlits;
     Lit lastlit_added = lit_Undef;
     while(at != lits.size()) {
@@ -204,8 +203,6 @@ void Solver::add_every_combination_xor(
         add_xor_clause_inter_cleaned_cut(xorlits, attach, addDrat);
         if (!ok)
             break;
-
-        num++;
     }
 }
 
@@ -1748,7 +1745,7 @@ void Solver::print_min_stats(const double cpu_time, const double cpu_time_total)
     //OccSimplifier stats
     if (conf.perform_occur_based_simp) {
         if (conf.do_print_times)
-        print_stats_line("c OccSimplifier time"
+            print_stats_line("c OccSimplifier time"
             , occsimplifier->get_stats().total_time(occsimplifier)
             , stats_line_percent(occsimplifier->get_stats().total_time(occsimplifier) ,cpu_time)
             , "% time"
@@ -1756,7 +1753,7 @@ void Solver::print_min_stats(const double cpu_time, const double cpu_time_total)
         occsimplifier->get_sub_str()->get_stats().print_short(this);
     }
     if (conf.do_print_times)
-    print_stats_line("c SCC time"
+        print_stats_line("c SCC time"
         , varReplacer->get_scc_finder()->get_stats().cpu_time
         , stats_line_percent(varReplacer->get_scc_finder()->get_stats().cpu_time, cpu_time)
         , "% time"
@@ -1765,19 +1762,19 @@ void Solver::print_min_stats(const double cpu_time, const double cpu_time_total)
 
     //varReplacer->get_stats().print_short(nVars());
     if (conf.do_print_times)
-    print_stats_line("c distill time"
+        print_stats_line("c distill time"
                     , distill_long_cls->get_stats().time_used
                     , stats_line_percent(distill_long_cls->get_stats().time_used, cpu_time)
                     , "% time"
     );
     if (conf.do_print_times)
-    print_stats_line("c strength cache-irred time"
+        print_stats_line("c strength cache-irred time"
                     , dist_long_with_impl->get_stats().irredCacheBased.cpu_time
                     , stats_line_percent(dist_long_with_impl->get_stats().irredCacheBased.cpu_time, cpu_time)
                     , "% time"
     );
     if (conf.do_print_times)
-    print_stats_line("c strength cache-red time"
+        print_stats_line("c strength cache-red time"
                     , dist_long_with_impl->get_stats().redCacheBased.cpu_time
                     , stats_line_percent(dist_long_with_impl->get_stats().redCacheBased.cpu_time, cpu_time)
                     , "% time"
@@ -1841,11 +1838,11 @@ void Solver::print_norm_stats(const double cpu_time, const double cpu_time_total
     ) {
         prober->get_stats().print_short(this, 0, 0);
         if (conf.do_print_times)
-        print_stats_line("c probing time"
+            print_stats_line("c probing time"
             , prober->get_stats().cpu_time
             , stats_line_percent(prober->get_stats().cpu_time, cpu_time)
             , "% time"
-        );
+            );
 
         prober->get_stats().print_short(this, 0, 0);
     }
@@ -1932,11 +1929,11 @@ void Solver::print_full_restart_stat(const double cpu_time, const double cpu_tim
     //Failed lit stats
     if (conf.doProbe) {
         if (conf.do_print_times)
-        print_stats_line("c probing time"
+            print_stats_line("c probing time"
             , prober->get_stats().cpu_time
             , stats_line_percent(prober->get_stats().cpu_time, cpu_time)
             , "% time"
-        );
+            );
 
         prober->get_stats().print(nVarsOuter(), conf.do_print_times);
     }
@@ -1944,11 +1941,11 @@ void Solver::print_full_restart_stat(const double cpu_time, const double cpu_tim
     //OccSimplifier stats
     if (conf.perform_occur_based_simp) {
         if (conf.do_print_times)
-        print_stats_line("c OccSimplifier time"
+            print_stats_line("c OccSimplifier time"
             , occsimplifier->get_stats().total_time(occsimplifier)
             , stats_line_percent(occsimplifier->get_stats().total_time(occsimplifier), cpu_time)
             , "% time"
-        );
+            );
 
         occsimplifier->get_stats().print(nVarsOuter(), occsimplifier);
         occsimplifier->get_sub_str()->get_stats().print();
@@ -1961,11 +1958,11 @@ void Solver::print_full_restart_stat(const double cpu_time, const double cpu_tim
 
     //VarReplacer stats
     if (conf.do_print_times)
-    print_stats_line("c SCC time"
+        print_stats_line("c SCC time"
         , varReplacer->get_scc_finder()->get_stats().cpu_time
         , stats_line_percent(varReplacer->get_scc_finder()->get_stats().cpu_time, cpu_time)
         , "% time"
-    );
+        );
     varReplacer->get_scc_finder()->get_stats().print();
 
     varReplacer->get_stats().print(nVarsOuter());
@@ -1973,19 +1970,19 @@ void Solver::print_full_restart_stat(const double cpu_time, const double cpu_tim
 
     //DistillerAllWithAll stats
     if (conf.do_print_times)
-    print_stats_line("c distill time"
+        print_stats_line("c distill time"
                     , distill_long_cls->get_stats().time_used
                     , stats_line_percent(distill_long_cls->get_stats().time_used, cpu_time)
                     , "% time");
     distill_long_cls->get_stats().print(nVarsOuter());
 
     if (conf.do_print_times)
-    print_stats_line("c strength cache-irred time"
+        print_stats_line("c strength cache-irred time"
                     , dist_long_with_impl->get_stats().irredCacheBased.cpu_time
                     , stats_line_percent(dist_long_with_impl->get_stats().irredCacheBased.cpu_time, cpu_time)
                     , "% time");
     if (conf.do_print_times)
-    print_stats_line("c strength cache-red time"
+        print_stats_line("c strength cache-red time"
                     , dist_long_with_impl->get_stats().redCacheBased.cpu_time
                     , stats_line_percent(dist_long_with_impl->get_stats().redCacheBased.cpu_time, cpu_time)
                     , "% time");
