@@ -46,10 +46,10 @@ def gen_modules(version):
                    "src/cmsgen.cpp",
                    "src/distillerlong.cpp",
                    "src/distillerlongwithimpl.cpp",
+                   "src/gaussian.cpp",
                    "src/hyperengine.cpp",
                    "src/implcache.cpp",
                    "src/intree.cpp",
-                   "src/ipasir.cpp",
                    "src/matrixfinder.cpp",
                    "src/occsimplifier.cpp",
                    "src/packedrow.cpp",
@@ -72,7 +72,7 @@ def gen_modules(version):
                    "src/xorfinder.cpp"
                ],
         extra_compile_args = ['-I../', '-Isrc/', '-std=c++17'],
-        define_macros=[("TRACE", ""), ("CMSGEN_FULL_VERSION", "\""+version+"\"")],
+        define_macros=[("USE_GAUSS", "1"), ("TRACE", ""), ("CMSGEN_FULL_VERSION", "\""+version+"\"")],
         language = "c++",
     )
     return modules
