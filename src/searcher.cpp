@@ -1790,7 +1790,7 @@ void Searcher::rebuildOrderHeap()
             vs.push_back(v);
         }
     }
-    order_heap_vsids.build(vs);
+    order_heap_rand.build(vs);
 }
 
 bool Searcher::must_abort(const lbool status) {
@@ -2050,62 +2050,24 @@ Lit Searcher::pickBranchLit()
     #ifdef VERBOSE_DEBUG
     cout << "picking decision variable, dec. level: " << decisionLevel()
     #endif
-
-    Lit next = lit_Undef;
-
-    // Random decision:
-    Heap<VarOrderLt> &order_heap = order_heap_vsids;
-    vector<double>& var_act = var_act_vsids;
-
-    if (conf.random_var_freq > 0) {
-        double rand = mtrand.randDblExc();
-        double frq = conf.random_var_freq;
-        if (rand < frq && !order_heap.empty()) {
-            uint32_t next_var = var_Undef;
-            while(!order_heap.empty()
-                && next_var == var_Undef)
-            {
-                next_var = order_heap.random_element(mtrand);
-                if (value(next_var) == l_Undef
-                    && solver->varData[next_var].removed == Removed::none
-                ) {
-                    stats.decisionsRand++;
-                    next = Lit(next_var, !pick_polarity(next_var));
-                } else {
-                    //make this var the top, and remove it
-                    assert(var_act.size() > next_var);
-                    assert(order_heap.inHeap(next_var));
-                    double backup = var_act[order_heap.inspectTop()];
-                    var_act[next_var] = var_act[order_heap.inspectTop()]*2+10e2;
-                    order_heap.update(next_var);
-                    uint32_t removed_var = (uint32_t)order_heap.removeMin();
-                    assert(removed_var == next_var);
-                    var_act[next_var] = backup;
-
-                    next_var = var_Undef;
-                }
-            }
+    uint32_t v = var_Undef;
+    while(true) {
+        v = order_heap_rand.get_random_element(mtrand);
+        while (v != var_Undef && value(v) != l_Undef) {
+            v = order_heap_rand.get_random_element(mtrand);
         }
+        if (v == var_Undef) break;
+        assert(varData[v].removed == Removed::none);
+        break;
     }
 
-    if (next == lit_Undef) {
-        uint32_t v = var_Undef;
-        while (v == var_Undef || value(v) != l_Undef) {
-            //There is no more to branch on. Satisfying assignment found.
-            if (order_heap.empty()) {
-                return lit_Undef;
-            }
-            v = order_heap.removeMin();
-        }
+    Lit next;
+    if (v != var_Undef) {
         next = Lit(v, !pick_polarity(v));
+    } else {
+        next = lit_Undef;
     }
 
-    //No vars in heap: solution found
-    #ifdef SLOW_DEBUG
-    if (next != lit_Undef) {
-        assert(solver->varData[next.var()].removed == Removed::none);
-    }
-    #endif
     return next;
 }
 
@@ -2575,7 +2537,6 @@ size_t Searcher::mem_used() const
     mem += otf_subsuming_long_cls.capacity()*sizeof(ClOffset);
     mem += var_act_vsids.capacity()*sizeof(uint32_t);
     mem += var_act_maple.capacity()*sizeof(uint32_t);
-    mem += order_heap_vsids.mem_used();
     mem += learnt_clause.capacity()*sizeof(Lit);
     mem += hist.mem_used();
     mem += conflict.capacity()*sizeof(Lit);
@@ -2607,11 +2568,6 @@ size_t Searcher::mem_used() const
         cout
         << "c trail_lim bytes: "
         << trail_lim.capacity()*sizeof(Lit)
-        << endl;
-
-        cout
-        << "c order_heap_vsids bytes: "
-        << order_heap_vsids.mem_used()
         << endl;
 
         cout
@@ -2773,7 +2729,7 @@ inline bool Searcher::check_order_heap_sanity() const
                 varData[int_var].removed == Removed::none &&
                 value(int_var) == l_Undef
             ) {
-                assert(order_heap_vsids.inHeap(int_var));
+                assert(order_heap_rand.inHeap(int_var));
             }
         }
     }
@@ -2783,7 +2739,7 @@ inline bool Searcher::check_order_heap_sanity() const
         if (varData[i].removed == Removed::none
             && value(i) == l_Undef)
         {
-            if (!order_heap_vsids.inHeap(i)) {
+            if (!order_heap_rand.inHeap(i)) {
                 cout << "ERROR var " << i+1 << " not in VSIDS heap."
                 << " value: " << value(i)
                 << " removed: " << removed_type_to_string(varData[i].removed)
@@ -2792,7 +2748,6 @@ inline bool Searcher::check_order_heap_sanity() const
             }
         }
     }
-    assert(order_heap_vsids.heap_property());
 
     return true;
 }

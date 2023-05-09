@@ -54,7 +54,6 @@ PropEngine::PropEngine(
     , std::atomic<bool>* _must_interrupt_inter
 ) :
         CNF(_conf, _must_interrupt_inter)
-        , order_heap_vsids(VarOrderLt(var_act_vsids))
         , qhead(0)
         , solver(_solver)
 {

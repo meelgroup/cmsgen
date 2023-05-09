@@ -32,7 +32,6 @@ DLL_PUBLIC SolverConf::SolverConf() :
         var_inc_vsids_start(1)
         , var_decay_vsids_start(0.8) // 1/0.8 = 1.2 -- large is better for frequent restarts
         , var_decay_vsids_max(0.95) // 1/0.95 = 1.05 -- smaller is better for hard instances
-        , random_var_freq(0.999999)
         , polarity_mode(PolarityMode::polarmode_weighted)
 
         //Clause cleaning

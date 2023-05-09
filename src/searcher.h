@@ -166,7 +166,7 @@ class Searcher : public HyperEngine
         void rebuildOrderHeap();
         void clear_order_heap()
         {
-            order_heap_vsids.clear();
+            order_heap_rand.clear();
         }
 
 
@@ -441,27 +441,14 @@ inline void Searcher::add_in_partial_solving_stats()
 
 inline void Searcher::insert_var_order(const uint32_t x)
 {
-    Heap<VarOrderLt> &order_heap = order_heap_vsids;
-    if (!order_heap.inHeap(x)) {
-        #ifdef SLOW_DEUG
-        assert(varData[x].removed == Removed::none
-            && "All variables should be decision vars unless removed");
-        #endif
-
-        order_heap.insert(x);
+    if (!order_heap_rand.inHeap(x)) {
+        order_heap_rand.insert(x);
     }
 }
 
 inline void Searcher::insert_var_order_all(const uint32_t x)
 {
-    if (!order_heap_vsids.inHeap(x)) {
-        #ifdef SLOW_DEUG
-        assert(varData[x].removed == Removed::none
-            && "All variables should be decision vars unless removed");
-        #endif
-
-        order_heap_vsids.insert(x);
-    }
+    order_heap_rand.insert(x);
 }
 
 template<bool update_bogoprops>
@@ -553,11 +540,6 @@ inline void Searcher::bump_vsids_var_act(uint32_t var, double mult)
 
         //Reset var_inc
         var_inc_vsids *= 1e-100;
-    }
-
-    // Update order_heap with respect to new activity:
-    if (order_heap_vsids.inHeap(var)) {
-        order_heap_vsids.decrease(var);
     }
 
     #ifdef SLOW_DEBUG
