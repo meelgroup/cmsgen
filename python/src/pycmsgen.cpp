@@ -331,28 +331,21 @@ static int _add_clauses_from_array(Solver *self, const size_t array_length, cons
     return 1;
 }
 
-static int _add_clauses_from_buffer_info(Solver *self, PyObject *buffer_info, const size_t itemsize)
+static int _add_clauses_from_buffer(Solver *self, Py_buffer *view)
 {
-    PyObject *py_array_length = PyTuple_GetItem(buffer_info, 1);
-    if (py_array_length == NULL) {
-        PyErr_SetString(PyExc_ValueError, "invalid clause array: could not get array length");
+    if (view->ndim != 1) {
+        PyErr_Format(PyExc_ValueError, "invalid clause array: expected 1-D array, got %d-D", view->ndim);
         return 0;
     }
-    long array_length = PyLong_AsLong(py_array_length);
-    if (array_length < 0) {
-        PyErr_SetString(PyExc_ValueError, "invalid clause array: could not get array length");
+    if (strcmp(view->format, "i") != 0 && strcmp(view->format, "l") != 0 && strcmp(view->format, "q") != 0) {
+        PyErr_Format(PyExc_ValueError, "invalid clause array: invalid format '%s'", view->format);
         return 0;
     }
-    PyObject *py_array_address = PyTuple_GetItem(buffer_info, 0);
-    if (py_array_address == NULL) {
-        PyErr_SetString(PyExc_ValueError, "invalid clause array: could not get array address");
-        return 0;
-    }
-    const void *array_address = PyLong_AsVoidPtr(py_array_address);
-    if (array_address == NULL) {
-        PyErr_SetString(PyExc_ValueError, "invalid clause array: could not get array address");
-        return 0;
-    }
+
+    void * array_address = view->buf;
+    size_t itemsize = view->itemsize;
+    size_t array_length = view->len / itemsize;
+
     if (itemsize == sizeof(int)) {
         return _add_clauses_from_array(self, array_length, (const int *) array_address);
     }
@@ -366,74 +359,14 @@ static int _add_clauses_from_buffer_info(Solver *self, PyObject *buffer_info, co
     return 0;
 }
 
-static int _check_array_typecode(PyObject *clauses)
-{
-    PyObject *py_typecode = PyObject_GetAttrString(clauses, "typecode");
-    if (py_typecode == NULL) {
-        PyErr_SetString(PyExc_ValueError, "invalid clause array: typecode is NULL");
-        return 0;
-    }
-
-    PyObject *typecode_bytes = PyUnicode_AsASCIIString(py_typecode);
-    Py_DECREF(py_typecode);
-    if (typecode_bytes == NULL) {
-        PyErr_SetString(PyExc_ValueError, "invalid clause array: could not get typecode bytes");
-        return 0;
-    }
-
-    const char *typecode_cstr = PyBytes_AsString(typecode_bytes);
-    if (typecode_cstr == NULL) {
-        Py_DECREF(typecode_bytes);
-        PyErr_SetString(PyExc_ValueError, "invalid clause array: could not get typecode cstring");
-        return 0;
-    }
-    const char typecode = typecode_cstr[0];
-    if (typecode == '\0' || typecode_cstr[1] != '\0') {
-        PyErr_Format(PyExc_ValueError, "invalid clause array: invalid typecode '%s'", typecode_cstr);
-        Py_DECREF(typecode_bytes);
-        return 0;
-    }
-    Py_DECREF(typecode_bytes);
-    if (typecode != 'i' && typecode != 'l' && typecode != 'q') {
-        PyErr_Format(PyExc_ValueError, "invalid clause array: invalid typecode '%c'", typecode);
-        return 0;
-    }
-    return 1;
-}
-
-static int add_clauses_array(Solver *self, PyObject *clauses)
-{
-    if (_check_array_typecode(clauses) == 0) {
-        return 0;
-    }
-    PyObject *py_itemsize = PyObject_GetAttrString(clauses, "itemsize");
-    if (py_itemsize == NULL) {
-        PyErr_SetString(PyExc_ValueError, "invalid clause array: itemsize is NULL");
-        return 0;
-    }
-    const long itemsize = PyLong_AsLong(py_itemsize);
-    Py_DECREF(py_itemsize);
-    if (itemsize < 0) {
-        PyErr_SetString(PyExc_ValueError, "invalid clause array: could not get itemsize");
-        return 0;
-    }
-    PyObject *buffer_info = PyObject_CallMethod(clauses, "buffer_info", NULL);
-    if (buffer_info == NULL) {
-        PyErr_SetString(PyExc_ValueError, "invalid clause array: buffer_info is NULL");
-        return 0;
-    }
-    int ret = _add_clauses_from_buffer_info(self, buffer_info, itemsize);
-    Py_DECREF(buffer_info);
-    return ret;
-}
-
 PyDoc_STRVAR(add_clauses_doc,
 "add_clauses(clauses)\n\
 Add iterable of clauses to the solver.\n\
 \n\
 :param clauses: List of clauses. Each clause contains literals (ints)\n\
-    Alternatively, this can be a flat array.array (typecode 'i', 'l', or 'q')\n\
-    of zero separated and terminated clauses of literals (ints).\n\
+    Alternatively, this can be a flat array.array or other contiguous\n\
+    buffer (format 'i', 'l', or 'q') of zero separated and terminated\n\
+    clauses of literals (ints).\n\
 :type clauses: <list> or <array.array>\n\
 :return: None\n\
 :rtype: <None>"
@@ -447,12 +380,16 @@ static PyObject* add_clauses(Solver *self, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    if (
-        PyObject_HasAttr(clauses, PyUnicode_FromString("buffer_info")) &&
-        PyObject_HasAttr(clauses, PyUnicode_FromString("typecode")) &&
-        PyObject_HasAttr(clauses, PyUnicode_FromString("itemsize"))
-    ) {
-        int ret = add_clauses_array(self, clauses);
+    if (PyObject_CheckBuffer(clauses)) {
+        Py_buffer view;
+        memset(&view, 0, sizeof(view));
+        if (PyObject_GetBuffer(clauses, &view, PyBUF_CONTIG_RO | PyBUF_FORMAT) != 0) {
+            return NULL;
+        }
+
+        int ret = _add_clauses_from_buffer(self, &view);
+        PyBuffer_Release(&view);
+
         if (ret == 0 || PyErr_Occurred()) {
             return 0;
         }
@@ -508,6 +445,65 @@ static PyObject* add_xor_clause(Solver *self, PyObject *args, PyObject *kwds)
     return Py_None;
 }
 
+static PyObject* get_solution(SATSolver *cmsat)
+{
+    // Create tuple with the size of number of variables in model
+    unsigned max_idx = cmsat->nVars();
+    PyObject *tuple = PyTuple_New((Py_ssize_t) max_idx+1);
+    if (tuple == NULL) {
+        PyErr_SetString(PyExc_SystemError, "failed to create a tuple");
+        return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    PyTuple_SET_ITEM(tuple, (Py_ssize_t)0, Py_None);
+
+    PyObject *py_value = NULL;
+    lbool v;
+    for (unsigned i = 0; i < max_idx; i++) {
+        v = cmsat->get_model()[i];
+
+        if (v == l_True) {
+            py_value = Py_True;
+        } else if (v == l_False) {
+            py_value = Py_False;
+        } else if (v == l_Undef) {
+            py_value = Py_None;
+        } else {
+            // v can only be l_False, l_True, l_Undef
+            assert((v == l_False) || (v == l_True) || (v == l_Undef));
+        }
+        Py_INCREF(py_value);
+        PyTuple_SET_ITEM(tuple, (Py_ssize_t)i+1, py_value);
+    }
+    return tuple;
+}
+
+static PyObject* get_raw_solution(SATSolver *cmsat) {
+
+    // Create tuple with the size of number of variables in model
+    unsigned max_idx = cmsat->nVars();
+    PyObject *tuple = PyTuple_New((Py_ssize_t) max_idx);
+    if (tuple == NULL) {
+        PyErr_SetString(PyExc_SystemError, "failed to create a tuple");
+        return NULL;
+    }
+
+    // Add each variable in model to the tuple
+    PyObject *py_value = NULL;
+    int sign;
+    for (long var = 0; var != (long)max_idx; var++) {
+
+        if (cmsat->get_model()[var] != l_Undef) {
+
+            sign = (cmsat->get_model()[var] == l_True) ? 1 : -1;
+
+            py_value = PyLong_FromLong((var + 1) * sign);
+            PyTuple_SET_ITEM(tuple, (Py_ssize_t)var, py_value);
+        }
+    }
+    return tuple;
+}
 
 PyDoc_STRVAR(nb_vars_doc,
 "nb_vars()\n\
@@ -521,42 +517,6 @@ static PyObject* nb_vars(Solver *self)
 {
     return PyLong_FromLong(self->cmsat->nVars());
 
-}
-
-PyDoc_STRVAR(get_model_doc,
-"get_model()\n\
-Return the model.\n\
-\n\
-:return: List of integers for the values\n\
-:rtype: <list>"
-);
-
-static PyObject* get_model(Solver *self) {
-    SATSolver* cmsat = self->cmsat;
-    if (!cmsat->okay()) {
-        PyErr_SetString(PyExc_SystemError, "called get_model on an UNSAT solver");
-        return NULL;
-    }
-
-    // Create tuple with the size of number of variables in model
-    unsigned max_idx = cmsat->nVars();
-    PyObject *list = PyList_New((Py_ssize_t)max_idx);
-    if (list == NULL) {
-        PyErr_SetString(PyExc_SystemError, "failed to create a list");
-        return NULL;
-    }
-
-    // Add each variable in model to the list
-    PyObject *py_value;
-    int sign;
-    for (long var = 0; var != (long)max_idx; var++) {
-        if (cmsat->get_model()[var] != l_Undef) {
-            sign = (cmsat->get_model()[var] == l_True) ? 1 : -1;
-            py_value = PyLong_FromLong((var + 1) * sign);
-            PyList_SET_ITEM(list, (Py_ssize_t)var, py_value);
-        }
-    }
-    return list;
 }
 
 static int parse_assumption_lits(PyObject* assumptions, SATSolver* cmsat, std::vector<Lit>& assumption_lits)
@@ -596,10 +556,10 @@ static int parse_assumption_lits(PyObject* assumptions, SATSolver* cmsat, std::v
 
 PyDoc_STRVAR(solve_doc,
 "solve(assumptions=None, verbose=None, time_limit=None, confl_limit=None)\n\
-Solve the system of equations that have been added with add_clause();\n\
+Get random solution for the system of equations that have been added with add_clause();\n\
 \n\
 .. example:: \n\
-    from pycmsgen import Solver\n\
+    from pycryptosat import Solver\n\
     >>> s = Solver()\n\
     >>> s.add_clause([1])\n\
     >>> s.add_clause([-2])\n\
@@ -634,24 +594,17 @@ Solve the system of equations that have been added with add_clause();\n\
 :param confl_limit: (Optional) Allows the user to set a conflict limit for just\n\
     this solve.\n\
 :type confl_limit: <long>\n\
-:return: Whether we succeeded\n\
-:rtype: <Bool>"
+:return: A tuple. First part of the tuple indicates whether the problem\n\
+    is satisfiable. The second part is a tuple contains the solution,\n\
+    preceded by None, so you can index into it with the variable number.\n\
+    E.g. solution[1] returns the value for variable 1.\n\
+:rtype: <tuple <tuple>>"
 );
 
-static SATSolver* solverToInterrupt = NULL;
-void SIGINT_handler(int)
-{
-    SATSolver* solver = solverToInterrupt;
-    if (solverToInterrupt == NULL) { exit(-1); }
-    solver->interrupt_asap();
-}
 
 static PyObject* solve(Solver *self, PyObject *args, PyObject *kwds)
 {
     PyObject* assumptions = NULL;
-    solverToInterrupt = self->cmsat;
-    sighandler_t old_sig_int_handler = signal(SIGINT, SIGINT_handler);
-    sighandler_t old_sig_term_handler = signal(SIGTERM, SIGINT_handler);
 
     int verbose = self->verbose;
     double time_limit = self->time_limit;
@@ -685,27 +638,50 @@ static PyObject* solve(Solver *self, PyObject *args, PyObject *kwds)
     self->cmsat->set_max_time(time_limit);
     self->cmsat->set_max_confl(confl_limit);
 
+    PyObject *result = PyTuple_New((Py_ssize_t) 2);
+    if (result == NULL) {
+        PyErr_SetString(PyExc_SystemError, "failed to create a tuple");
+        return NULL;
+    }
+
     lbool res;
+    Py_BEGIN_ALLOW_THREADS      /* release GIL */
     res = self->cmsat->solve(&assumption_lits);
-    signal(SIGINT, old_sig_int_handler);
-    signal(SIGTERM, old_sig_term_handler);
+    Py_END_ALLOW_THREADS
+
     self->cmsat->set_verbosity(self->verbose);
     self->cmsat->set_max_time(self->time_limit);
     self->cmsat->set_max_confl(self->confl_limit);
 
-    PyObject *result;
     if (res == l_True) {
-        result = Py_True;
+        PyObject* solution = get_solution(self->cmsat);
+        if (!solution) {
+            Py_DECREF(result);
+            return NULL;
+        }
         Py_INCREF(Py_True);
+
+        PyTuple_SET_ITEM(result, 0, Py_True);
+        PyTuple_SET_ITEM(result, 1, solution);
+
     } else if (res == l_False) {
-        result = Py_False;
         Py_INCREF(Py_False);
-    } else if (res == l_Undef) {
-        result = Py_None;
         Py_INCREF(Py_None);
+
+        PyTuple_SET_ITEM(result, 0, Py_False);
+        PyTuple_SET_ITEM(result, 1, Py_None);
+
+    } else if (res == l_Undef) {
+        Py_INCREF(Py_None);
+        Py_INCREF(Py_None);
+
+        PyTuple_SET_ITEM(result, 0, Py_None);
+        PyTuple_SET_ITEM(result, 1, Py_None);
     } else {
+        // res can only be l_False, l_True, l_Undef
         assert((res == l_False) || (res == l_True) || (res == l_Undef));
-        return PyErr_NewExceptionWithDoc("pycmsgen.IllegalState", "Error Occurred in CyrptoMiniSat", NULL, NULL);
+        Py_DECREF(result);
+        return PyErr_NewExceptionWithDoc("pycryptosat.IllegalState", "Error Occurred in CyrptoMiniSat", NULL, NULL);
     }
 
     return result;
@@ -739,9 +715,45 @@ static PyObject* is_satisfiable(Solver *self)
     }
 }
 
+PyDoc_STRVAR(get_model_doc,
+"get_model()\n\
+Return the model.\n\
+\n\
+:return: List of integers for the values\n\
+:rtype: <list>"
+);
+
+static PyObject* get_model(Solver *self) {
+    SATSolver* cmsat = self->cmsat;
+    if (!cmsat->okay()) {
+        PyErr_SetString(PyExc_SystemError, "called get_model on an UNSAT solver");
+        return NULL;
+    }
+
+    // Create tuple with the size of number of variables in model
+    unsigned max_idx = cmsat->nVars();
+    PyObject *list = PyList_New((Py_ssize_t)max_idx);
+    if (list == NULL) {
+        PyErr_SetString(PyExc_SystemError, "failed to create a list");
+        return NULL;
+    }
+
+    // Add each variable in model to the list
+    PyObject *py_value;
+    int sign;
+    for (long var = 0; var != (long)max_idx; var++) {
+        if (cmsat->get_model()[var] != l_Undef) {
+            sign = (cmsat->get_model()[var] == l_True) ? 1 : -1;
+            py_value = PyLong_FromLong((var + 1) * sign);
+            PyList_SET_ITEM(list, (Py_ssize_t)var, py_value);
+        }
+    }
+    return list;
+}
+
+
 /*************************** Method definitions *************************/
 
-// TODO weights
 static PyMethodDef Solver_methods[] = {
     {"solve",     (PyCFunction) solve,       METH_VARARGS | METH_KEYWORDS, solve_doc},
     {"set_var_weight",(PyCFunction) set_var_weight,  METH_VARARGS | METH_KEYWORDS, set_var_weight_doc},
