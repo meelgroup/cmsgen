@@ -23,6 +23,7 @@
 # THE SOFTWARE.
 
 
+from sys import platform
 from setuptools import Extension, setup
 import toml
 import pathlib
