@@ -848,6 +848,8 @@ MODULE_INIT_FUNC(pycmsgen)
 
     // Add the version string so users know what version of CMSGen
     // they're using.
+#if defined(_MSC_VER)
+#else
     if (PyModule_AddStringConstant(m, "__version__", CMSGEN_FULL_VERSION) == -1) {
         Py_DECREF(m);
         return NULL;
@@ -856,6 +858,7 @@ MODULE_INIT_FUNC(pycmsgen)
         Py_DECREF(m);
         return NULL;
     }
+#endif
 
     // Add the Solver type.
     Py_INCREF(&pycmsgen_SolverType);

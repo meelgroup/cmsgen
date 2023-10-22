@@ -33,6 +33,13 @@ def _parse_toml(pyproject_path):
     return pyproject_data['project']['version']
 
 def gen_modules(version):
+    if platform == "win32" or platform == "cygwin":
+        extra_compile_args_val = ['-I../', '-Isrc/', '/std:c++17', "/DCMSGEN_FULL_VERSION=\""+version+"\"", "/DUSE_GAUSS=1"]
+        define_macros_val = [("TRACE", "")]
+    else:
+        extra_compile_args_val = ['-I../', '-Isrc/', '-std=c++17']
+        define_macros_val = [("USE_GAUSS", "1"), ("TRACE", ""), ("CMSGEN_FULL_VERSION", "\""+version+"\"")]
+
     modules = Extension(
         name = "pycmsgen",
         include_dirs = ["src/"],
@@ -69,8 +76,8 @@ def gen_modules(version):
                    "src/varreplacer.cpp",
                    "src/xorfinder.cpp"
                ],
-        extra_compile_args = ['-I../', '-Isrc/', '-std=c++17'],
-        define_macros=[("USE_GAUSS", "1"), ("TRACE", ""), ("CMSGEN_FULL_VERSION", "\""+version+"\"")],
+        extra_compile_args = extra_compile_args_val,
+        define_macros = define_macros_val,
         language = "c++",
     )
     return modules
