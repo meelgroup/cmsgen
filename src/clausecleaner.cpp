@@ -24,6 +24,7 @@ THE SOFTWARE.
 #include "clauseallocator.h"
 #include "solver.h"
 #include "solvertypesmini.h"
+#include "constants.h"
 
 using namespace CMSGen;
 
@@ -146,7 +147,7 @@ void ClauseCleaner::clean_clauses_inter(vector<ClOffset>& cs)
     for (s = ss = cs.begin(), end = cs.end();  s != end; ++s, ++at) {
         if (at + 1 < cs.size()) {
             Clause* pre_cl = solver->cl_alloc.ptr(cs[at+1]);
-            __builtin_prefetch(pre_cl);
+            cmsat_prefetch(pre_cl);
         }
 
         const ClOffset off = *s;

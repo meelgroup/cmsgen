@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include "varreplacer.h"
 #include "time_mem.h"
 #include "solver.h"
+#include "constants.h"
 
 using namespace CMSGen;
 using std::cout;
@@ -119,7 +120,7 @@ void SCCFinder::tarjan(const uint32_t vertex)
             solver->conf.otfHyperbin)
     ) {
         transCache = &(solver->implCache[~vertLit].lits);
-        __builtin_prefetch(transCache->data());
+        cmsat_prefetch(transCache->data());
     }
 
     //Go through the watch

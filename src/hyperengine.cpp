@@ -22,6 +22,7 @@ THE SOFTWARE.
 
 #include "hyperengine.h"
 #include "clauseallocator.h"
+#include "constants.h"
 
 using namespace CMSGen;
 
@@ -247,7 +248,7 @@ Lit HyperEngine::prop_irred_bin_dfs(
         if (k->isClause()) {
             if (value(k->getBlockedLit()) != l_True) {
                 const ClOffset offset = k->get_offset();
-                __builtin_prefetch(cl_alloc.ptr(offset));
+                cmsat_prefetch(cl_alloc.ptr(offset));
             }
 
             continue;
