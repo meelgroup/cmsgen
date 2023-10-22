@@ -29,7 +29,7 @@ THE SOFTWARE.
 #endif
 
 #if defined (_MSC_VER)
-#define my_popcnt(x) __popcnt(x)
+#define my_popcnt(x) __popcnt64(x)
 #else
 #define my_popcnt(x) __builtin_popcount(x)
 #endif
