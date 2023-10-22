@@ -661,7 +661,7 @@ void OccSimplifier::eliminate_empty_resolvent_vars()
     if (solver->nVars() == 0)
         return;
 
-    for(size_t var = solver->mtrand.randInt(solver->nVars()-1), num = 0
+    for(size_t var = rnd_uint(solver->mtrand, solver->nVars()-1), num = 0
         ; num < solver->nVars() && *limit_to_decrease > 0
         ; var = (var + 1) % solver->nVars(), num++
     ) {
@@ -1437,7 +1437,7 @@ bool OccSimplifier::ternary_res()
     limit_to_decrease = &ternary_res_time_limit;
 
     //NOTE: the "clauses" here will change in size as we add resolvents
-    size_t at = solver->mtrand.randInt(clauses.size()-1);
+    size_t at = rnd_uint(solver->mtrand, clauses.size()-1);
     for(size_t i = 0; i < clauses.size(); i++) {
         ClOffset offs = clauses[(at+i) % clauses.size()];
         Clause * cl = solver->cl_alloc.ptr(offs);

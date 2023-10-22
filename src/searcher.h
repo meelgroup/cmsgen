@@ -29,7 +29,6 @@ THE SOFTWARE.
 #include "solvertypes.h"
 #include "time_mem.h"
 #include "hyperengine.h"
-#include "MersenneTwister.h"
 #include "simplefile.h"
 #include "searchstats.h"
 #include "gqueuedata.h"
@@ -81,7 +80,6 @@ class Searcher : public HyperEngine
         bool clean_clauses_if_needed();
         bool must_abort(lbool status);
         uint64_t luby_loop_num = 0;
-        MTRand mtrand; ///< random number generator
 
 
         vector<lbool>  model;
@@ -489,7 +487,8 @@ inline bool Searcher::pick_polarity(const uint32_t var)
 {
     switch(conf.polarity_mode) {
         case PolarityMode::polarmode_weighted: {
-            double rnd = mtrand.randDblExc();
+            std::uniform_real_distribution<double> unif_dbl(0.0, 1.0);
+            double rnd = unif_dbl(mtrand);
             return rnd < varData[var].weight;
         }
 

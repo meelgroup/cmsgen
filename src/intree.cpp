@@ -212,15 +212,7 @@ void InTree::unmark_all_bins()
 
 void InTree::randomize_roots()
 {
-    for (size_t i = 0
-        ; i + 1< roots.size()
-        ; i++
-    ) {
-        std::swap(
-            roots[i]
-            , roots[i+solver->mtrand.randInt(roots.size()-1-i)]
-        );
-    }
+    std::shuffle(roots.begin(), roots.end(), solver->mtrand);
 }
 
 void InTree::tree_look()

@@ -18,11 +18,11 @@ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **************************************************************************************************/
 
-#ifndef Glucose_Heap_h
-#define Glucose_Heap_h
+#pragma once
 
+#include <random>
 #include "Vec.h"
-#include "MersenneTwister.h"
+#include "constants.h"
 
 namespace CMSGen {
 
@@ -104,10 +104,10 @@ public:
         assert(index < (int)heap.size());
         return heap[index];
     }
-    int random_element(MTRand& rnd)
+    int random_element(std::mt19937_64& rnd)
     {
         assert(!heap.empty());
-        return heap[rnd.randInt(heap.size()-1)];
+        return heap[rnd_uint(rnd, heap.size()-1)];
     }
 
 
@@ -214,8 +214,4 @@ public:
 
 };
 
-
-//=================================================================================================
 }
-
-#endif

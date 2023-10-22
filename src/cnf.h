@@ -25,6 +25,7 @@ THE SOFTWARE.
 
 #include <atomic>
 #include <limits>
+#include <random>
 
 #include "constants.h"
 #include "vardata.h"
@@ -75,6 +76,7 @@ public:
         if (_conf != NULL) {
             conf = *_conf;
         }
+        mtrand.seed(conf.origSeed);
         drat = new Drat;
         assert(_must_interrupt_inter != NULL);
         must_interrupt_inter = _must_interrupt_inter;
@@ -88,6 +90,7 @@ public:
 
     ClauseAllocator cl_alloc;
     SolverConf conf;
+    std::mt19937_64 mtrand;
 
     bool ok = true; //If FALSE, state of CNF is UNSAT
 

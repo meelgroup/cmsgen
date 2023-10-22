@@ -212,16 +212,7 @@ SubsumeStrengthen::Sub1Ret SubsumeStrengthen::strengthen_subsume_and_unlink_and_
 
 void SubsumeStrengthen::randomise_clauses_order()
 {
-    const size_t sz = simplifier->clauses.size();
-    for (size_t i = 0
-        ; i + 1 < sz
-        ; i++
-    ) {
-        std::swap(
-            simplifier->clauses[i]
-            , simplifier->clauses[i+solver->mtrand.randInt(simplifier->clauses.size()-1-i)]
-        );
-    }
+    std::shuffle(simplifier->clauses.begin(), simplifier->clauses.end(), solver->mtrand);
 }
 
 void SubsumeStrengthen::backw_sub_long_with_long()
@@ -943,7 +934,7 @@ bool SubsumeStrengthen::backw_sub_str_long_with_bins()
 
     //Randomize start in the watchlist
     size_t upI;
-    upI = solver->mtrand.randInt(solver->watches.size()-1);
+    upI = rnd_uint(solver->mtrand, solver->watches.size()-1);
 
     size_t numDone = 0;
     for (; numDone < solver->watches.size() && *simplifier->limit_to_decrease > 0

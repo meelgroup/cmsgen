@@ -25,6 +25,7 @@ THE SOFTWARE.
 
 #include <cstdio>
 #include <string.h>
+#include <random>
 #include <stack>
 #include <set>
 #include <cmath>
@@ -143,13 +144,13 @@ struct RandHeap
         return true;
     }
 
-    uint32_t get_random_element(MTRand& mtrand)
+    uint32_t get_random_element(std::mt19937_64& mtrand)
     {
         if (vars.empty()) {
             return var_Undef;
         }
 
-        uint32_t which = mtrand.randInt(vars.size()-1);
+        uint32_t which = rnd_uint(mtrand, vars.size()-1);
         uint32_t picked = vars[which];
         std::swap(vars[which], vars[vars.size()-1]);
         vars.pop_back();

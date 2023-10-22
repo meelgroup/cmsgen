@@ -308,18 +308,7 @@ vector<uint32_t> Prober::randomize_possible_choices()
             vars_to_probe.push_back(i);
         }
     }
-
-    //Random swap
-    for (size_t i = 0
-        ; i + 1< vars_to_probe.size()
-        ; i++
-    ) {
-        std::swap(
-            vars_to_probe[i]
-            , vars_to_probe[i+solver->mtrand.randInt(vars_to_probe.size()-1-i)]
-        );
-    }
-
+    std::shuffle(vars_to_probe.begin(), vars_to_probe.end(), solver->mtrand);
     return vars_to_probe;
 }
 
@@ -700,7 +689,7 @@ bool Prober::propagate(Lit& failed)
 
         //DFS is expensive, actually. So do BFS 50% of the time
         if (solver->conf.doStamp &&
-            (force_stamp >= 1 || (solver->mtrand.randInt(1) == 0 && force_stamp == -1))
+            (force_stamp >= 1 || (rnd_uint(solver->mtrand, 1) == 0 && force_stamp == -1))
         ) {
             StampType stampType;
             if (force_stamp == 2) {
@@ -708,7 +697,7 @@ bool Prober::propagate(Lit& failed)
             } else if (force_stamp == 1) {
                 stampType = StampType::STAMP_RED;
             } else {
-                stampType = solver->mtrand.randInt(1) ? StampType::STAMP_IRRED : StampType::STAMP_RED;
+                stampType = rnd_uint(solver->mtrand, 1) ? StampType::STAMP_IRRED : StampType::STAMP_RED;
             }
             failed = solver->propagate_dfs(stampType, timeout);
         } else {
