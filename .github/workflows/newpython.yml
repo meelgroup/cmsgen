@@ -1,6 +1,9 @@
 name: python-wheel-build
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   build_wheels:
