@@ -333,7 +333,7 @@ if (GIT_EXECUTABLE)
 else()
   set(GIT_SHA "GIT-hash-notfound")
 endif()
-set(CMSGEN_FULL_VERSION "6.0.5")
+set(CMSGEN_FULL_VERSION "6.0.6")
 
 string(REPLACE "." ";" CMSGEN_FULL_VERSION_LIST ${CMSGEN_FULL_VERSION})
 SetVersionNumber("PROJECT" ${CMSGEN_FULL_VERSION_LIST})

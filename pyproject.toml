@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pycmsgen"
-version = "6.0.5"
+version = "6.0.6"
 description = "Bindings to CMSGen, uniform-like sampler"
 keywords = ["sat", "sampling"]
 license = { file = "LICENSE.txt" }

@@ -40,6 +40,7 @@ namespace CMSGen {
     public:
         SATSolver(void* config = NULL
         , std::atomic<bool>* interrupt_asap = NULL
+        , uint32_t* seed = NULL
         );
         ~SATSolver();
 

@@ -56,7 +56,7 @@ typedef struct {
 typedef void (*sighandler_t)(int);
 
 static const char solver_create_docstring[] = \
-"Solver(verbose=0, time_limit=max_numeric_limits, confl_limit=max_numeric_limits)\n\
+"Solver(verbose=0, seed=0, time_limit=max_numeric_limits, confl_limit=max_numeric_limits)\n\
 Create Solver object.\n\
 \n\
 :param verbose: Verbosity level: 0: nothing printed; 15: very verbose.\n\
@@ -64,20 +64,23 @@ Create Solver object.\n\
 :param confl_limit: Propagation limit: abort after this many conflicts.\n\
     Default: never abort.\n\
 :type verbose: <int>\n\
+:type seed: <integer>\n\
+:param seed: (Optional) Allows to set the random seed. Default: 0\n\
 :type time_limit: <double>\n\
 :type confl_limit: <long>\n";
 
 static void setup_solver(Solver *self, PyObject *args, PyObject *kwds)
 {
-    static char const* kwlist[] = {"verbose", "time_limit", "confl_limit", NULL};
+    unsigned int seed = 0;
+    static char const* kwlist[] = {"verbose", "seed", "time_limit", "confl_limit", NULL};
 
     self->cmsat = NULL;
     self->verbose = 0;
     self->time_limit = std::numeric_limits<double>::max();
     self->confl_limit = std::numeric_limits<long>::max();
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|idl",  const_cast<char**>(kwlist),
-        &self->verbose, &self->time_limit, &self->confl_limit))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|iIdl",  const_cast<char**>(kwlist),
+        &self->verbose, &seed, &self->time_limit, &self->confl_limit))
     {
         return;
     }
@@ -95,7 +98,7 @@ static void setup_solver(Solver *self, PyObject *args, PyObject *kwds)
         return;
     }
 
-    self->cmsat = new SATSolver;
+    self->cmsat = new SATSolver(NULL, NULL, &seed);
     self->cmsat->set_verbosity(self->verbose);
     self->cmsat->set_max_time(self->time_limit);
     self->cmsat->set_max_confl(self->confl_limit);

@@ -125,6 +125,7 @@ struct DataForThread
 DLL_PUBLIC SATSolver::SATSolver(
     void* config
     , std::atomic<bool>* interrupt_asap
+    , uint32_t* seed
     )
 {
     data = new CMSatPrivateData(interrupt_asap);
@@ -136,7 +137,10 @@ DLL_PUBLIC SATSolver::SATSolver(
         //print_thread_start_and_finish = true;
     }
 
-    data->solvers.push_back(new Solver((SolverConf*) config, data->must_interrupt));
+    SolverConf new_config;
+    if (config) new_config = *(SolverConf*)config;
+    if (seed) new_config.origSeed = *seed;
+    data->solvers.push_back(new Solver(&new_config, data->must_interrupt));
     data->cpu_times.push_back(0.0);
 }
 
