@@ -11,7 +11,7 @@ Command-line usage
 Let's take a DIMACS CNF file `input.cnf`. To get 50 uniform-like samples, run:
 
 ```
-./cmsgen input.cnf --samplefile mysamples.out --samples 50
+./cmsgen input.cnf --samplefile mysamples.out --samples 50 --seed 0
  Writing samples to file: mysamples.out
 ```
 
@@ -38,6 +38,24 @@ $ sort -n samples.out | uniq -c
 
 In other words, we got 8% samples where we had variable 1 as TRUE.
 
+Python usage
+-----
+
+Install via pip:
+```bash
+pip install pycmsgen
+```
+
+Then:
+```python
+import pycmsgen
+solver = pycmsgen.Solver(seed=0)
+solver.add_clause([1,2,4])
+solver.add_clause([1,2,-5])
+sat, sol = solver.solve()
+```
+
+Where the return value `sat` will be `True`, indicating there is a solution found (i.e. it's not unsatisfiable), and `sol[1]`, `sol[2]`, etc. will indicate the solution to variables 1, 2, etc.
 
 Compiling in Linux
 -----
