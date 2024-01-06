@@ -1,10 +1,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![build](https://github.com/meelgroup/cmsgen/actions/workflows/build.yml/badge.svg)](https://github.com/meelgroup/cmsgen/actions/workflows/build.yml)
 
-CMSGen a fast uniform-like sampler
+CMSGen a fast weighted-like sampler
 ===========================================
 
-This system provides CMSGen, a fast uniform-like sampler. While we give no guarntees that the sampling is uniform, it is currently the best non-guaranteed uniform sampler as per our testing with [Barbarik](https://github.com/meelgroup/barbarik). In case you need guaranteed uniform sampling, please check out [UniGen](https://github.com/meelgroup/unigen). When citing CMSGen, always reference our [FMCAD'21 paper](https://meelgroup.github.io/files/publications/fmcad21_shakuni.pdf) (bibtex [here](https://meelgroup.github.io/publication/fmcad21/cite.bib)).
+This system provides CMSGen, a fast weighted-like sampler. While we give no guarntees that the sampling follows the desired distribution, it is currently the best non-guaranteed (uniform) sampler as per our testing with [Barbarik](https://github.com/meelgroup/barbarik). In case you need guaranteed uniform sampling, please check out [UniGen](https://github.com/meelgroup/unigen). When citing CMSGen, always reference our [FMCAD'21 paper](https://meelgroup.github.io/files/publications/fmcad21_shakuni.pdf) (bibtex [here](https://meelgroup.github.io/publication/fmcad21/cite.bib)).
 
 Command-line usage
 -----
