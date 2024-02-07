@@ -40,9 +40,6 @@ endif()
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-include_directories(${Boost_INCLUDE_DIRS})
-link_directories(Boost_LIBRARY_DIRS)
-
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/GitSHA1.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/GitSHA1.cpp" @ONLY)
 
 set(cmsgen_lib_files
@@ -168,10 +165,7 @@ set_target_properties(cmsgen-bin PROPERTIES
     OUTPUT_NAME cmsgen
     RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
     INSTALL_RPATH_USE_LINK_PATH TRUE)
-target_link_libraries(cmsgen-bin
-    ${cmsgen_exec_link_libs}
-    "${Boost_LIBRARIES}"
-)
+target_link_libraries(cmsgen-bin ${cmsgen_exec_link_libs})
 install(TARGETS cmsgen-bin
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )

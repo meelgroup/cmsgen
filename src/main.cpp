@@ -51,44 +51,14 @@ THE SOFTWARE.
 #include "dimacsparser.h"
 #include "cmsgen.h"
 #include "signalcode.h"
+#include "argparse.hpp"
 
 using namespace CMSGen;
+argparse::ArgumentParser program = argparse::ArgumentParser("cmsgen");
 
 using std::cout;
 using std::cerr;
 using std::endl;
-
-struct WrongParam
-{
-    WrongParam(string _param, string _msg) :
-        param(_param)
-        , msg(_msg)
-    {}
-
-    const string& getMsg() const
-    {
-        return msg;
-    }
-
-    const string& getParam() const
-    {
-        return param;
-    }
-
-    string param;
-    string msg;
-};
-
-bool fileExists(const string& filename)
-{
-    struct stat buf;
-    if (stat(filename.c_str(), &buf) != -1)
-    {
-        return true;
-    }
-    return false;
-}
-
 
 Main::Main(int _argc, char** _argv) :
     argc(_argc)
@@ -216,24 +186,8 @@ void Main::parseInAllFiles(SATSolver* solver2)
 {
     const double myTimeTotal = cpuTimeTotal();
     const double myTime = cpuTime();
-
-    //First read normal extra files
-    if (!debugLib.empty() && filesToRead.size() > 1) {
-        cout
-        << "ERROR: debugLib must be OFF"
-        << " to parse in more than one file"
-        << endl;
-
-        std::exit(-1);
-    }
-
-    for (const string& fname: filesToRead) {
-        readInAFile(solver2, fname.c_str());
-    }
-
-    if (!fileNamePresent) {
-        readInStandardInput(solver2);
-    }
+    if (!fileNamePresent) readInStandardInput(solver2);
+    else readInAFile(solver2, fileToRead.c_str());
 
     if (conf.verbosity) {
         if (num_threads > 1) {
@@ -275,142 +229,28 @@ void Main::printResultFunc(
 void Main::add_supported_options()
 {
     // Declare the supported options.
-    generalOptions.add_options()
-    ("help,h", "Print simple help")
-    ("version,v", "Print version info")
-    ("verb", po::value(&conf.verbosity)->default_value(conf.verbosity)
-        , "[0-10] Verbosity")
-    ("seed,s", po::value(&conf.origSeed)->default_value(conf.origSeed)
-        , "[0..] Random seed")
-    ("samples", po::value(&max_nr_of_solutions)->default_value(max_nr_of_solutions)
-        , "Number of samples needed")
-    ("fixedconfl", po::value(&conf.fixed_restart_num_confl)->default_value(conf.fixed_restart_num_confl)
-        , "In case fixed restart strategy is used, how many conflicts should elapse between restarts")
-    ("samplefile", po::value(&resultFilename)->default_value(resultFilename)
-        , "Write sample(s) to this file")
-    ;
-
-    hiddenOptions.add_options()
-    ("input", po::value< vector<string> >(), "file(s) to read")
-    ;
-
-    help_options_complicated
-    .add(generalOptions)
-    ;
+    program.add_argument("-v", "--verb")
+        .action([&](const auto& a) {conf.verbosity = std::atoi(a.c_str());})
+        .default_value(conf.verbosity)
+        .help("verbosity");
+    program.add_argument("-s", "--seed")
+        .action([&](const auto& a) {conf.origSeed = std::atoi(a.c_str());})
+        .default_value(conf.origSeed)
+        .help("Seed");
+    program.add_argument("--samples")
+        .action([&](const auto& a) {max_nr_of_solutions= std::atoi(a.c_str());})
+        .default_value(conf.origSeed)
+        .help("Number of samples needed");
+    program.add_argument("--fixedconfl")
+        .action([&](const auto& a) {conf.fixed_restart_num_confl = std::atoi(a.c_str());})
+        .default_value(conf.fixed_restart_num_confl)
+        .help("In case fixed restart strategy is used, how many conflicts should elapse between restarts");
+    program.add_argument("--samplefile")
+        .action([&](const auto& a) {resultFilename = a;})
+        .help("Write sample(s) to this file");
+    program.add_argument("file").remaining().help("input CNF file");
 }
 /* clang-format on */
-
-string remove_last_comma_if_exists(std::string s)
-{
-    std::string s2 = s;
-    if (s[s.length()-1] == ',')
-        s2.resize(s2.length()-1);
-    return s2;
-}
-
-void Main::check_options_correctness()
-{
-    try {
-        po::store(po::command_line_parser(argc, argv).options(all_options).positional(p).run(), vm);
-        if (vm.count("help"))
-        {
-            cout
-            << "A sampler that tries to output uniform samples" << endl
-            << "Input "
-            #ifndef USE_ZLIB
-            << "must be plain"
-            #else
-            << "can be either plain or gzipped"
-            #endif
-            << " DIMACS with XOR extension" << endl << endl;
-
-            cout
-            << "USAGE: " << argv[0] << " --samples [NUM]  -s [SEED] --samplefile [OUTFILE] [CNFFILE]" << endl;
-            cout << help_options_simple << endl;
-            std::exit(0);
-        }
-
-        po::notify(vm);
-    } catch (boost::exception_detail::clone_impl<
-        boost::exception_detail::error_info_injector<po::unknown_option> >& c
-    ) {
-        cerr
-        << "ERROR: Some option you gave was wrong. Please give '--help' to get help" << endl
-        << "       Unknown option: " << c.what() << endl;
-        std::exit(-1);
-    } catch (boost::bad_any_cast &e) {
-        std::cerr
-        << "ERROR! You probably gave a wrong argument type" << endl
-        << "       Bad cast: " << e.what()
-        << endl;
-
-        std::exit(-1);
-    } catch (boost::exception_detail::clone_impl<
-        boost::exception_detail::error_info_injector<po::invalid_option_value> >& what
-    ) {
-        cerr
-        << "ERROR: Invalid value '" << what.what() << "'" << endl
-        << "       given to option '" << what.get_option_name() << "'"
-        << endl;
-
-        std::exit(-1);
-    } catch (boost::exception_detail::clone_impl<
-        boost::exception_detail::error_info_injector<po::multiple_occurrences> >& what
-    ) {
-        cerr
-        << "ERROR: " << what.what() << " of option '"
-        << what.get_option_name() << "'"
-        << endl;
-
-        std::exit(-1);
-    } catch (boost::exception_detail::clone_impl<
-        boost::exception_detail::error_info_injector<po::required_option> >& what
-    ) {
-        cerr
-        << "ERROR: You forgot to give a required option '"
-        << what.get_option_name() << "'"
-        << endl;
-
-        std::exit(-1);
-    } catch (boost::exception_detail::clone_impl<
-        boost::exception_detail::error_info_injector<po::too_many_positional_options_error> >& what
-    ) {
-        cerr
-        << "ERROR: You gave too many positional arguments. Only at most two can be given:" << endl
-        << "       the 1st the CNF file input, and optionally, the 2nd the DRAT file output" << endl
-        << "    OR (pre-processing)  1st for the input CNF, 2nd for the simplified CNF" << endl
-        << "    OR (post-processing) 1st for the solution file" << endl
-        ;
-
-        std::exit(-1);
-    } catch (boost::exception_detail::clone_impl<
-        boost::exception_detail::error_info_injector<po::ambiguous_option> >& what
-    ) {
-        cerr
-        << "ERROR: The option you gave was not fully written and matches" << endl
-        << "       more than one option. Please give the full option name." << endl
-        << "       The option you gave: '" << what.get_option_name() << "'" <<endl
-        << "       The alternatives are: ";
-        for(size_t i = 0; i < what.alternatives().size(); i++) {
-            cout << what.alternatives()[i];
-            if (i+1 < what.alternatives().size()) {
-                cout << ", ";
-            }
-        }
-        cout << endl;
-
-        std::exit(-1);
-    } catch (boost::exception_detail::clone_impl<
-        boost::exception_detail::error_info_injector<po::invalid_command_line_syntax> >& what
-    ) {
-        cerr
-        << "ERROR: The option you gave is missing the argument or the" << endl
-        << "       argument is given with space between the equal sign." << endl
-        << "       detailed error message: " << what.what() << endl
-        ;
-        std::exit(-1);
-    }
-}
 
 void Main::manually_parse_some_options()
 {
@@ -445,16 +285,20 @@ void Main::manually_parse_some_options()
     conf.polarity_mode = PolarityMode::polarmode_weighted;
     conf.restartType = Restart::fixed;
 
-    if (vm.count("input")) {
-        filesToRead = vm["input"].as<vector<string> >();
+    vector<std::string> file;
+    try {
+        file = program.get<std::vector<std::string>>("file");
+        if (file.size() > 1) {
+            cout << "ERROR: you can only pass at most one positional parameters: an INPUT file" << endl;
+            exit(-1);
+        }
+        fileToRead = file[0];
         fileNamePresent = true;
-    } else {
+    } catch (std::logic_error& e) {
         fileNamePresent = false;
     }
 
-    if (conf.verbosity >= 3) {
-        cout << "c Outputting solution to console" << endl;
-    }
+    if (conf.verbosity >= 3) cout << "c Outputting solution to console" << endl;
 }
 
 void Main::parseCommandLine()
@@ -463,34 +307,42 @@ void Main::parseCommandLine()
 
     //Reconstruct the command line so we can emit it later if needed
     for(int i = 0; i < argc; i++) {
-        commandLine += string(argv[i]);
-        if (i+1 < argc) {
-            commandLine += " ";
-        }
+        command_line += string(argv[i]);
+        if (i+1 < argc) command_line += " ";
     }
 
     add_supported_options();
-    p.add("input", 1);
-    p.add("drat", 1);
-    all_options.add(help_options_complicated);
-    all_options.add(hiddenOptions);
-
-    help_options_simple
-    .add(generalOptions)
-    ;
-
-    check_options_correctness();
-    if (vm.count("version")) {
-        printVersionInfo();
-        std::exit(0);
-    }
-
     try {
-        manually_parse_some_options();
-    } catch(WrongParam& wp) {
-        cerr << "ERROR: " << wp.getMsg() << endl;
+        program.parse_args(argc, argv);
+        if (program.is_used("--help")) {
+
+            cout
+            << "A sampler that tries to output uniform samples" << endl
+            << "Input "
+            #ifndef USE_ZLIB
+            << "must be plain"
+            #else
+            << "can be either plain or gzipped"
+            #endif
+            << " DIMACS with XOR extension" << endl << endl;
+
+            cout
+            << "USAGE: " << argv[0] << " --samples [NUM]  -s [SEED] --samplefile [OUTFILE] [CNFFILE]" << endl;
+            cout << program << endl;
+            std::exit(0);
+        }
+    }
+    catch (const std::exception& err) {
+        std::cerr << err.what() << std::endl;
+        std::cerr << program;
         exit(-1);
     }
+
+    printVersionInfo();
+    if (program["version"] == true) std::exit(0);
+    cout << "c executed with command line: " << command_line << endl;
+
+    manually_parse_some_options();
 }
 
 int Main::solve()
@@ -502,10 +354,7 @@ int Main::solve()
     //Print command line used to execute the solver: for options and inputs
     if (conf.verbosity) {
         printVersionInfo();
-        cout
-        << "c Executed with command line: "
-        << commandLine
-        << endl;
+        cout << "c Executed with command line: " << command_line << endl;
     }
 
     //Parse in DIMACS (maybe gzipped) files

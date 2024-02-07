@@ -20,7 +20,7 @@
 
 cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
 set(CMAKE_C_STANDARD 99)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 enable_language( CXX )
 
@@ -101,7 +101,6 @@ option(BUILD_SHARED_LIBS "Build the shared library" ON)
 option(STATICCOMPILE "Compile to static executable" OFF)
 if (STATICCOMPILE)
     set(BUILD_SHARED_LIBS OFF)
-    set(Boost_USE_STATIC_LIBS ON)
 endif()
 
 include(CheckCXXCompilerFlag)
@@ -295,13 +294,8 @@ if ((${CMAKE_SYSTEM_NAME} MATCHES "Linux") OR (${CMAKE_SYSTEM_NAME} MATCHES "Dar
             set(${VAR_TO_MODIFY} "${replacement}" CACHE STRING "Default flags for ${build_config} configuration" FORCE)
         endforeach()
     else()
-        add_definitions(-DBOOST_TEST_DYN_LINK)
         MESSAGE(STATUS "Compiling for dynamic library use")
     endif()
-endif()
-
-if ((${CMAKE_SYSTEM_NAME} MATCHES "Windows") AND (NOT BUILD_SHARED_LIBS))
-    set(Boost_USE_STATIC_LIBS ON)
 endif()
 
 if(NOT MSVC)
@@ -341,17 +335,6 @@ MESSAGE(STATUS "PROJECT_VERSION: ${PROJECT_VERSION}")
 MESSAGE(STATUS "PROJECT_VERSION_MAJOR: ${PROJECT_VERSION_MAJOR}")
 MESSAGE(STATUS "PROJECT_VERSION_MINOR: ${PROJECT_VERSION_MINOR}")
 MESSAGE(STATUS "PROJECT_VERSION_PATCH: ${PROJECT_VERSION_PATCH}")
-
-find_package( Boost 1.46 REQUIRED COMPONENTS program_options)
-MESSAGE(STATUS "Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
-MESSAGE(STATUS "Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
-MESSAGE(STATUS "BOOST_LIBRARYDIR  : ${BOOST_LIBRARYDIR}")
-MESSAGE(STATUS "Boost_LIBRARIES   : ${Boost_LIBRARIES}")
-link_directories(Boost_LIBRARY_DIRS)
-
-if(MSVC)
-    add_definitions(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
-endif()
 
 # ----------
 # manpage

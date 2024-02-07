@@ -35,8 +35,6 @@ THE SOFTWARE.
 using std::string;
 using std::vector;
 
-#include <boost/program_options.hpp>
-namespace po = boost::program_options;
 using namespace CMSGen;
 
 class Main: public MainCommon
@@ -55,25 +53,15 @@ class Main: public MainCommon
         int argc;
         char** argv;
         string var_elim_strategy;
-        void check_options_correctness();
         void manually_parse_some_options();
         void parse_restart_type();
         void parse_polarity_type();
 
-        po::positional_options_description p;
-        po::options_description all_options;
 
     protected:
         //Options
-        po::variables_map vm;
         virtual void add_supported_options();
         virtual void call_after_parse() {}
-
-        po::options_description help_options_simple;
-        po::options_description help_options_complicated;
-        po::options_description hiddenOptions;
-        po::options_description generalOptions = po::options_description("Main options");
-
         SATSolver* solver = NULL;
 
         //File reading
@@ -95,7 +83,7 @@ class Main: public MainCommon
         std::string resultFilename = "samples.out";
         std::string debugLib;
         int printResult = true;
-        string commandLine;
+        string command_line;
         uint32_t max_nr_of_solutions = 100;
         int sql = 0;
         string sqlite_filename;
@@ -111,7 +99,7 @@ class Main: public MainCommon
 
         //Files to read & write
         bool fileNamePresent;
-        vector<string> filesToRead;
+        string fileToRead;
         std::ofstream* resultfile = NULL;
         string dump_red_fname;
         uint32_t dump_red_max_len = 10000;
