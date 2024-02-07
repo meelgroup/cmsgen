@@ -92,6 +92,7 @@ GENERATE_EXPORT_HEADER(cmsgen
 target_link_libraries(cmsgen
     LINK_PUBLIC ${cmsgen_lib_link_libs}
     LINK_PUBLIC ${CMAKE_THREAD_LIBS_INIT}
+    ${CMAKE_THREAD_LIBS_INIT}
 )
 
 if (NOT WIN32)

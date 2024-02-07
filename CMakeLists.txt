@@ -376,6 +376,8 @@ option(NOZLIB "Don't use zlib" OFF)
 # gauss is default now
 add_definitions( -DUSE_GAUSS )
 
+find_package( Threads )
+
 # cannot currently compile static zlib under Windows
 if (NOT NOZLIB AND NOT ((NOT BUILD_SHARED_LIBS) AND WIN32))
     find_package(ZLIB)
