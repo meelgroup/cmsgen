@@ -63,10 +63,6 @@ using namespace CMSGen;
 using std::cout;
 using std::endl;
 
-#ifdef USE_SQLITE3
-#include "sqlitestats.h"
-#endif
-
 //#define DRAT_DEBUG
 
 //#define DEBUG_RENUMBER

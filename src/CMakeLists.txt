@@ -19,7 +19,6 @@
 # THE SOFTWARE.
 
 include_directories( ${PROJECT_SOURCE_DIR} )
-include_directories( ${BOSPHORUS_INCLUDE_DIRS} )
 
 if (NOT WIN32)
     add_cxx_flag_if_supported("-Wno-bitfield-constant-conversion")

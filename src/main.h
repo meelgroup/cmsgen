@@ -86,7 +86,6 @@ class Main: public MainCommon
         string command_line;
         uint32_t max_nr_of_solutions = 100;
         int sql = 0;
-        string sqlite_filename;
         string decisions_for_model_fname;
 
         //Sampling vars
