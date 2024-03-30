@@ -446,3 +446,62 @@ add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
     DEPENDS uninstall_pycyrptosat
 )
+
+# -----------------------------------------------------------------------------
+# Export our targets so that other CMake based projects can interface with
+# the build of cmsgen in the build-tree
+# -----------------------------------------------------------------------------
+set(CMSGEN_TARGETS_FILENAME "cmsgenTargets.cmake")
+set(CMSGEN_CONFIG_FILENAME "cmsgenConfig.cmake")
+set(CMSGEN_VERSION_FILENAME "cmsgenConfigVersion.cmake")
+
+# Export targets
+set(MY_TARGETS cmsgen)
+export(
+    TARGETS ${MY_TARGETS}
+    FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMSGEN_TARGETS_FILENAME}"
+)
+
+
+# Create cmsgenConfig file
+set(EXPORT_TYPE "Build-tree")
+set(CONF_INCLUDE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/include")
+configure_file(cmsgenConfig.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/${CMSGEN_CONFIG_FILENAME}" @ONLY
+)
+
+# Export this package to the CMake user package registry
+# Now the user can just use find_package(cmsgen) on their system
+export(PACKAGE cmsgen)
+
+set(DEF_INSTALL_CMAKE_DIR lib/cmake/cmsgen)
+set(CMSGEN_INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH
+    "Installation directory for cmsgen CMake files")
+
+# Create cmsgenConfig file
+set(EXPORT_TYPE "installed")
+set(CONF_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include")
+configure_file(cmsgenConfig.cmake.in
+   "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/${CMSGEN_CONFIG_FILENAME}" @ONLY
+)
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/${CMSGEN_VERSION_FILENAME}"
+  COMPATIBILITY SameMajorVersion)
+
+install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/${CMSGEN_VERSION_FILENAME}"
+    DESTINATION "${CMSGEN_INSTALL_CMAKE_DIR}"
+)
+
+install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/${CMSGEN_CONFIG_FILENAME}"
+    DESTINATION "${CMSGEN_INSTALL_CMAKE_DIR}"
+)
+
+# Install the export set for use with the install-tree
+install(
+    EXPORT ${CMSGEN_EXPORT_NAME}
+    DESTINATION "${CMSGEN_INSTALL_CMAKE_DIR}"
+)

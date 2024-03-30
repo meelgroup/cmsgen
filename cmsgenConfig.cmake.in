@@ -1,0 +1,20 @@
+# Config file for the @EXPORT_TYPE@ cmsgen Package
+# It defines the following variables
+#  CMSGEN_INCLUDE_DIRS - include directories for cmsgen
+#  CMSGEN_LIBRARIES    - libraries to link against
+#  CMSGEN_EXECUTABLE   - the cmsgen executable
+
+# Compute paths
+get_filename_component(CMSGEN_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(CMSGEN_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+
+# Our library dependencies (contains definitions for IMPORTED targets)
+include("${CMSGEN_CMAKE_DIR}/@CMSGEN_TARGETS_FILENAME@")
+
+# These are IMPORTED targets created by @CMSGEN_TARGETS_FILENAME@
+set(CMSGEN_LIBRARIES cmsgen)
+set(CMSGEN_STATIC_LIBRARIES cmsgen)
+set(CMSGEN_STATIC_LIBRARIES_DEPS @CMSGEN_STATIC_DEPS@)
+set(CMSGEN_VERSION_MAJOR @PROJECT_VERSION_MAJOR@)
+set(CMSGEN_VERSION_MINOR @PROJECT_VERSION_MINOR@)
+set(CMSGEN_EXECUTABLE cmsgen)
