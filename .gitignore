@@ -23,3 +23,7 @@ web/jquery-1.11.3.min.js
 *.log
 *.bbl
 *.bak
+.cache/
+docs/
+dist/
+compile_commands.json
