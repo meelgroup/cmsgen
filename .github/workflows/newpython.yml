@@ -14,9 +14,7 @@ jobs:
         os: [ubuntu-20.04, windows-2022, macos-13]
 
     steps:
-      - uses: actions/checkout@v3
-
-      # Used to host cibuildwheel
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v3
 
       - name: Install cibuildwheel
@@ -30,7 +28,7 @@ jobs:
           CIBW_SKIP: "*musl*"
           CIBW_ARCHS: "auto64"
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           path: ./wheelhouse/*.whl
       - name: Install twine
