@@ -21,33 +21,31 @@ jobs:
         cpp_compiler: [g++]
 
     steps:
-    - uses: actions/checkout@v4.1.1
-
-    # install dependencies
-    - name: Install boost & help2man for Linux
-      if: matrix.os == 'ubuntu-20.04'
-      run: sudo apt-get update && sudo apt-get install -yq help2man
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
 
     - name: Installing Numpy
       run: |
         pip install pip --upgrade
         pip install numpy lit
 
-    - name: Add git submodules for Linux only (not needed for non-testing)
-      if: matrix.os == 'ubuntu-20.04'
-      run: git submodule update --init
-
-    - name: Configure CMake for linux
-      if: contains(matrix.os, 'ubuntu')
+    - uses: actions/checkout@v4
+      with:
+        path: project
+        submodules: 'true'
+    - name: Build project
       run: |
-        cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DENABLE_TESTING=ON  -DSTATICCOMPILE=${{ matrix.staticcompile }}
-        cmake --build . --config ${{ matrix.build_type }}
-
-    - name: Configure CMake for non-linux
-      if: ! contains(matrix.os, 'ubuntu')
-      run: |
-        cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DENABLE_TESTING=OFF -DSTATICCOMPILE=${{ matrix.staticcompile }}
-        cmake --build . --config ${{ matrix.build_type }}
+        cd project
+        mkdir -p build && cd build
+        cmake \
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+        -DENABLE_TESTING=OFF \
+        -DSTATICCOMPILE=${{ matrix.staticcompile }} \
+        -S ..
+        cmake --build . --config ${{matrix.build_type}} -v
 
     - name: Test
       run: ctest -C ${{ matrix.build_type }}
@@ -57,32 +55,32 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: cmsgen-linux-amd64
-        path: cmsgen
+        path: project/build/cmsgen
 
     - name: Upload Artifact - Linux Arm64
       if: contains(matrix.os, 'ubuntu') && matrix.staticcompile == 'ON' && contains(matrix.os, 'arm')
       uses: actions/upload-artifact@v4
       with:
         name: cmsgen-linux-arm64
-        path: cmsgen
+        path: project/build/cmsgen
 
     - name: Upload Artifact - Mac Arm64
       if: contains(matrix.os, 'macos') && matrix.staticcompile == 'ON' && matrix.os == 'macos-14'
       uses: actions/upload-artifact@v4
       with:
         name: cmsgen-mac-arm64
-        path: cmsgen
+        path: project/build/cmsgen
 
     - name: Upload Artifact - Mac x86_64
       if: contains(matrix.os, 'macos') && matrix.staticcompile == 'ON' && matrix.os == 'macos-13'
       uses: actions/upload-artifact@v4
       with:
         name: cmsgen-mac-x86_64
-        path: cmsgen
+        path: project/build/cmsgen
 
     - name: Upload Artifact - Windows
       if: matrix.os == 'windows-2022' && matrix.staticcompile == 'ON'
       uses: actions/upload-artifact@v4
       with:
         name: cmsgen-win64.exe
-        path: Release\cmsgen.exe
+        path: project\build\Release\cmsgen.exe
