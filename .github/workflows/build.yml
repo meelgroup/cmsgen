@@ -36,11 +36,7 @@ jobs:
       run: |
         cd project
         mkdir -p build && cd build
-        cmake \
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-        -DENABLE_TESTING=OFF \
-        -DSTATICCOMPILE=${{ matrix.staticcompile }} \
-        -S ..
+        cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DENABLE_TESTING=OFF -DSTATICCOMPILE=${{ matrix.staticcompile }} -S ..
         cmake --build . --config ${{matrix.build_type}} -v
 
     - name: Test
