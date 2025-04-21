@@ -355,7 +355,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND MANPAGE)
             POST_BUILD
             TARGET man_cmsgen
             COMMAND help2man
-            ARGS --version-string=${CMSGEN_FULL_VERSION} --help-option="--help" --include ${PROJECT_SOURCE_DIR}/manpage-extras \"$<TARGET_FILE:cmsgen-bin>\" -o "${CMAKE_CURRENT_BINARY_DIR}/cmsgen.1" --name="SAT solver"
+            ARGS --version-string=${CMSGEN_FULL_VERSION} --help-option="--help" --include ${PROJECT_SOURCE_DIR}/manpage-extras \"$<TARGET_FILE:cmsgen-bin>\" -o "${CMAKE_CURRENT_BINARY_DIR}/cmsgen.1" --name="Uniform-like Sampler"
         )
 
         INSTALL(
