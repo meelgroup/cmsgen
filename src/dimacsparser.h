@@ -56,7 +56,6 @@ class DimacsParser
         bool parseComments(C& in, const std::string& str);
         std::string stringify(uint32_t x) const;
         bool parseWeight(C& in);
-        bool parse_solve_simp_comment(C& in, const bool solve);
         void write_solution_to_debuglib_file(const lbool ret) const;
         bool parseIndependentSet(C& in);
         std::string get_debuglib_fname() const;
@@ -263,53 +262,6 @@ std::string DimacsParser<C>::get_debuglib_fname() const
 }
 
 template<class C>
-bool DimacsParser<C>::parse_solve_simp_comment(C& in, const bool solve)
-{
-    vector<Lit> assumps;
-    in.skipWhitespace();
-    while(*in != ')') {
-        int lit;
-        if (!in.parseInt(lit, lineNum)) {
-            return false;
-        }
-        assumps.push_back(Lit(std::abs(lit)-1, lit < 0));
-        in.skipWhitespace();
-    }
-
-    if (verbosity) {
-        cout
-        << "c -----------> Solver::"
-        << (solve ? "solve" : "simplify")
-        <<" called (number: "
-        << std::setw(3) << debugLibPart << ") with assumps :";
-        for(Lit lit: assumps) {
-            cout << lit << " ";
-        }
-        cout << "<-----------" << endl;
-    }
-
-    lbool ret;
-    if (solve) {
-        if (verbosity) {
-            cout << "c Solution will be written to: "
-            << get_debuglib_fname() << endl;
-        }
-        ret = solver->solve(&assumps);
-        write_solution_to_debuglib_file(ret);
-        debugLibPart++;
-    } else {
-        ret = solver->simplify(&assumps);
-    }
-
-    if (verbosity >= 6) {
-        cout << "c Parsed Solver::"
-        << (solve ? "solve" : "simplify")
-        << endl;
-    }
-    return true;
-}
-
-template<class C>
 void DimacsParser<C>::write_solution_to_debuglib_file(const lbool ret) const
 {
     //Open file for writing
@@ -386,30 +338,13 @@ template<class C>
 bool DimacsParser<C>::parseComments(C& in, const std::string& str)
 {
     if (!debugLib.empty() && str.substr(0, 13) == "Solver::solve") {
-        if (!parse_solve_simp_comment(in, true)) {
-            return false;
-        }
+        assert(false && "Not supported in this version");
     } else if (!debugLib.empty() && str.substr(0, 16) == "Solver::simplify") {
-        if (!parse_solve_simp_comment(in, false)) {
-            return false;
-        }
+        assert(false && "Not supported in this version");
     } else if (!debugLib.empty() && str == "Solver::new_var()") {
-        solver->new_var();
-
-        if (verbosity >= 6) {
-            cout << "c Parsed Solver::new_var()" << endl;
-        }
+        assert(false && "Not supported in this version");
     } else if (!debugLib.empty() && str == "Solver::new_vars(") {
-        in.skipWhitespace();
-        int n;
-        if (!in.parseInt(n, lineNum)) {
-            return false;
-        }
-        solver->new_vars(n);
-
-        if (verbosity >= 6) {
-            cout << "c Parsed Solver::new_vars( " << n << " )" << endl;
-        }
+        assert(false && "Not supported in this version");
     } else if (str == "ind") {
         if (!parseIndependentSet(in)) {
             return false;

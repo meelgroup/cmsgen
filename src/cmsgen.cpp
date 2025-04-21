@@ -25,7 +25,6 @@ THE SOFTWARE.
 #include "solver.h"
 #include "drat.h"
 #include "shareddata.h"
-#include <fstream>
 
 #include <thread>
 #include <mutex>
@@ -287,22 +286,6 @@ DLL_PUBLIC void SATSolver::set_allow_otf_gauss()
     #endif
 }
 
-DLL_PUBLIC void SATSolver::set_no_simplify_at_startup()
-{
-    for (size_t i = 0; i < data->solvers.size(); ++i) {
-        Solver& s = *data->solvers[i];
-        s.conf.simplify_at_startup = false;
-    }
-}
-
-DLL_PUBLIC void SATSolver::set_no_equivalent_lit_replacement()
-{
-    for (size_t i = 0; i < data->solvers.size(); ++i) {
-        Solver& s = *data->solvers[i];
-        s.conf.doFindAndReplaceEqLits = false;
-    }
-}
-
 DLL_PUBLIC void SATSolver::set_sampling_vars(vector<uint32_t>* sampl_vars)
 {
     for (size_t i = 0; i < data->solvers.size(); ++i) {
@@ -508,18 +491,6 @@ DLL_PUBLIC lbool SATSolver::solve(const vector< Lit >* assumptions, bool only_sa
     return calc(assumptions, true, data, only_sampling_solution);
 }
 
-DLL_PUBLIC lbool SATSolver::simplify(const vector< Lit >* assumptions)
-{
-    data->num_solve_simplify_calls++;
-
-    //set information data (props, confl, dec)
-    data->previous_sum_conflicts = get_sum_conflicts();
-    data->previous_sum_propagations = get_sum_propagations();
-    data->previous_sum_decisions = get_sum_decisions();
-
-    return calc(assumptions, false, data);
-}
-
 DLL_PUBLIC const vector< lbool >& SATSolver::get_model() const
 {
     return data->solvers[data->which_solved]->get_model();
@@ -616,35 +587,9 @@ void DLL_PUBLIC SATSolver::add_in_partial_solving_stats()
     data->interrupted = true;
 }
 
-DLL_PUBLIC std::vector<Lit> SATSolver::get_zero_assigned_lits() const
-{
-    return data->solvers[data->which_solved]->get_zero_assigned_lits();
-}
-
 DLL_PUBLIC bool SATSolver::okay() const
 {
     return data->okay;
-}
-
-DLL_PUBLIC std::vector<std::pair<Lit, Lit> > SATSolver::get_all_binary_xors() const
-{
-    return data->solvers[0]->get_all_binary_xors();
-}
-
-DLL_PUBLIC vector<std::pair<vector<uint32_t>, bool> >
-SATSolver::get_recovered_xors(bool elongate) const
-{
-    vector<std::pair<vector<uint32_t>, bool> > ret;
-    Solver& s = *data->solvers[0];
-
-    std::pair<vector<uint32_t>, bool> tmp;
-    vector<Xor> xors = s.get_recovered_xors(elongate);
-    for(const auto& x: xors) {
-        tmp.first = x.get_vars();
-        tmp.second = x.rhs;
-        ret.push_back(tmp);
-    }
-    return ret;
 }
 
 DLL_PUBLIC uint64_t SATSolver::get_sum_conflicts()
@@ -690,28 +635,6 @@ DLL_PUBLIC uint64_t SATSolver::get_last_propagations()
 DLL_PUBLIC uint64_t SATSolver::get_last_decisions()
 {
     return get_sum_decisions() - data->previous_sum_decisions;
-}
-
-DLL_PUBLIC const std::vector<Lit>& SATSolver::get_decisions_reaching_model() const
-{
-    if (!get_decision_reaching_valid()) {
-        cout << "ERROR: you called get_decisions_reaching_model() but it's not a valid decision set!" << endl;
-        exit(-1);
-    }
-    return data->solvers[data->which_solved]->get_decisions_reaching_model();
-}
-
-DLL_PUBLIC void SATSolver::set_need_decisions_reaching()
-{
-    for (size_t i = 0; i < data->solvers.size(); ++i) {
-        Solver& s = *data->solvers[i];
-        s.conf.need_decisions_reaching = true;
-    }
-}
-
-DLL_PUBLIC bool SATSolver::get_decision_reaching_valid() const
-{
-    return data->solvers[data->which_solved]->get_decision_reaching_valid();
 }
 
 DLL_PUBLIC void SATSolver::set_var_weight(Lit lit, double weight)

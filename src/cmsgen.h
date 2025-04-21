@@ -24,8 +24,6 @@ THE SOFTWARE.
 
 #include <atomic>
 #include <vector>
-#include <iostream>
-#include <utility>
 #include <string>
 #include "solvertypesmini.h"
 
@@ -47,7 +45,6 @@ namespace CMSGen {
         ////////////////////////////
         // Adding variables and clauses
         ////////////////////////////
-
         void new_var(); //add a new variable to the solver
         void new_vars(const size_t n); //and many new variables to the solver -- much faster
         unsigned nVars() const; //get number of variables inside the solver
@@ -61,11 +58,9 @@ namespace CMSGen {
         ////////////////////////////
 
         lbool solve(const std::vector<Lit>* assumptions = 0, bool only_indep_solution = false); //solve the problem, optionally with assumptions. If only_indep_solution is set, only the independent variables set with set_independent_vars() are returned in the solution
-        lbool simplify(const std::vector<Lit>* assumptions = 0); //simplify the problem, optionally with assumptions
         const std::vector<lbool>& get_model() const; //get model that satisfies the problem. Only makes sense if previous solve()/simplify() call was l_True
         const std::vector<Lit>& get_conflict() const; //get conflict in terms of the assumptions given in case the previous call to solve() was l_False
         bool okay() const; //the problem is still solveable, i.e. the empty clause hasn't been derived
-        const std::vector<Lit>& get_decisions_reaching_model() const; //get decisions that lead to model. may NOT work, in case the decisions needed were internal, extended variables. exit(-1)'s in case of such a case. you MUST check decisions_reaching_computed().
 
         ////////////////////////////
         // Debug all calls for later replay with --debuglit FILENAME
@@ -79,19 +74,13 @@ namespace CMSGen {
         // -- all the time and hence exposing it to the outside world would
         // -- be very brittle.
         ////////////////////////////
-
         void set_allow_otf_gauss(); //allow on-the-fly gaussian elimination
         void set_max_time(double max_time); //max time to run to on next solve() call
         void set_max_confl(int64_t max_confl); //max conflict to run to on next solve() call
         void set_verbosity(unsigned verbosity = 0); //default is 0, silent
         void set_no_simplify(); //never simplify
-        void set_no_simplify_at_startup(); //doesn't simplify at start, faster startup time
-        void set_no_equivalent_lit_replacement(); //don't replace equivalent literals
         void set_sampling_vars(std::vector<uint32_t>* sampl_vars);
         void set_timeout_all_calls(double secs); //max timeout on all subsequent solve() or simplify
-        void set_need_decisions_reaching(); //set it before calling solve()
-        bool get_decision_reaching_valid() const; //the get_decisions_reaching_model will work -- it may NOT be
-
 
         ////////////////////////////
         // Get generic info
@@ -110,7 +99,6 @@ namespace CMSGen {
         uint64_t get_last_propagations();  //get total number of propagations of last solve() or simplify() call made by all threads
         uint64_t get_last_decisions(); //get total number of decisions of last solve() or simplify() call made by all threads
 
-
         ////////////////////////////
         //Get info about total sum of all time of all threads
         ////////////////////////////
@@ -123,24 +111,11 @@ namespace CMSGen {
         void interrupt_asap(); //call this asynchronously, and the solver will try to cleanly abort asap
         void add_in_partial_solving_stats(); //used only by Ctrl+C handler. Ignore.
 
-        ////////////////////////////
-        // Extract useful information from the solver
-        // This can be used in the theory solver
-
-        ////////////////////////////
-        std::vector<Lit> get_zero_assigned_lits() const; //get literals of fixed value
-        std::vector<std::pair<Lit, Lit> > get_all_binary_xors() const; //get all binary XORs that are = 0
-
-        //////////////////////
-        // EXPERIMENTAL
-        std::vector<std::pair<std::vector<uint32_t>, bool> > get_recovered_xors(bool elongate) const; //get XORs recovered. If "elongate" is TRUE, then variables shared ONLY by two XORs will be XORed together
-
     private:
 
         ////////////////////////////
         // Do not bother with this, it's private
         ////////////////////////////
-
         CMSatPrivateData *data;
     };
 }

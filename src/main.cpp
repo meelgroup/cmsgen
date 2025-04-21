@@ -20,15 +20,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#if defined(__GNUC__) && defined(__linux__)
-
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-
-#include <fenv.h>
-#endif
-
 #include <ctime>
 #include <cstring>
 #include <errno.h>
@@ -36,17 +27,11 @@ THE SOFTWARE.
 #include <sstream>
 #include <iostream>
 #include <iomanip>
-#include <map>
-#include <set>
 #include <fstream>
 #include <sys/stat.h>
 #include <string.h>
-#include <list>
-#include <array>
-#include <thread>
 
 #include "main.h"
-#include "main_common.h"
 #include "time_mem.h"
 #include "dimacsparser.h"
 #include "cmsgen.h"
@@ -226,8 +211,7 @@ void Main::printResultFunc(
 }
 
 /* clang-format off */
-void Main::add_supported_options()
-{
+void Main::add_supported_options() {
     // Declare the supported options.
     program.add_argument("-v", "--verb")
         .action([&](const auto& a) {conf.verbosity = std::atoi(a.c_str());})
@@ -345,8 +329,7 @@ void Main::parseCommandLine()
     manually_parse_some_options();
 }
 
-int Main::solve()
-{
+int Main::solve() {
     double myTime = cpuTime();
     solver = new SATSolver((void*)&conf);
     solverToInterrupt = solver;
@@ -372,8 +355,7 @@ int Main::solve()
     return correctReturnValue(ret);
 }
 
-lbool Main::multi_solutions()
-{
+lbool Main::multi_solutions() {
     cout << "c Writing samples to file: " << resultFilename << endl;
     unsigned long current_nr_of_solutions = 0;
     lbool ret = l_True;
@@ -386,10 +368,7 @@ lbool Main::multi_solutions()
 
         if (ret == l_True && current_nr_of_solutions < max_nr_of_solutions) {
             //printResultFunc(&cout, false, ret);
-            if (resultfile) {
-                printResultFunc(resultfile, true, ret);
-            }
-
+            if (resultfile) printResultFunc(resultfile, true, ret);
             if (current_nr_of_solutions % 10 == 0) {
                 cout
                 << "c Number of samples found until now: "
@@ -401,17 +380,11 @@ lbool Main::multi_solutions()
     return ret;
 }
 
-///////////
-// Useful helper functions
-///////////
-
-void Main::printVersionInfo()
-{
+void Main::printVersionInfo() {
     cout << solver->get_text_version_info();
 }
 
-int Main::correctReturnValue(const lbool ret) const
-{
+int Main::correctReturnValue(const lbool ret) const {
     int retval = -1;
     if (ret == l_True) {
         retval = 10;

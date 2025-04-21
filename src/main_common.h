@@ -21,8 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ***************************************************************/
 
-#ifndef __MAIN_COMMON_H__
-#define __MAIN_COMMON_H__
+#pragma once
 
 #include "cmsgen.h"
 #include "solverconf.h"
@@ -40,5 +39,3 @@ public:
     CMSGen::SolverConf conf;
     unsigned num_threads = 1;
 };
-
-#endif //__MAIN_COMMON_H__
