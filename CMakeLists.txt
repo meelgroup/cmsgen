@@ -18,11 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_CXX_STANDARD 17)
-
-enable_language( CXX )
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 include (GenerateExportHeader)
 include (GNUInstallDirs)
@@ -88,7 +84,15 @@ foreach (build_config ${build_types})
     endforeach()
 endforeach()
 
-PROJECT(cmsgen)
+project(cmsgen)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+enable_language( CXX )
+enable_language( C )
+include (GenerateExportHeader)
+include (GNUInstallDirs)
 
 # contains some library search cmake scripts
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
