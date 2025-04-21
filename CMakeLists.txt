@@ -349,13 +349,14 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND MANPAGE)
     if (HELP2MAN_FOUND)
 
         set(mandir ${CMAKE_INSTALL_PREFIX}/share/man/man1)
-        ADD_CUSTOM_TARGET(man_cms5
+        ADD_CUSTOM_TARGET(man_cmsgen
             ALL
             DEPENDS cmsgen-bin
         )
 
         ADD_CUSTOM_COMMAND(
-            TARGET man_cms5
+            POST_BUILD
+            TARGET man_cmsgen
             COMMAND help2man
             ARGS --version-string=${CMSGEN_FULL_VERSION} --help-option="--help" --include ${PROJECT_SOURCE_DIR}/manpage-extras \"$<TARGET_FILE:cmsgen-bin>\" -o "${CMAKE_CURRENT_BINARY_DIR}/cmsgen.1" --name="SAT solver"
         )
