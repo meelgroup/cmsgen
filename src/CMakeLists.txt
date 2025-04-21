@@ -161,10 +161,21 @@ IF (ZLIB_FOUND)
     SET(cmsgen_exec_link_libs ${cmsgen_exec_link_libs} ${ZLIB_LIBRARY})
 ENDIF()
 
-set_target_properties(cmsgen-bin PROPERTIES
-    OUTPUT_NAME cmsgen
-    RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
-    INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    set_target_properties(cmsgen-bin PROPERTIES
+        OUTPUT_NAME cmsgen
+        RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
+        INSTALL_RPATH_USE_LINK_PATH TRUE
+        LINK_FLAGS "-s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_RUNTIME_METHODS='[\"callMain\", \"ccall\", \"cwrap\", \"FS\", \"print\"]' -s FORCE_FILESYSTEM=1"
+    )
+else()
+    set_target_properties(cmsgen-bin PROPERTIES
+        OUTPUT_NAME cmsgen
+        RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
+        INSTALL_RPATH_USE_LINK_PATH TRUE)
+endif()
+
 target_link_libraries(cmsgen-bin ${cmsgen_exec_link_libs})
 install(TARGETS cmsgen-bin
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
