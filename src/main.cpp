@@ -79,28 +79,7 @@ void Main::readInAFile(SATSolver* solver2, const string& filename)
         exit(-1);
     }
 
-    if (!sampling_vars_str.empty() && !parser.sampling_vars.empty()) {
-        cerr << "ERROR! Sampling vars set in console but also in CNF." << endl;
-        exit(-1);
-    }
-
-    if (!sampling_vars_str.empty()) {
-        assert(sampling_vars.empty());
-
-        std::stringstream ss(sampling_vars_str);
-        uint32_t i;
-        while (ss >> i)
-        {
-            const uint32_t var = i-1;
-            sampling_vars.push_back(var);
-
-            if (ss.peek() == ',' || ss.peek() == ' ')
-                ss.ignore();
-        }
-    } else {
-        sampling_vars.swap(parser.sampling_vars);
-    }
-
+    sampling_vars.swap(parser.sampling_vars);
     if (sampling_vars.empty()) {
         if (only_sampling_solution) {
             cout << "ERROR: only sampling vars are requested in the solution, but no sampling vars have been set!" << endl;
@@ -124,8 +103,6 @@ void Main::readInAFile(SATSolver* solver2, const string& filename)
             cout << endl;
         }
     }
-    call_after_parse();
-
     #ifndef USE_ZLIB
         fclose(in);
     #else

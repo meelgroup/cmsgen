@@ -59,7 +59,6 @@ class Main: public MainCommon
     protected:
         //Options
         virtual void add_supported_options();
-        virtual void call_after_parse() {}
         SATSolver* solver = NULL;
 
         //File reading
@@ -86,7 +85,6 @@ class Main: public MainCommon
 
         //Sampling vars
         vector<uint32_t> sampling_vars;
-        std::string sampling_vars_str = "";
         bool only_sampling_solution = false;
 
 
