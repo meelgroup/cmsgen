@@ -83,24 +83,17 @@ class Main: public MainCommon
         int printResult = true;
         string command_line;
         uint32_t max_nr_of_solutions = 100;
-        int sql = 0;
-        string decisions_for_model_fname;
 
         //Sampling vars
         vector<uint32_t> sampling_vars;
         std::string sampling_vars_str = "";
         bool only_sampling_solution = false;
-        std::string assump_filename;
-        vector<Lit> assumps;
 
 
         //Files to read & write
         bool fileNamePresent;
         string fileToRead;
         std::ofstream* resultfile = NULL;
-        string dump_red_fname;
-        uint32_t dump_red_max_len = 10000;
-        uint32_t dump_red_max_glue = 1000;
 
         //Drat checker
         bool clause_ID_needed = false;

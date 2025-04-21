@@ -236,26 +236,7 @@ void Main::add_supported_options() {
 }
 /* clang-format on */
 
-void Main::manually_parse_some_options()
-{
-    if (conf.maxXorToFind > MAX_XOR_RECOVER_SIZE) {
-        cout << "ERROR: The '--maxxorsize' parameter cannot be larger than " << MAX_XOR_RECOVER_SIZE << endl;
-        exit(-1);
-    }
-
-    if (conf.shortTermHistorySize <= 0) {
-        cout
-        << "You MUST give a short term history size (\"--gluehist\")" << endl
-        << "  greater than 0!"
-        << endl;
-
-        std::exit(-1);
-    }
-
-    if (!decisions_for_model_fname.empty()) {
-        conf.need_decisions_reaching = true;
-    }
-
+void Main::manually_parse_some_options() {
     resultfile = new std::ofstream;
     resultfile->open(resultFilename.c_str());
     if (!(*resultfile)) {
@@ -360,12 +341,8 @@ lbool Main::multi_solutions() {
     unsigned long current_nr_of_solutions = 0;
     lbool ret = l_True;
     while(current_nr_of_solutions < max_nr_of_solutions && ret == l_True) {
-        ret = solver->solve(&assumps, only_sampling_solution);
+        ret = solver->solve(NULL, only_sampling_solution);
         current_nr_of_solutions++;
-        if (ret == l_True && !decisions_for_model_fname.empty()) {
-            assert(max_nr_of_solutions == 1);
-        }
-
         if (ret == l_True && current_nr_of_solutions < max_nr_of_solutions) {
             //printResultFunc(&cout, false, ret);
             if (resultfile) printResultFunc(resultfile, true, ret);
