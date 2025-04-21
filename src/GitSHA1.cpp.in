@@ -42,13 +42,10 @@ const char* CMSGen::get_compilation_env()
     "COMPILE_DEFINES = @COMPILE_DEFINES@ | "
     "STATICCOMPILE = @STATICCOMPILE@ | "
     "ZLIB_FOUND = @ZLIB_FOUND@ | "
-    "VALGRIND_FOUND = @VALGRIND_FOUND@ | "
     "ENABLE_TESTING = @ENABLE_TESTING@ | "
     "SLOW_DEBUG = @SLOW_DEBUG@ | "
     "ENABLE_ASSERTIONS = @ENABLE_ASSERTIONS@ | "
     "MY_TARGETS = @MY_TARGETS@ | "
-    "LARGEMEM = @LARGEMEM@ | "
-    "LIMITMEM = @LIMITMEM@ | "
     ""
     ;
     return compilation_env;
