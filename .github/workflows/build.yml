@@ -47,32 +47,47 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: cmsgen-linux-amd64
-        path: project/build/cmsgen
+        path: |
+          project/build/cmsgen
+          project/build/lib/*
+          project/build/include/*
 
     - name: Upload Artifact - Linux Arm64
       if: contains(matrix.os, 'ubuntu') && matrix.staticcompile == 'ON' && contains(matrix.os, 'arm')
       uses: actions/upload-artifact@v4
       with:
         name: cmsgen-linux-arm64
-        path: project/build/cmsgen
+        path: |
+          project/build/cmsgen
+          project/build/lib/*
+          project/build/include/*
 
     - name: Upload Artifact - Mac Arm64
       if: contains(matrix.os, 'macos') && matrix.staticcompile == 'ON' && matrix.os == 'macos-14'
       uses: actions/upload-artifact@v4
       with:
         name: cmsgen-mac-arm64
-        path: project/build/cmsgen
+        path: |
+          project/build/cmsgen
+          project/build/lib/*
+          project/build/include/*
 
     - name: Upload Artifact - Mac x86_64
       if: contains(matrix.os, 'macos') && matrix.staticcompile == 'ON' && matrix.os == 'macos-13'
       uses: actions/upload-artifact@v4
       with:
         name: cmsgen-mac-x86_64
-        path: project/build/cmsgen
+        path: |
+          project/build/cmsgen
+          project/build/lib/*
+          project/build/include/*
 
     - name: Upload Artifact - Windows
       if: matrix.os == 'windows-2022' && matrix.staticcompile == 'ON'
       uses: actions/upload-artifact@v4
       with:
         name: cmsgen-win64.exe
-        path: project\build\Release\cmsgen.exe
+        path: |
+          project\build\Release\cmsgen.exe
+          project\build\Release\lib\*
+          project\build\Release\include\*
