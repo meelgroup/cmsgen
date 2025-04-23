@@ -21,14 +21,11 @@ jobs:
         run: python -m pip install cibuildwheel
 
       - name: Build wheels
-        run: python -m cibuildwheel --output-dir wheelhouse
+        uses: pypa/cibuildwheel@d04cacbc9866d432033b1d09142936e6a0e2121a #v2.23.2
         env:
-          CIBW_SKIP: "*musl*"
-          CIBW_ARCHS: "auto64"
-          CIBW_MANYLINUX_X86_64_IMAGE: "quay.io/pypa/manylinux2014_x86_64:2023.01.23-1"
-          # CIBW_BUILD: "cp39-manylinux_x86_64 cp310-manylinux_x86_64 cp311-manylinux_x86_64 cp312-manylinux_x86_64 cp313-manylinux_x86_64"
-          # CIBW_SKIP: "*musl*"
-          # CIBW_ARCHS: "auto64"
+          CIBW_BUILD: "cp310-* cp311-* cp312-* cp313-*"
+          CIBW_ARCHS: auto64
+          CIBW_SKIP: "*-win32 *-manylinux_i686"
 
       - uses: actions/upload-artifact@v4
         with:
