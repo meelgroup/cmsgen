@@ -29,9 +29,17 @@ jobs:
         with:
           output-dir: wheelhouse
 
+      - name: Get wheel filename
+        id: wheel-name
+        run: |
+          WHEEL_NAME=$(ls ./wheelhouse/pycmsgen-*.whl | xargs -n 1 basename)
+          echo "wheel_name=${WHEEL_NAME}" >> $GITHUB_OUTPUT
+
       - uses: actions/upload-artifact@v4
         with:
           path: ./wheelhouse/pycmsgen-*.whl
+          name: cmsgen-${{ matrix.os }}_${{ steps.wheel-name.outputs.wheel-name }}
+
       - name: Install twine
         run: python -m pip install twine
       - name: Publish wheels to PyPI
