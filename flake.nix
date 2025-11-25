@@ -1,5 +1,5 @@
 {
-  description = "An fast, almost-uniform CNF sampler";
+  description = "A heuristic CNF sampler built on CryptoMiniSat";
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
   };
@@ -21,7 +21,6 @@
           fetchFromGitHub,
           cmake,
           pkg-config,
-          gmp,
           zlib,
         }:
         stdenv.mkDerivation {
@@ -32,6 +31,7 @@
               ./src
               ./CMakeLists.txt
               ./cmake
+              ./scripts
               ./cmsgenConfig.cmake.in
             ];
           };
@@ -41,7 +41,6 @@
             pkg-config
           ];
           buildInputs = [
-            gmp
             zlib
           ];
         };
@@ -50,8 +49,7 @@
       packages = forAllSystems (
         system:
         let
-          cmsgen = nixpkgsFor.${system}.callPackage cmsgen-package {
-          };
+          cmsgen = nixpkgsFor.${system}.callPackage cmsgen-package { };
         in
         {
           inherit cmsgen;
