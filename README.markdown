@@ -19,9 +19,8 @@ platforms: Linux, Mac, and Windows, and support ARM and x86_64 too. The second
 best thing to use is Nix. Simply [install nix](https://nixos.org/download/) and
 then:
 ```shell
-nix profile install github:meelgroup/cmsgen
+nix shell github:meelgroup/cmsgen#cmsgen
 ```
-
 Then you will have `cmsgen` binary available and ready to use.
 
 Finally, you can also build cmsgen from source:
