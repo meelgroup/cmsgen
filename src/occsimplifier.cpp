@@ -252,7 +252,7 @@ void OccSimplifier::extend_model(SolutionExtender* extender)
         }
         extender->dummyBlocked(blockedOn.var());
     }
-    if (solver->conf.verbosity >= 2) {
+    if (solver->conf.verbosity >= 2 && blockedClauses.size() > 0) {
         cout << "c [extend] Extended " << blockedClauses.size() << " var-elim clauses" << endl;
     }
 }
