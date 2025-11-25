@@ -3230,4 +3230,5 @@ const Lit lit, const double weight
         exit(-1);
     }
     varData[lit.var()].weight = weight;
+    verb_print(2, "lit " << lit << " weight set to: " << weight);
 }
